@@ -11,20 +11,35 @@
 
 ---
 
-## 📸 Platform Interface
+## 📸 The Vprofitables Story (Platform Interface)
 
-> **Note to Developer:** *Place your screenshots in the `assets/` folder and name them `dashboard.png` and `mobile.png` to display them here!*
+Vprofitables is designed as a single-page progressive web application. Here is a tour of the core modules:
 
+### 1. Market Overview (Home)
 <div align="center">
-  <img src="assets/dashboard.png" width="800" alt="Desktop Dashboard UI"/>
-  <br/>
-  <em>Bloomberg-style Desktop Terminal with Traffic Light Confidence Matrix</em>
+  <img src="assets/home.png" width="800" alt="Home Overview"/>
+  <br/><em>Live market gainers, losers, and quick research recommendations.</em>
 </div>
+<br>
 
+### 2. AI Investment Advisor
 <div align="center">
-  <img src="assets/mobile.png" width="300" alt="Mobile PWA UI"/>
-  <br/>
-  <em>Fully responsive Progressive Web App (PWA) with swipe-navigation</em>
+  <img src="assets/advisor.png" width="800" alt="Investment Advisor"/>
+  <br/><em>Generates multi-stock portfolios using 5 layers of logic (Gann, ML, Natal, Fundamentals, Sentiment).</em>
+</div>
+<br>
+
+### 3. Forward Testing & Live Tracker
+<div align="center">
+  <img src="assets/trading.png" width="800" alt="Trading Execution"/>
+  <br/><em>Tracks live paper trades with dynamic trailing stop-losses and risk-reward calculation.</em>
+</div>
+<br>
+
+### 4. Quant & Charting Engine
+<div align="center">
+  <img src="assets/chart.png" width="800" alt="Quant Charting"/>
+  <br/><em>Visualizes support/resistance levels, order blocks, and execution points directly on the chart.</em>
 </div>
 
 ---
