@@ -1,45 +1,100 @@
-﻿# Vprofitables: Institutional Quant & AI Engine
+<div align="center">
+  <img src="assets/icon.png" width="120" alt="Vprofitables Logo"/>
+  <h1>Vprofitables: Institutional Quant & AI Trading Engine</h1>
+  <p><i>A proprietary-grade quantitative platform blending Machine Learning, Time-Frequency Analysis, and Microstructure Order Flow into a seamless Progressive Web App.</i></p>
 
-![Vprofitables](https://img.shields.io/badge/Status-Active-brightgreen.svg)
-![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)
-![License](https://img.shields.io/badge/License-MIT-blue.svg)
+  [![Status](https://img.shields.io/badge/Status-Active-brightgreen.svg)]()
+  [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)]()
+  [![Database](https://img.shields.io/badge/Database-DuckDB%20%7C%20SQLite-orange.svg)]()
+  [![License](https://img.shields.io/badge/License-MIT-blue.svg)]()
+</div>
 
-Vprofitables is an institutional-grade, fully automated quantitative trading engine and backtester. Originally starting as a retail script, it has been massively upgraded into a proprietary trading platform utilizing Machine Learning, Wavelet Transforms, and Statistical Arbitrage.
+---
 
-## 🚀 Features
+## 📸 Platform Interface
 
-*   **Continual Learning ML Engine:** Uses SGDClassifier to dynamically adapt trade scoring weights day-by-day, completely eliminating concept drift.
-*   **Time-Frequency Analysis (CWT):** Extracts hidden dominant market cycles using Continuous Wavelet Transforms (Morlet) instead of rigid Fourier equations.
-*   **Market-Neutral Statistical Arbitrage:** Finds highly cointegrated equity pairs and generates mean-reversion signals via Z-Score deviations.
-*   **Order Flow Microstructure:** Calculates Cumulative Volume Delta (CVD) proxies from 1-minute DuckDB tick data to detect institutional spoofing.
-*   **Institutional Backtesting:** Includes **Monte Carlo Permutation** for True Maximum Drawdowns (95% CI) and **Deflated Sharpe Ratio** to prevent multiple-testing bias (p-hacking).
-*   **Progressive Web App (PWA):** Beautifully crafted UI/UX with "Traffic Light" confidence scoring, responsive mobile drawers, and single-page routing for millisecond latency.
+> **Note to Developer:** *Place your screenshots in the `assets/` folder and name them `dashboard.png` and `mobile.png` to display them here!*
 
-## 🛠️ Quickstart (One-Click Deploy)
+<div align="center">
+  <img src="assets/dashboard.png" width="800" alt="Desktop Dashboard UI"/>
+  <br/>
+  <em>Bloomberg-style Desktop Terminal with Traffic Light Confidence Matrix</em>
+</div>
+
+<div align="center">
+  <img src="assets/mobile.png" width="300" alt="Mobile PWA UI"/>
+  <br/>
+  <em>Fully responsive Progressive Web App (PWA) with swipe-navigation</em>
+</div>
+
+---
+
+## 🧠 Model Engineering (The Alpha Generation)
+
+Vprofitables does not rely on static retail indicators. Our core engine utilizes advanced financial mathematics to extract true market alpha.
+
+### 1. Continual Learning Ensemble (`SGDClassifier`)
+Instead of static predictive models that suffer from "concept drift," our AI uses an online learning architecture. At the end of every trading day, the model uses `partial_fit` to incrementally adjust its weights based on live trading outcomes. 
+
+### 2. Time-Frequency Cycle Extraction (`CWT`)
+We replaced standard Fourier Transforms with **Continuous Wavelet Transforms (Morlet Wavelets)**. This allows the engine to isolate non-stationary, localized market cycles (like a 45-day macroeconomic rhythm) that standard FFT equations miss.
+
+### 3. Market-Neutral Statistical Arbitrage
+When the broader market (NIFTY 50) goes flat, the engine scans for highly cointegrated equity pairs (e.g., HDFCBANK vs ICICIBANK). By calculating the spread `Z-Score`, the engine executes market-neutral mean-reversion trades.
+
+---
+
+## 🗄️ Database Architecture
+
+To achieve sub-millisecond query times on massive tick data while maintaining structured relational data, Vprofitables uses a **Hybrid Database Architecture**:
+
+```mermaid
+graph TD
+    A[Vprofitables Engine] -->|High-Frequency Tick Data| B[(DuckDB)]
+    A -->|State & Portfolio Data| C[(SQLite3)]
+    
+    B --> D[1-Minute Price Poller]
+    B --> E[Cumulative Volume Delta / OFI]
+    
+    C --> F[EOD Historical Prices]
+    C --> G[Forward Signals & Orders]
+    C --> H[Planetary/Natal Ephemeris]
+```
+
+*   **DuckDB:** Acts as our in-memory OLAP engine. It ingests 1-minute polled data and calculates Cumulative Volume Delta (CVD) proxies on the fly.
+*   **SQLite3:** Acts as our persistent OLTP store, managing user portfolios, swing-trade forward signals, and the heavy daily EOD caching.
+
+---
+
+## 🧪 Institutional Backtesting & Evaluation
+
+We don't trust standard backtests. Vprofitables employs rigorous statistical methods to prevent p-hacking (curve fitting).
+
+*   **Monte Carlo Permutations:** Shuffles the sequence of historical trade returns 10,000 times to simulate alternative market realities, outputting the **True Maximum Drawdown (95% CI)**.
+*   **Deflated Sharpe Ratio (DSR):** Mathematically discounts the Sharpe Ratio based on the variance and the number of backtest iterations run, ensuring the strategy is statistically significant.
+
+---
+
+## 🚀 One-Click Deployment
 
 Run Vprofitables on any machine (Windows, Mac, Linux) seamlessly using Docker.
 
-### Prerequisites
-*   Docker & Docker Compose installed.
-
-### Run via Docker
-`ash
+### 1. Via Docker (Recommended)
+```bash
 git clone https://github.com/chirag-kaura/vprofitables.git
 cd vprofitables
 docker-compose up --build -d
-`
+```
 Navigate to [http://localhost:8080](http://localhost:8080) to access the Terminal.
 
-### Run via Python (Locally)
-`ash
+### 2. Via Python (Locally)
+```bash
 pip install -r requirements.txt
 python app.py
-`
+```
 
-## 🧠 Architecture
-- **Backend:** Python, DuckDB, Scikit-Learn, SciPy
-- **Frontend:** Vanilla JS Single Page Application (SPA), PWA ready.
-- **Data:** yfinance 1-minute polling combined with robust local SQLite/DuckDB caching.
+## 🤝 Contributing
+Open-sourced for the quantitative finance community. Pull requests for new alpha strategies and broker API integrations (Zerodha, Interactive Brokers) are welcome!
 
 ## 📝 License
-MIT License. Open-sourced for the quantitative finance community.
+MIT License.
