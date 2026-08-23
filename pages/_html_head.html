@@ -1,0 +1,392 @@
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0B0E14">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Vprofitables — NSE/BSE</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&family=Orbitron:wght@700&display=swap');
+:root{--bg:#0B0E14;--panel:#151924;--p2:#1E222D;--border:#2B3139;--b2:#363A45;
+  --cyan:#2962FF;--cyan2:#1E53E5;--green:#089981;--gold:#FF9800;--red:#F23645;
+  --orange:#FF9800;--purple:#B39DDB;--text:#D1D4DC;--t2:#B2B5BE;--white:#FFFFFF;--dim:#787B86;}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--t2);font-family:'Inter',sans-serif;font-size:14px;min-height:100vh;overflow-x:hidden;}
+
+
+/* Phase 2 UI: Traffic Lights & Confidence */
+.traffic-buy { border-left: 4px solid var(--green) !important; background: rgba(8,153,129,0.05) !important; }
+.traffic-sell { border-left: 4px solid var(--red) !important; background: rgba(242,54,69,0.05) !important; }
+.traffic-hold { border-left: 4px solid var(--gold) !important; background: rgba(255,152,0,0.05) !important; }
+
+.conf-high { color: var(--green); font-weight: 700; font-size: 1.2em; }
+.conf-med { color: var(--gold); font-weight: 600; font-size: 1.1em; }
+.conf-low { color: var(--red); font-weight: 600; font-size: 1.1em; }
+
+/* Phase 3 UI: Skeleton Loaders */
+@keyframes skeleton-shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+.skeleton {
+  animation: skeleton-shimmer 2s infinite linear;
+  background: linear-gradient(to right, var(--p2) 4%, var(--b2) 25%, var(--p2) 36%);
+  background-size: 1000px 100%;
+  border-radius: 4px;
+  min-height: 20px;
+}
+.skeleton-text { width: 100%; height: 16px; margin-bottom: 8px; }
+.skeleton-title { width: 50%; height: 24px; margin-bottom: 16px; }
+
+
+/* Easy Mode Toggle CSS */
+.easy-only { display: none !important; }
+body.easy-mode .easy-only { display: block !important; }
+body.easy-mode span.easy-only { display: inline !important; }
+body.easy-mode flex.easy-only { display: flex !important; }
+body.easy-mode .pro-only { display: none !important; }
+
+/* Role-based navigation visibility */
+body.user-role-user .admin-only { display: none !important; }
+body.user-role-user .admin-pane { display: none !important; }
+
+.layout{display:flex;min-height:100vh;position:relative;z-index:1;}
+/* Sidebar */
+.sidebar{width:240px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:sticky;top:0;height:100vh;overflow-y:auto;transition:transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);z-index:900;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:899;opacity:0;transition:opacity 0.3s;}
+.logo{padding:20px 16px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+.logo h1{font-family:Orbitron,sans-serif;font-size:1.05rem;font-weight:700;color:var(--white);letter-spacing:1px;}
+.logo p{font-family:'JetBrains Mono',monospace;font-size:0.62rem;color:var(--dim);margin-top:3px;letter-spacing:1px;}
+.nav-section{padding:12px 0;border-bottom:1px solid var(--border);}
+.nav-label{font-family:'Inter',sans-serif;font-size:0.6rem;color:var(--dim);letter-spacing:1.5px;padding:0 16px 8px;text-transform:uppercase;font-weight:600;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;color:var(--text);font-size:0.85rem;font-weight:500;transition:all 0.2s cubic-bezier(0.4, 0, 0.2, 1);border-radius:4px;margin:2px 8px;}
+.nav-item:hover{color:var(--white);background:var(--p2);transform:translateX(2px);}
+.nav-item.active{color:var(--white);background:linear-gradient(135deg, var(--cyan), var(--cyan2));font-weight:600;box-shadow:0 3px 12px rgba(41,98,255,0.3);}
+.nav-item .ico{font-size:1rem;width:20px;text-align:center;opacity:0.8;}
+.nav-item.active .ico{opacity:1;}
+.status-bar{margin-top:auto;padding:14px;border-top:1px solid var(--border);}
+.status-dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+/* Main */
+.main{flex:1;display:flex;flex-direction:column;overflow-y:auto;height:100vh;}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+.topbar h2{font-family:'Inter',sans-serif;font-size:1rem;color:var(--white);font-weight:600;}
+.page-tag{font-family:'JetBrains Mono',monospace;font-size:0.65rem;color:var(--cyan);background:rgba(41,98,255,0.1);border:1px solid var(--cyan);padding:3px 8px;border-radius:3px;font-weight:600;}
+/* Chips Styling */
+.chip-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { background: var(--p2); border: 1px solid var(--border); color: var(--text); padding: 8px 14px; border-radius: 20px; font-size: 0.8rem; cursor: pointer; user-select: none; transition: all 0.2s ease; display: inline-flex; align-items: center; }
+.chip:hover { border-color: var(--cyan); color: var(--white); }
+.chip.active { background: rgba(41, 98, 255, 0.1); border-color: var(--cyan); color: var(--white); font-weight: 600; }
+
+/* Cards */
+.card{background:linear-gradient(145deg, var(--panel), #161a26);border:1px solid var(--border);border-radius:6px;padding:16px;margin-bottom:16px;box-shadow:0 4px 20px rgba(0,0,0,0.3);transition:transform 0.25s ease, box-shadow 0.25s ease;}
+.card:hover{box-shadow:0 6px 24px rgba(41,98,255,0.08);transform:translateY(-1px);}
+.card-title{font-family:'Inter',sans-serif;font-size:0.75rem;color:var(--text);letter-spacing:1px;text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px;font-weight:600;}
+.card-title::after{content:'';flex:1;height:1px;background:var(--border);}
+/* Grid */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+@media(max-width:1100px){.g4{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:1fr 1fr;}}
+@media(max-width:700px){.g2,.g3,.g4{grid-template-columns:1fr;}}
+/* Stats */
+.stat{background:var(--p2);border:1px solid var(--border);padding:14px;text-align:center;border-radius:4px;}
+.stat .val{font-family:'JetBrains Mono',monospace;font-size:1.3rem;color:var(--white);display:block;font-weight:700;}
+.stat .lbl{font-family:'Inter',sans-serif;font-size:0.65rem;color:var(--dim);margin-top:4px;text-transform:uppercase;}
+/* Badges */
+.badge{font-family:'JetBrains Mono',monospace;font-size:0.65rem;padding:2px 6px;border-radius:3px;text-transform:uppercase;font-weight:600;}
+.bg{background:rgba(8,153,129,0.15);color:var(--green);}
+.br{background:rgba(242,54,69,0.15);color:var(--red);}
+.bo{background:rgba(255,152,0,0.15);color:var(--orange);}
+.bgo{background:rgba(255,152,0,0.15);color:var(--gold);}
+.bc{background:rgba(41,98,255,0.15);color:var(--cyan);}
+.bd{background:var(--b2);color:var(--text);}
+/* Table rows */
+.trow{display:grid;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:0.85rem;font-family:'JetBrains Mono',monospace;}
+.trow:nth-child(even){background:var(--p2);}
+.trow:hover{background:var(--b2);}
+.peer-clickable:hover{background:var(--b2)!important;cursor:pointer;}
+.trow.hdr{font-family:'Inter',sans-serif;font-size:0.65rem;color:var(--dim);text-transform:uppercase;background:var(--panel);border-bottom:1px solid var(--border);font-weight:600;}
+.trow.hdr:hover{background:var(--panel);}
+/* Form */
+.form-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+.form-row label{font-family:'Inter',sans-serif;font-size:0.7rem;color:var(--text);font-weight:500;min-width:100px;}
+.form-row input,.form-row select{background:var(--p2);border:1px solid var(--border);border-radius:4px;color:var(--white);padding:6px 10px;font-family:'JetBrains Mono',monospace;font-size:0.82rem;outline:none;min-width:160px;transition:border-color 0.15s;}
+.form-row input:focus,.form-row select:focus{border-color:var(--cyan);}
+.btn{background:linear-gradient(135deg, var(--cyan), var(--cyan2));color:var(--white);border:none;border-radius:4px;padding:8px 16px;font-family:'Inter',sans-serif;font-size:0.75rem;font-weight:600;cursor:pointer;box-shadow:0 2px 8px rgba(41,98,255,0.3);transition:transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;}
+.btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(41,98,255,0.45);}
+.btn:active{transform:translateY(1px);box-shadow:0 1px 4px rgba(41,98,255,0.20);}
+.btn-gold{background:linear-gradient(135deg, var(--gold), #ffab40);color:#000;box-shadow:0 2px 8px rgba(255,152,0,0.3);}
+.btn-gold:hover{background:linear-gradient(135deg, #ffab40, #ff9100);box-shadow:0 4px 12px rgba(255,152,0,0.45);}
+.btn-gold:active{box-shadow:0 1px 4px rgba(255,152,0,0.20);}
+.btn-red{background:linear-gradient(135deg, var(--red), #ff5252);color:var(--white);box-shadow:0 2px 8px rgba(242,54,69,0.3);}
+.btn-red:hover{background:linear-gradient(135deg, #ff5252, #e00010);box-shadow:0 4px 12px rgba(242,54,69,0.45);}
+.btn-red:active{box-shadow:0 1px 4px rgba(242,54,69,0.20);}
+/* Chips */
+.chip-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;}
+.chip{font-family:'Inter',sans-serif;font-size:0.7rem;font-weight:500;padding:4px 12px;cursor:pointer;border:1px solid var(--border);background:var(--p2);color:var(--text);border-radius:4px;transition:all 0.15s;}
+.chip:hover{border-color:var(--dim);color:var(--white);}
+.chip.active{border-color:var(--cyan);background:rgba(41,98,255,0.1);color:var(--cyan);}
+/* Loading */
+.loading{display:flex;align-items:center;gap:10px;padding:20px;font-family:'Inter',sans-serif;font-size:0.8rem;color:var(--dim);}
+.spinner{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--cyan);border-radius:50%;animation:spin 0.8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.err{padding:14px;background:rgba(242,54,69,0.1);border:1px solid rgba(242,54,69,0.2);color:var(--red);font-family:'JetBrains Mono',monospace;font-size:0.8rem;border-radius:4px;}
+/* Page visibility & animations */
+.page{display:none;}
+.page.active{display:block;padding:24px;flex:1;min-height:0;animation:fadeSlideUp 0.25s ease-out forwards;}
+@keyframes fadeSlideUp{0%{opacity:0;transform:translateY(5px);}100%{opacity:1;transform:translateY(0);}}
+/* Planet colors */
+.pSun{color:#FFD700;}.pMoon{color:#C0C0C0;}.pMercury{color:#B5B5FF;}.pVenus{color:#FFB6C1;}
+.pMars{color:#FF6B6B;}.pJupiter{color:#FFA500;}.pSaturn{color:#DEB887;}
+.pUranus{color:#7FFFD4;}.pNeptune{color:#6495ED;}.pRahu{color:#888;}.pKetu{color:#8B4513;}
+.bull{color:var(--green);}.bear{color:var(--red);}.neut{color:var(--text);}
+/* Chart canvas wrapper */
+.chart-wrap{background:var(--p2);border:1px solid var(--border);padding:0;position:relative;overflow:hidden;border-radius:4px;}
+canvas{display:block;}
+/* Score display */
+.score-big{text-align:center;padding:20px;border:1px solid var(--border);background:var(--p2);border-radius:4px;}
+.score-num{font-family:'JetBrains Mono',monospace;font-size:2.8rem;font-weight:700;display:block;line-height:1;}
+.score-lbl{font-family:'Inter',sans-serif;font-size:0.7rem;color:var(--dim);margin-top:8px;display:block;text-transform:uppercase;font-weight:600;}
+/* Regime box */
+.regime-box{padding:16px;text-align:center;border:1px solid var(--border);border-radius:4px;font-family:'Inter',sans-serif;font-size:1rem;font-weight:600;}
+/* Simons cycle row */
+.cycle-row2{display:grid;grid-template-columns:80px 1fr 70px 80px 80px 80px;gap:6px;padding:8px 12px;border-bottom:1px solid var(--border);align-items:center;font-size:0.85rem;font-family:'JetBrains Mono',monospace;}
+/* Scrollbar */
+::-webkit-scrollbar{width:6px;height:6px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+::-webkit-scrollbar-thumb:hover{background:var(--dim);}
+#global-date::-webkit-calendar-picker-indicator{filter:invert(1) sepia(1) saturate(5) hue-rotate(175deg);}
+.tv-float-btn:hover{background:var(--p2)!important;color:var(--white)!important;border-color:var(--dim)!important;transform:scale(1.05);}
+
+/* Hamburger & Responsive Media Queries */
+.hamburger{display:none;font-size:1.4rem;color:var(--cyan);background:transparent;border:none;cursor:pointer;padding:5px 10px;transition:all 0.2s;text-shadow:0 0 10px rgba(0,212,255,0.3);}
+.hamburger:hover{color:var(--white);transform:scale(1.1);}
+
+@media(max-width:900px){
+  .hamburger{display:block;}
+  .sidebar{position:fixed;left:-240px;height:100vh;box-shadow:5px 0 25px rgba(0,0,0,0.5);transition:left 0.3s cubic-bezier(0.4, 0, 0.2, 1);pointer-events:none;}
+  .sidebar.open{left:0;pointer-events:auto;z-index:1000;}
+  .sidebar-overlay.show{display:block;opacity:1;pointer-events:auto;}
+  .layout{flex-direction:column;}
+  .main{width:100%;}
+  .topbar{padding:14px;}
+  .card{padding:14px;}
+}
+/* Freeze main scroll when mobile sidebar is open (prevents touch event stealing) */
+body.sidebar-open .main{overflow:hidden;touch-action:none;}
+
+/* Ticker tape */
+.ticker-wrap {
+  width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 6px 0;
+  box-sizing: border-box;
+  white-space: nowrap;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  flex-shrink: 0;
+}
+.ticker-move {
+  display: inline-block;
+  white-space: nowrap;
+  animation: ticker 100s linear infinite;
+}
+.ticker-move:hover {
+  animation-play-state: paused;
+}
+@keyframes ticker {
+  0% { transform: translate3d(0, 0, 0); }
+  100% { transform: translate3d(-50%, 0, 0); }
+}
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--white);
+  border-right: 1px solid var(--border);
+}
+.ticker-symbol { color: var(--text); font-weight:600; }
+.ticker-price { color: var(--white); }
+.ticker-chg.up { color: var(--green); }
+.ticker-chg.down { color: var(--red); }
+/* Breadcrumbs History */
+.global-breadcrumbs {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.72rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.global-breadcrumbs::-webkit-scrollbar { height: 0px; }
+.bc-item {
+  color: var(--dim);
+  cursor: pointer;
+  padding: 4px 10px;
+  border-radius: 4px;
+  background: var(--p2);
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  font-weight: 500;
+}
+.bc-item:hover {
+  color: var(--white);
+  border-color: var(--border);
+}
+.bc-item.active {
+  color: var(--cyan);
+  background: rgba(41, 98, 255, 0.1);
+  border-color: var(--cyan);
+  font-weight: 600;
+  cursor: default;
+}
+.bc-sep {
+  color: var(--dim);
+  font-size: 0.65rem;
+  opacity: 0.5;
+}
+@media(max-width:900px){
+  .global-breadcrumbs { padding: 10px 14px; }
+}
+</style>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+<!-- OVERLAY FOR MOBILE SIDEBAR -->
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+<div class="layout" id="app-layout" style="display:none;">
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="app-sidebar">
+  <div class="logo">
+    <div>
+      <h1 style="font-size:1.3rem;">Vprofitables</h1>
+    </div>
+    <button class="hamburger" style="font-size:1.35rem;padding:8px;line-height:1;" onclick="toggleSidebar()" id="close-sidebar-btn">&#10005;</button>
+  </div>
+  <!-- USER NAV SECTION -->
+  <div class="nav-section">
+    <div class="nav-label">MARKET INTELLIGENCE</div>
+    <div class="nav-item active" onclick="nav('overview')"><span class="ico">🏠</span>Home</div>
+    <div class="nav-item" onclick="nav('watchlist')"><span class="ico">👁️</span>Watchlist</div>
+    <div class="nav-item" onclick="nav('trading')"><span class="ico">💼</span>Portfolio</div>
+    <div class="nav-item" onclick="nav('advisor')"><span class="ico">💡</span>Recommendations</div>
+    <div class="nav-item" onclick="nav('sentiment')"><span class="ico">🧠</span>Market Insights</div>
+  </div>
+
+  <!-- ADMIN CONSOLE SECTION -->
+  <div class="nav-section admin-only">
+    <div class="nav-label">ADMIN CONSOLE</div>
+    <div class="nav-item" onclick="nav('admin')"><span class="ico">🛡️</span>Admin Dashboard</div>
+  </div>
+
+  <!-- ADVANCED RESEARCH SECTION -->
+  <div class="nav-section admin-only">
+    <div class="nav-label">ADVANCED RESEARCH</div>
+    <div class="nav-item" onclick="nav('scanner')"><span class="ico">📡</span>Market Scanner</div>
+    <div class="nav-item" onclick="nav('dashboard')"><span class="ico">🪐</span>Planet Dashboard</div>
+    <div class="nav-item" onclick="nav('chart')"><span class="ico">📈</span>Chart + S/R</div>
+    <div class="nav-item" onclick="nav('simons')"><span class="ico">🧠</span>Simons Lab</div>
+    <div class="nav-item" onclick="nav('analyze')"><span class="ico">🔬</span>Gann Analysis</div>
+    <div class="nav-item" onclick="nav('natal')"><span class="ico">🔭</span>Natal Charts</div>
+    <div class="nav-item" onclick="nav('fundamentals')"><span class="ico">📊</span>Fundamentals</div>
+  </div>
+
+  <!-- ADMIN TOOLS SECTION -->
+  <div class="nav-section admin-only">
+    <div class="nav-label">ADMIN TOOLS</div>
+    <div class="nav-item" onclick="nav('sq9')"><span class="ico">⬛</span>Square of Nine</div>
+    <div class="nav-item" onclick="nav('cycles')"><span class="ico">⏰</span>Time Cycles</div>
+    <div class="nav-item" onclick="nav('confluence')"><span class="ico">⚡</span>Confluence</div>
+  </div>
+
+  <!-- ADMIN SYSTEM SECTION -->
+  <div class="nav-section admin-only">
+    <div class="nav-label">ADMIN SYSTEM</div>
+    <div class="nav-item" onclick="nav('instruments')"><span class="ico">📋</span>Instruments DB</div>
+    <div class="nav-item" onclick="nav('risk')"><span class="ico">🛡️</span>Risk Mgmt</div>
+    <div class="nav-item" onclick="nav('analytics')"><span class="ico">📅</span>Analytics</div>
+    <div class="nav-item" onclick="nav('research')"><span class="ico">📋</span>Equity Research</div>
+  </div>
+
+  <div class="status-bar">
+    <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px;">
+      <span class="status-dot"></span>
+      <span style="font-family:Share Tech Mono,monospace;font-size:0.62rem;color:var(--green);letter-spacing:1px;">ENGINE ONLINE</span>
+    </div>
+    <div style="font-family:Share Tech Mono,monospace;font-size:0.58rem;color:var(--dim);" id="sideDate">--</div>
+    <div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--dim);margin-top:3px;" id="sideNifty">· EOD NIFTY --</div>
+
+    <!-- Analysis Date — moved from top bar to sidebar -->
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+      <div style="font-family:'Inter',sans-serif;font-size:0.6rem;color:var(--dim);letter-spacing:1px;margin-bottom:5px;font-weight:600;">ANALYSIS DATE</div>
+      <input type="date" id="global-date"
+        style="width:100%;box-sizing:border-box;background:var(--p2);border:1px solid var(--border);
+        color:var(--text);padding:6px 8px;font-family:'JetBrains Mono',monospace;font-size:0.75rem;
+        outline:none;cursor:pointer;margin-bottom:8px;border-radius:4px;"
+        onchange="onGlobalDateChange(this.value)">
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+        <button onclick="stepDate(-1)"
+          style="flex:1;background:var(--p2);border:1px solid var(--border);color:var(--text);border-radius:4px;
+          padding:4px;font-family:'Inter',sans-serif;font-size:0.8rem;cursor:pointer;">&#9664;</button>
+        <button onclick="setGlobalDateToday()" id="today-btn"
+          style="flex:2;background:var(--p2);border:1px solid var(--border);color:var(--dim);border-radius:4px;
+          padding:4px;font-family:'Inter',sans-serif;font-size:0.6rem;cursor:pointer;font-weight:600;">TODAY</button>
+        <button onclick="stepDate(1)"
+          style="flex:1;background:var(--p2);border:1px solid var(--border);color:var(--text);border-radius:4px;
+          padding:4px;font-family:'Inter',sans-serif;font-size:0.8rem;cursor:pointer;">&#9654;</button>
+      </div>
+      <div id="backtest-badge" style="display:none;margin-top:8px;padding:4px;border-radius:3px;
+        background:rgba(255,152,0,0.15);color:var(--orange);
+        font-family:'Inter',sans-serif;font-size:0.65rem;text-align:center;font-weight:600;">
+        &#9194; BACKTEST MODE
+      </div>
+    </div>
+    
+
+    
+    <!-- Logout -->
+    <div style="margin-top:10px;padding-top:10px;border-top:1px solid var(--border);">
+      <button onclick="logoutAuth()" class="btn-red" style="width:100%; padding:8px; font-size:0.7rem; font-weight:600; border-radius:4px; cursor:pointer; border:none; display:flex; align-items:center; justify-content:center; gap:6px;">
+        🚪 LOG OUT
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+<!-- TICKER TAPE -->
+<div class="ticker-wrap" id="top-ticker" style="display:none;">
+  <div class="ticker-move" id="ticker-content">
+      <div class="ticker-item" style="color:var(--dim)">Fetching live ticker...</div>
+  </div>
+</div>
+
+<!-- GLOBAL HAMBURGER WRAPPER FOR MOBILE -->
+<div style="display:flex;align-items:center;padding:10px 14px;border-bottom:1px solid var(--border);background:var(--panel);" class="mobile-header">
+  <button class="hamburger" onclick="toggleSidebar()">&#9776;</button>
+  <div style="font-family:'Inter',sans-serif;font-size:0.85rem;color:var(--white);margin-left:14px;font-weight:600;">Vprofitables Terminal</div>
+</div>
+<!-- GLOBAL BREADCRUMBS -->
+<div class="global-breadcrumbs" id="global-breadcrumbs" style="display:none;">
+  <!-- dynamically injected -->
+</div>
+<style>
+@media(min-width:901px){ .mobile-header{display:none !important;} #close-sidebar-btn{display:none;} }
+</style>

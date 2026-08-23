@@ -1,0 +1,54 @@
+# GANN-ASTRO v3.8 — Python dependencies
+# Install with: pip install -r requirements.txt
+# Python 3.10+ required (uses zoneinfo, match/case-like constructs)
+
+# ── Core data & analysis ─────────────────────────────────────────────────────
+yfinance>=0.2.40          # market data from Yahoo Finance
+pandas>=2.0.0             # OHLCV manipulation, date indexing
+numpy>=1.24.0             # numerical arrays used across analysis engines
+
+# ── Gann / quant engines ─────────────────────────────────────────────────────
+scipy>=1.11.0             # FFT (Simons Lab cycle analysis)
+
+# ── Sentiment & NLP ──────────────────────────────────────────────────────────
+vaderSentiment>=3.3.2     # rule-based sentiment scorer (Stage 1, no GPU)
+scikit-learn>=1.3.0       # TF-IDF + Logistic Regression (Stage 1 DL pipeline)
+
+# ── Report export ────────────────────────────────────────────────────────────
+openpyxl>=3.1.0           # backtest Excel export (.xlsx)
+
+# ── Notifications (optional) ─────────────────────────────────────────────────
+requests>=2.31.0          # CallMeBot WhatsApp API + Google News RSS fetch
+# twilio>=8.0.0           # Uncomment if using Twilio WhatsApp sandbox
+
+# ── Authentication & Async Requests ──────────────────────────────────────────
+PyJWT>=2.8.0              # JSON Web Tokens for authentication
+bcrypt>=4.0.0             # Password hashing
+httpx>=0.25.0             # Async HTTP client for bulk news fetching
+
+# ── Deep learning sentiment (optional — Stage 2, needs GPU recommended) ──────
+# torch>=2.0.0            # Uncomment to enable FinBERT fine-tuning
+# transformers>=4.35.0    # Uncomment to enable FinBERT fine-tuning
+
+# ── RAG + Local LLM (free, no API key, runs on CPU) ─────────────────────────
+# Install with: pip install sentence-transformers chromadb spacy --break-system-packages
+# Then for spaCy model: python -m spacy download en_core_web_sm
+#
+# sentence-transformers>=2.7.0  # Local text embeddings (all-MiniLM-L6-v2, 83 MB)
+# chromadb>=0.5.0               # Local vector store (no server, file-based)
+# spacy>=3.7.0                  # NLP fallback for rule-based extraction
+#
+# Optional: for best-quality LLM extraction (no API key needed):
+#   Install Ollama from https://ollama.com  (free)
+#   Then: ollama pull llama3.2:3b
+#
+# Optional: pure-Python LLM fallback (pip only, no Ollama process):
+#   pip install llama-cpp-python --break-system-packages
+#   Download any GGUF model (e.g. Llama-3.2-3B-Q4) to the project root
+#
+# pdfplumber>=0.11.0            # PDF text extraction for NSE/BSE filings
+# pymupdf>=1.24.0               # PDF fallback extractor (fitz)
+# -- Institutional Upgrade Additions ------------------------------------------
+duckdb>=0.10.0
+PyWavelets>=1.4.1
+
