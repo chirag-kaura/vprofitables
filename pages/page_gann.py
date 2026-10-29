@@ -13,7 +13,7 @@ To modify: edit HTML/JS here, backend logic in app.py.
 HTML = r"""
 <!-- ═══════════ PAGE: GANN ANALYZE ═══════════ -->
 <div class="page" id="page-analyze">
-  <div class="topbar"><h2>GANN + ASTRO ANALYSIS</h2><span class="page-tag">FULL CONFLUENCE</span></div>
+  <div class="topbar"><h2>GANN + ASTRO ANALYSIS</h2></div>
   <div class="card">
     <div class="card-title">⚙ PARAMETERS</div>
     <div class="chip-grid" id="analyze-chips"></div>

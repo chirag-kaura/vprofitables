@@ -109,7 +109,7 @@ def _bb_width_percentile(closes: List[float], lookback: int = 120,
         widths.append(bb["width"])
     if not widths: return 50.0
     cur_width = _bollinger(closes, bb_period)["width"]
-    below = sum(1 for w in widths if w > cur_width)
+    below = sum(1 for w in widths if w < cur_width)
     return round(below / len(widths) * 100, 1)  # low = compressed
 
 

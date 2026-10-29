@@ -138,3 +138,1387 @@
 2026-08-23 23:33:04,689  INFO      DONE   OK=0  SKIP=0  FAIL=0
 2026-08-23 23:33:04,689  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
 2026-08-23 23:33:04,689  INFO    =================================================================
+2026-08-24 11:48:16,232  INFO    =================================================================
+2026-08-24 11:48:16,232  INFO      NSE Bhavcopy Downloader  |  2026-08-24 11:48:16
+2026-08-24 11:48:16,233  INFO      Range : 2026-08-22 -> 2026-08-23
+2026-08-24 11:48:16,233  INFO      Dry   : False
+2026-08-24 11:48:16,233  INFO    =================================================================
+2026-08-24 11:48:16,234  INFO      Already fetched: 7 dates
+2026-08-24 11:48:16,234  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-08-24 11:48:16,234  INFO    
+2026-08-24 11:48:16,636  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-24 11:48:18,138  INFO    
+2026-08-24 11:48:18,138  INFO    =================================================================
+2026-08-24 11:48:18,139  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-08-24 11:48:18,139  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-24 11:48:18,139  INFO    =================================================================
+2026-08-24 13:22:55,286  INFO    =================================================================
+2026-08-24 13:22:55,286  INFO      NSE Bhavcopy Downloader  |  2026-08-24 13:22:55
+2026-08-24 13:22:55,287  INFO      Range : 2026-08-22 -> 2026-08-23
+2026-08-24 13:22:55,287  INFO      Dry   : False
+2026-08-24 13:22:55,287  INFO    =================================================================
+2026-08-24 13:22:55,288  INFO      Already fetched: 7 dates
+2026-08-24 13:22:55,288  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-08-24 13:22:55,289  INFO    
+2026-08-24 13:22:55,814  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-24 13:22:57,315  INFO    
+2026-08-24 13:22:57,316  INFO    =================================================================
+2026-08-24 13:22:57,317  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-08-24 13:22:57,318  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-24 13:22:57,319  INFO    =================================================================
+2026-08-24 13:57:29,564  INFO    =================================================================
+2026-08-24 13:57:29,564  INFO      NSE Bhavcopy Downloader  |  2026-08-24 13:57:29
+2026-08-24 13:57:29,565  INFO      Range : 2026-08-22 -> 2026-08-23
+2026-08-24 13:57:29,565  INFO      Dry   : False
+2026-08-24 13:57:29,565  INFO    =================================================================
+2026-08-24 13:57:29,566  INFO      Already fetched: 7 dates
+2026-08-24 13:57:29,566  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-08-24 13:57:29,567  INFO    
+2026-08-24 13:57:30,211  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-24 13:57:31,712  INFO    
+2026-08-24 13:57:31,713  INFO    =================================================================
+2026-08-24 13:57:31,713  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-08-24 13:57:31,714  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-24 13:57:31,714  INFO    =================================================================
+2026-08-27 13:00:18,932  INFO    =================================================================
+2026-08-27 13:00:18,933  INFO      NSE Bhavcopy Downloader  |  2026-08-27 13:00:18
+2026-08-27 13:00:18,933  INFO      Range : 2026-08-22 -> 2026-08-26
+2026-08-27 13:00:18,934  INFO      Dry   : False
+2026-08-27 13:00:18,934  INFO    =================================================================
+2026-08-27 13:00:18,935  INFO      Already fetched: 7 dates
+2026-08-27 13:00:18,936  INFO      To fetch : 3 dates  |  Skipping 0 already done
+2026-08-27 13:00:18,936  INFO    
+2026-08-27 13:00:19,518  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-27 13:00:21,019  INFO      [1/3  33%]  OK=0  SKIP=0  FAIL=0
+2026-08-27 13:00:41,797  INFO    
+2026-08-27 13:00:41,798  INFO    =================================================================
+2026-08-27 13:00:41,800  INFO      DONE   OK=3  SKIP=0  FAIL=0
+2026-08-27 13:00:41,800  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-27 13:00:41,801  INFO    =================================================================
+2026-08-27 13:00:42,098  INFO      DB: 347,680 option rows  |  10 trading days  |  2024-12-23 -> 2026-08-26
+2026-08-31 15:45:34,483  INFO    =================================================================
+2026-08-31 15:45:34,483  INFO      NSE Bhavcopy Downloader  |  2026-08-31 15:45:34
+2026-08-31 15:45:34,484  INFO      Range : 2026-08-27 -> 2026-08-30
+2026-08-31 15:45:34,484  INFO      Dry   : False
+2026-08-31 15:45:34,484  INFO    =================================================================
+2026-08-31 15:45:34,486  INFO      Already fetched: 10 dates
+2026-08-31 15:45:34,486  INFO      To fetch : 2 dates  |  Skipping 0 already done
+2026-08-31 15:45:34,486  INFO    
+2026-08-31 15:45:35,431  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-31 15:45:36,932  INFO      [1/2  50%]  OK=0  SKIP=0  FAIL=0
+2026-08-31 15:45:51,233  INFO    
+2026-08-31 15:45:51,234  INFO    =================================================================
+2026-08-31 15:45:51,234  INFO      DONE   OK=2  SKIP=0  FAIL=0
+2026-08-31 15:45:51,235  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-31 15:45:51,235  INFO    =================================================================
+2026-08-31 15:45:51,631  INFO      DB: 405,326 option rows  |  12 trading days  |  2024-12-23 -> 2026-08-28
+2026-08-31 16:13:48,602  INFO    =================================================================
+2026-08-31 16:13:48,603  INFO      NSE Bhavcopy Downloader  |  2026-08-31 16:13:48
+2026-08-31 16:13:48,603  INFO      Range : 2026-08-29 -> 2026-08-30
+2026-08-31 16:13:48,603  INFO      Dry   : False
+2026-08-31 16:13:48,603  INFO    =================================================================
+2026-08-31 16:13:48,605  INFO      Already fetched: 12 dates
+2026-08-31 16:13:48,605  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-08-31 16:13:48,605  INFO    
+2026-08-31 16:13:49,477  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-31 16:13:50,981  INFO    
+2026-08-31 16:13:50,982  INFO    =================================================================
+2026-08-31 16:13:50,982  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-08-31 16:13:50,983  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-31 16:13:50,983  INFO    =================================================================
+2026-08-31 16:26:11,355  INFO    =================================================================
+2026-08-31 16:26:11,356  INFO      NSE Bhavcopy Downloader  |  2026-08-31 16:26:11
+2026-08-31 16:26:11,357  INFO      Range : 2026-08-29 -> 2026-08-30
+2026-08-31 16:26:11,357  INFO      Dry   : False
+2026-08-31 16:26:11,357  INFO    =================================================================
+2026-08-31 16:26:11,359  INFO      Already fetched: 12 dates
+2026-08-31 16:26:11,359  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-08-31 16:26:11,359  INFO    
+2026-08-31 16:26:12,162  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-31 16:26:13,662  INFO    
+2026-08-31 16:26:13,662  INFO    =================================================================
+2026-08-31 16:26:13,663  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-08-31 16:26:13,664  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-31 16:26:13,664  INFO    =================================================================
+2026-08-31 16:40:40,829  INFO    =================================================================
+2026-08-31 16:40:40,830  INFO      NSE Bhavcopy Downloader  |  2026-08-31 16:40:40
+2026-08-31 16:40:40,830  INFO      Range : 2026-08-29 -> 2026-08-30
+2026-08-31 16:40:40,830  INFO      Dry   : False
+2026-08-31 16:40:40,830  INFO    =================================================================
+2026-08-31 16:40:40,832  INFO      Already fetched: 12 dates
+2026-08-31 16:40:40,832  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-08-31 16:40:40,832  INFO    
+2026-08-31 16:40:41,398  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-31 16:40:42,899  INFO    
+2026-08-31 16:40:42,899  INFO    =================================================================
+2026-08-31 16:40:42,900  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-08-31 16:40:42,900  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-31 16:40:42,900  INFO    =================================================================
+2026-08-31 16:58:03,948  INFO    =================================================================
+2026-08-31 16:58:03,949  INFO      NSE Bhavcopy Downloader  |  2026-08-31 16:58:03
+2026-08-31 16:58:03,949  INFO      Range : 2026-08-29 -> 2026-08-30
+2026-08-31 16:58:03,949  INFO      Dry   : False
+2026-08-31 16:58:03,949  INFO    =================================================================
+2026-08-31 16:58:03,951  INFO      Already fetched: 12 dates
+2026-08-31 16:58:03,951  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-08-31 16:58:03,951  INFO    
+2026-08-31 16:58:04,395  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-08-31 16:58:05,897  INFO    
+2026-08-31 16:58:05,897  INFO    =================================================================
+2026-08-31 16:58:05,899  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-08-31 16:58:05,899  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-08-31 16:58:05,899  INFO    =================================================================
+2026-09-01 09:58:01,608  INFO    =================================================================
+2026-09-01 09:58:01,608  INFO      NSE Bhavcopy Downloader  |  2026-09-01 09:58:01
+2026-09-01 09:58:01,609  INFO      Range : 2026-08-29 -> 2026-08-31
+2026-09-01 09:58:01,609  INFO      Dry   : False
+2026-09-01 09:58:01,609  INFO    =================================================================
+2026-09-01 09:58:01,610  INFO      Already fetched: 12 dates
+2026-09-01 09:58:01,610  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-09-01 09:58:01,611  INFO    
+2026-09-01 09:58:02,214  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-01 09:58:03,715  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-09-01 09:58:08,808  INFO    
+2026-09-01 09:58:08,808  INFO    =================================================================
+2026-09-01 09:58:08,809  INFO      DONE   OK=1  SKIP=0  FAIL=0
+2026-09-01 09:58:08,809  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-01 09:58:08,809  INFO    =================================================================
+2026-09-01 09:58:09,222  INFO      DB: 441,841 option rows  |  14 trading days  |  2024-12-23 -> 2026-09-01
+2026-09-17 06:34:31,159  INFO    =================================================================
+2026-09-17 06:34:31,160  INFO      NSE Bhavcopy Downloader  |  2026-09-17 06:34:31
+2026-09-17 06:34:31,161  INFO      Range : 2026-09-01 -> 2026-09-16
+2026-09-17 06:34:31,162  INFO      Dry   : False
+2026-09-17 06:34:31,162  INFO    =================================================================
+2026-09-17 06:34:31,164  INFO      Already fetched: 13 dates
+2026-09-17 06:34:31,164  INFO      To fetch : 12 dates  |  Skipping 0 already done
+2026-09-17 06:34:31,164  INFO    
+2026-09-17 06:34:31,329  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-17 06:34:32,830  INFO      [1/12  8%]  OK=0  SKIP=0  FAIL=0
+2026-09-17 06:35:38,654  INFO        2026-09-07  [cdn]  32008 rows  OK
+2026-09-17 06:36:10,708  INFO      [10/12  83%]  OK=9  SKIP=0  FAIL=0
+2026-09-17 06:36:27,328  INFO    
+2026-09-17 06:36:27,329  INFO    =================================================================
+2026-09-17 06:36:27,330  INFO      DONE   OK=11  SKIP=1  FAIL=0
+2026-09-17 06:36:27,331  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-17 06:36:27,331  INFO    =================================================================
+2026-09-17 06:36:28,006  INFO      DB: 800,837 option rows  |  24 trading days  |  2024-12-23 -> 2026-09-16
+2026-09-28 22:59:36,427  INFO    =================================================================
+2026-09-28 22:59:36,427  INFO      NSE Bhavcopy Downloader  |  2026-09-28 22:59:36
+2026-09-28 22:59:36,429  INFO      Range : 2026-09-17 -> 2026-09-27
+2026-09-28 22:59:36,429  INFO      Dry   : False
+2026-09-28 22:59:36,429  INFO    =================================================================
+2026-09-28 22:59:46,346  INFO      Already fetched: 24 dates
+2026-09-28 22:59:46,346  INFO      To fetch : 7 dates  |  Skipping 0 already done
+2026-09-28 22:59:46,347  INFO    
+2026-09-28 22:59:46,668  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-28 22:59:48,169  INFO      [1/7  14%]  OK=0  SKIP=0  FAIL=0
+2026-09-28 23:00:36,553  INFO        2026-09-23  [cdn]  35648 rows  OK
+2026-09-28 23:00:58,197  INFO    
+2026-09-28 23:00:58,198  INFO    =================================================================
+2026-09-28 23:00:58,199  INFO      DONE   OK=7  SKIP=0  FAIL=0
+2026-09-28 23:00:58,200  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-28 23:00:58,200  INFO    =================================================================
+2026-09-28 23:00:59,014  INFO      DB: 1,050,899 option rows  |  31 trading days  |  2024-12-23 -> 2026-09-25
+2026-09-29 00:08:31,159  INFO    =================================================================
+2026-09-29 00:08:31,160  INFO      NSE Bhavcopy Downloader  |  2026-09-29 00:08:31
+2026-09-29 00:08:31,161  INFO      Range : 2026-09-26 -> 2026-09-28
+2026-09-29 00:08:31,161  INFO      Dry   : False
+2026-09-29 00:08:31,161  INFO    =================================================================
+2026-09-29 00:08:35,750  INFO      Already fetched: 31 dates
+2026-09-29 00:08:35,751  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-09-29 00:08:35,754  INFO    
+2026-09-29 00:08:35,999  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-29 00:08:37,500  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-09-29 00:08:44,304  INFO    
+2026-09-29 00:08:44,305  INFO    =================================================================
+2026-09-29 00:08:44,308  INFO      DONE   OK=1  SKIP=0  FAIL=0
+2026-09-29 00:08:44,309  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-29 00:08:44,309  INFO    =================================================================
+2026-09-29 00:08:44,786  INFO      DB: 1,087,736 option rows  |  32 trading days  |  2024-12-23 -> 2026-09-28
+2026-09-29 00:33:19,918  INFO    =================================================================
+2026-09-29 00:33:19,918  INFO      NSE Bhavcopy Downloader  |  2026-09-29 00:33:19
+2026-09-29 00:33:19,920  INFO      Range : 2026-09-28 -> 2026-09-28
+2026-09-29 00:33:19,920  INFO      Dry   : False
+2026-09-29 00:33:19,920  INFO    =================================================================
+2026-09-29 00:33:19,922  INFO      Already fetched: 32 dates
+2026-09-29 00:33:19,922  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-09-29 00:33:19,922  INFO    
+2026-09-29 00:33:20,085  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-29 00:33:21,588  INFO    
+2026-09-29 00:33:21,588  INFO    =================================================================
+2026-09-29 00:33:21,591  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-09-29 00:33:21,591  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-29 00:33:21,592  INFO    =================================================================
+2026-09-29 01:16:58,456  INFO    =================================================================
+2026-09-29 01:16:58,456  INFO      NSE Bhavcopy Downloader  |  2026-09-29 01:16:58
+2026-09-29 01:16:58,457  INFO      Range : 2026-09-28 -> 2026-09-28
+2026-09-29 01:16:58,458  INFO      Dry   : False
+2026-09-29 01:16:58,458  INFO    =================================================================
+2026-09-29 01:16:58,460  INFO      Already fetched: 32 dates
+2026-09-29 01:16:58,461  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-09-29 01:16:58,461  INFO    
+2026-09-29 01:16:58,716  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-29 01:17:00,218  INFO    
+2026-09-29 01:17:00,218  INFO    =================================================================
+2026-09-29 01:17:00,223  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-09-29 01:17:00,223  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-29 01:17:00,224  INFO    =================================================================
+2026-09-29 02:20:19,377  INFO    =================================================================
+2026-09-29 02:20:19,377  INFO      NSE Bhavcopy Downloader  |  2026-09-29 02:20:19
+2026-09-29 02:20:19,378  INFO      Range : 2026-09-28 -> 2026-09-28
+2026-09-29 02:20:19,378  INFO      Dry   : False
+2026-09-29 02:20:19,378  INFO    =================================================================
+2026-09-29 02:20:19,380  INFO      Already fetched: 32 dates
+2026-09-29 02:20:19,381  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-09-29 02:20:19,381  INFO    
+2026-09-29 02:20:19,570  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-29 02:20:21,072  INFO    
+2026-09-29 02:20:21,072  INFO    =================================================================
+2026-09-29 02:20:21,073  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-09-29 02:20:21,073  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-29 02:20:21,073  INFO    =================================================================
+2026-09-29 09:17:37,080  INFO    =================================================================
+2026-09-29 09:17:37,080  INFO      NSE Bhavcopy Downloader  |  2026-09-29 09:17:37
+2026-09-29 09:17:37,080  INFO      Range : 2026-09-28 -> 2026-09-28
+2026-09-29 09:17:37,081  INFO      Dry   : False
+2026-09-29 09:17:37,081  INFO    =================================================================
+2026-09-29 09:17:37,084  INFO      Already fetched: 32 dates
+2026-09-29 09:17:37,085  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-09-29 09:17:37,085  INFO    
+2026-09-29 09:17:37,649  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-29 09:17:39,151  INFO    
+2026-09-29 09:17:39,151  INFO    =================================================================
+2026-09-29 09:17:39,151  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-09-29 09:17:39,152  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-29 09:17:39,152  INFO    =================================================================
+2026-09-29 10:48:57,341  INFO    =================================================================
+2026-09-29 10:48:57,342  INFO      NSE Bhavcopy Downloader  |  2026-09-29 10:48:57
+2026-09-29 10:48:57,343  INFO      Range : 2026-09-28 -> 2026-09-28
+2026-09-29 10:48:57,343  INFO      Dry   : False
+2026-09-29 10:48:57,343  INFO    =================================================================
+2026-09-29 10:48:57,345  INFO      Already fetched: 32 dates
+2026-09-29 10:48:57,345  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-09-29 10:48:57,345  INFO    
+2026-09-29 10:48:57,550  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-09-29 10:48:59,052  INFO    
+2026-09-29 10:48:59,053  INFO    =================================================================
+2026-09-29 10:48:59,055  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-09-29 10:48:59,055  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-09-29 10:48:59,056  INFO    =================================================================
+2026-10-09 09:23:31,774  INFO    =================================================================
+2026-10-09 09:23:31,775  INFO      NSE Bhavcopy Downloader  |  2026-10-09 09:23:31
+2026-10-09 09:23:31,775  INFO      Range : 2026-09-29 -> 2026-10-08
+2026-10-09 09:23:31,775  INFO      Dry   : False
+2026-10-09 09:23:31,776  INFO    =================================================================
+2026-10-09 09:23:31,777  INFO      Already fetched: 32 dates
+2026-10-09 09:23:31,777  INFO      To fetch : 8 dates  |  Skipping 0 already done
+2026-10-09 09:23:31,777  INFO    
+2026-10-09 09:23:32,025  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-09 09:23:33,526  INFO      [1/8  12%]  OK=0  SKIP=0  FAIL=0
+2026-10-09 09:24:16,391  INFO        2026-10-05  [cdn]  33751 rows  OK
+2026-10-09 09:24:49,061  INFO    
+2026-10-09 09:24:49,062  INFO    =================================================================
+2026-10-09 09:24:49,062  INFO      DONE   OK=7  SKIP=1  FAIL=0
+2026-10-09 09:24:49,063  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-09 09:24:49,063  INFO    =================================================================
+2026-10-09 09:24:50,425  INFO      DB: 1,330,042 option rows  |  39 trading days  |  2024-12-23 -> 2026-10-08
+2026-10-09 09:36:47,920  INFO    =================================================================
+2026-10-09 09:36:47,920  INFO      NSE Bhavcopy Downloader  |  2026-10-09 09:36:47
+2026-10-09 09:36:47,921  INFO      Range : 2026-10-08 -> 2026-10-08
+2026-10-09 09:36:47,922  INFO      Dry   : False
+2026-10-09 09:36:47,922  INFO    =================================================================
+2026-10-09 09:36:47,924  INFO      Already fetched: 39 dates
+2026-10-09 09:36:47,924  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-09 09:36:47,924  INFO    
+2026-10-09 09:36:48,183  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-09 09:36:49,683  INFO    
+2026-10-09 09:36:49,684  INFO    =================================================================
+2026-10-09 09:36:49,685  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-09 09:36:49,685  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-09 09:36:49,685  INFO    =================================================================
+2026-10-09 11:04:00,196  INFO    =================================================================
+2026-10-09 11:04:00,196  INFO      NSE Bhavcopy Downloader  |  2026-10-09 11:04:00
+2026-10-09 11:04:00,196  INFO      Range : 2026-10-08 -> 2026-10-08
+2026-10-09 11:04:00,197  INFO      Dry   : False
+2026-10-09 11:04:00,197  INFO    =================================================================
+2026-10-09 11:04:00,198  INFO      Already fetched: 39 dates
+2026-10-09 11:04:00,198  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-09 11:04:00,199  INFO    
+2026-10-09 11:04:00,512  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-09 11:04:02,013  INFO    
+2026-10-09 11:04:02,013  INFO    =================================================================
+2026-10-09 11:04:02,013  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-09 11:04:02,013  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-09 11:04:02,013  INFO    =================================================================
+2026-10-10 12:03:27,583  INFO    =================================================================
+2026-10-10 12:03:27,584  INFO      NSE Bhavcopy Downloader  |  2026-10-10 12:03:27
+2026-10-10 12:03:27,584  INFO      Range : 2026-10-09 -> 2026-10-09
+2026-10-10 12:03:27,584  INFO      Dry   : False
+2026-10-10 12:03:27,584  INFO    =================================================================
+2026-10-10 12:03:27,586  INFO      Already fetched: 39 dates
+2026-10-10 12:03:27,586  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-10 12:03:27,587  INFO    
+2026-10-10 12:03:27,889  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-10 12:03:29,390  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-10 12:03:52,029  INFO    
+2026-10-10 12:03:52,030  INFO    =================================================================
+2026-10-10 12:03:52,031  INFO      DONE   OK=1  SKIP=0  FAIL=0
+2026-10-10 12:03:52,031  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-10 12:03:52,032  INFO    =================================================================
+2026-10-10 12:03:55,675  INFO      DB: 1,377,599 option rows  |  40 trading days  |  2024-12-23 -> 2026-10-09
+2026-10-11 09:51:11,345  INFO    =================================================================
+2026-10-11 09:51:11,346  INFO      NSE Bhavcopy Downloader  |  2026-10-11 09:51:11
+2026-10-11 09:51:11,346  INFO      Range : 2026-10-10 -> 2026-10-10
+2026-10-11 09:51:11,346  INFO      Dry   : False
+2026-10-11 09:51:11,347  INFO    =================================================================
+2026-10-11 09:51:11,349  INFO      Already fetched: 40 dates
+2026-10-11 09:51:11,349  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-11 09:51:11,349  INFO    
+2026-10-11 09:51:11,577  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-11 09:51:13,079  INFO    
+2026-10-11 09:51:13,079  INFO    =================================================================
+2026-10-11 09:51:13,079  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-11 09:51:13,079  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-11 09:51:13,079  INFO    =================================================================
+2026-10-11 22:36:47,462  INFO    =================================================================
+2026-10-11 22:36:47,463  INFO      NSE Bhavcopy Downloader  |  2026-10-11 22:36:47
+2026-10-11 22:36:47,464  INFO      Range : 2026-10-10 -> 2026-10-10
+2026-10-11 22:36:47,465  INFO      Dry   : False
+2026-10-11 22:36:47,465  INFO    =================================================================
+2026-10-11 22:36:47,469  INFO      Already fetched: 40 dates
+2026-10-11 22:36:47,469  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-11 22:36:47,469  INFO    
+2026-10-11 22:36:47,921  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-11 22:36:49,424  INFO    
+2026-10-11 22:36:49,425  INFO    =================================================================
+2026-10-11 22:36:49,425  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-11 22:36:49,426  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-11 22:36:49,426  INFO    =================================================================
+2026-10-13 09:30:56,428  INFO    =================================================================
+2026-10-13 09:30:56,428  INFO      NSE Bhavcopy Downloader  |  2026-10-13 09:30:56
+2026-10-13 09:30:56,428  INFO      Range : 2026-10-10 -> 2026-10-12
+2026-10-13 09:30:56,428  INFO      Dry   : False
+2026-10-13 09:30:56,429  INFO    =================================================================
+2026-10-13 09:30:56,431  INFO      Already fetched: 40 dates
+2026-10-13 09:30:56,431  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-13 09:30:56,431  INFO    
+2026-10-13 09:30:56,687  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-13 09:30:58,188  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-13 09:31:08,955  INFO    
+2026-10-13 09:31:08,956  INFO    =================================================================
+2026-10-13 09:31:08,956  INFO      DONE   OK=1  SKIP=0  FAIL=0
+2026-10-13 09:31:08,956  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-13 09:31:08,956  INFO    =================================================================
+2026-10-13 09:31:10,810  INFO      DB: 1,429,109 option rows  |  42 trading days  |  2024-12-23 -> 2026-10-12
+2026-10-13 18:04:33,627  INFO    =================================================================
+2026-10-13 18:04:33,628  INFO      NSE Bhavcopy Downloader  |  2026-10-13 18:04:33
+2026-10-13 18:04:33,629  INFO      Range : 2026-10-12 -> 2026-10-12
+2026-10-13 18:04:33,630  INFO      Dry   : False
+2026-10-13 18:04:33,631  INFO    =================================================================
+2026-10-13 18:04:33,638  INFO      Already fetched: 41 dates
+2026-10-13 18:04:33,639  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-13 18:04:33,639  INFO    
+2026-10-13 18:04:34,323  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-13 18:04:35,825  INFO    
+2026-10-13 18:04:35,825  INFO    =================================================================
+2026-10-13 18:04:35,826  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-13 18:04:35,827  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-13 18:04:35,828  INFO    =================================================================
+2026-10-14 07:43:59,409  INFO    =================================================================
+2026-10-14 07:43:59,411  INFO      NSE Bhavcopy Downloader  |  2026-10-14 07:43:59
+2026-10-14 07:43:59,411  INFO      Range : 2026-10-13 -> 2026-10-13
+2026-10-14 07:43:59,411  INFO      Dry   : False
+2026-10-14 07:43:59,411  INFO    =================================================================
+2026-10-14 07:43:59,416  INFO      Already fetched: 41 dates
+2026-10-14 07:43:59,416  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-14 07:43:59,416  INFO    
+2026-10-14 07:43:59,819  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-14 07:44:01,321  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-14 07:44:02,370  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-14 07:44:04,265  INFO    
+2026-10-14 07:44:04,266  INFO    =================================================================
+2026-10-14 07:44:04,267  INFO      DONE   OK=0  SKIP=0  FAIL=1
+2026-10-14 07:44:04,267  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-14 07:44:04,267  INFO    =================================================================
+2026-10-14 21:13:48,619  INFO    =================================================================
+2026-10-14 21:13:48,619  INFO      NSE Bhavcopy Downloader  |  2026-10-14 21:13:48
+2026-10-14 21:13:48,620  INFO      Range : 2026-10-13 -> 2026-10-13
+2026-10-14 21:13:48,620  INFO      Dry   : False
+2026-10-14 21:13:48,620  INFO    =================================================================
+2026-10-14 21:13:48,622  INFO      Already fetched: 41 dates
+2026-10-14 21:13:48,622  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-14 21:13:48,622  INFO    
+2026-10-14 21:13:48,900  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-14 21:13:50,401  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-14 21:13:50,953  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-14 21:13:52,872  INFO    
+2026-10-14 21:13:52,873  INFO    =================================================================
+2026-10-14 21:13:52,873  INFO      DONE   OK=0  SKIP=0  FAIL=1
+2026-10-14 21:13:52,873  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-14 21:13:52,873  INFO    =================================================================
+2026-10-16 09:03:09,920  INFO    =================================================================
+2026-10-16 09:03:09,921  INFO      NSE Bhavcopy Downloader  |  2026-10-16 09:03:09
+2026-10-16 09:03:09,922  INFO      Range : 2026-10-13 -> 2026-10-15
+2026-10-16 09:03:09,922  INFO      Dry   : False
+2026-10-16 09:03:09,923  INFO    =================================================================
+2026-10-16 09:03:09,929  INFO      Already fetched: 41 dates
+2026-10-16 09:03:09,929  INFO      To fetch : 3 dates  |  Skipping 0 already done
+2026-10-16 09:03:09,930  INFO    
+2026-10-16 09:03:10,194  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-16 09:03:11,696  INFO      [1/3  33%]  OK=0  SKIP=0  FAIL=0
+2026-10-16 09:03:12,946  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-16 09:03:15,227  ERROR       2026-10-14 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-16 09:03:17,513  ERROR       2026-10-15 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-16 09:03:19,423  INFO    
+2026-10-16 09:03:19,425  INFO    =================================================================
+2026-10-16 09:03:19,425  INFO      DONE   OK=0  SKIP=0  FAIL=3
+2026-10-16 09:03:19,426  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-16 09:03:19,426  INFO    =================================================================
+2026-10-17 09:55:20,272  INFO    =================================================================
+2026-10-17 09:55:20,273  INFO      NSE Bhavcopy Downloader  |  2026-10-17 09:55:20
+2026-10-17 09:55:20,273  INFO      Range : 2026-10-13 -> 2026-10-16
+2026-10-17 09:55:20,273  INFO      Dry   : False
+2026-10-17 09:55:20,274  INFO    =================================================================
+2026-10-17 09:55:20,277  INFO      Already fetched: 41 dates
+2026-10-17 09:55:20,277  INFO      To fetch : 4 dates  |  Skipping 0 already done
+2026-10-17 09:55:20,277  INFO    
+2026-10-17 09:55:20,646  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-17 09:55:22,147  INFO      [1/4  25%]  OK=0  SKIP=0  FAIL=0
+2026-10-17 09:55:22,907  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-17 09:55:24,651  ERROR       2026-10-14 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-17 09:55:27,004  ERROR       2026-10-15 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-17 09:55:29,304  ERROR       2026-10-16 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-17 09:55:30,376  INFO    
+2026-10-17 09:55:30,376  INFO    =================================================================
+2026-10-17 09:55:30,377  INFO      DONE   OK=0  SKIP=0  FAIL=4
+2026-10-17 09:55:30,377  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-17 09:55:30,378  INFO    =================================================================
+2026-10-18 10:58:14,817  INFO    =================================================================
+2026-10-18 10:58:14,818  INFO      NSE Bhavcopy Downloader  |  2026-10-18 10:58:14
+2026-10-18 10:58:14,819  INFO      Range : 2026-10-13 -> 2026-10-17
+2026-10-18 10:58:14,819  INFO      Dry   : False
+2026-10-18 10:58:14,819  INFO    =================================================================
+2026-10-18 10:58:14,826  INFO      Already fetched: 41 dates
+2026-10-18 10:58:14,827  INFO      To fetch : 4 dates  |  Skipping 0 already done
+2026-10-18 10:58:14,828  INFO    
+2026-10-18 10:58:15,352  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-18 10:58:16,854  INFO      [1/4  25%]  OK=0  SKIP=0  FAIL=0
+2026-10-18 10:58:18,185  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-18 10:58:20,814  ERROR       2026-10-14 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-18 10:58:23,406  ERROR       2026-10-15 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-18 10:58:26,281  ERROR       2026-10-16 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-18 10:58:28,130  INFO    
+2026-10-18 10:58:28,131  INFO    =================================================================
+2026-10-18 10:58:28,132  INFO      DONE   OK=0  SKIP=0  FAIL=4
+2026-10-18 10:58:28,132  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-18 10:58:28,133  INFO    =================================================================
+2026-10-19 10:42:45,004  INFO    =================================================================
+2026-10-19 10:42:45,005  INFO      NSE Bhavcopy Downloader  |  2026-10-19 10:42:45
+2026-10-19 10:42:45,006  INFO      Range : 2026-10-13 -> 2026-10-18
+2026-10-19 10:42:45,006  INFO      Dry   : False
+2026-10-19 10:42:45,006  INFO    =================================================================
+2026-10-19 10:42:45,009  INFO      Already fetched: 41 dates
+2026-10-19 10:42:45,009  INFO      To fetch : 4 dates  |  Skipping 0 already done
+2026-10-19 10:42:45,009  INFO    
+2026-10-19 10:42:45,239  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-19 10:42:46,740  INFO      [1/4  25%]  OK=0  SKIP=0  FAIL=0
+2026-10-19 10:42:47,484  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-19 10:42:49,376  ERROR       2026-10-14 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-19 10:42:51,386  ERROR       2026-10-15 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-19 10:42:53,675  ERROR       2026-10-16 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-19 10:42:54,808  INFO    
+2026-10-19 10:42:54,809  INFO    =================================================================
+2026-10-19 10:42:54,809  INFO      DONE   OK=0  SKIP=0  FAIL=4
+2026-10-19 10:42:54,810  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-19 10:42:54,810  INFO    =================================================================
+2026-10-20 10:31:34,804  INFO    =================================================================
+2026-10-20 10:31:34,805  INFO      NSE Bhavcopy Downloader  |  2026-10-20 10:31:34
+2026-10-20 10:31:34,805  INFO      Range : 2026-10-13 -> 2026-10-19
+2026-10-20 10:31:34,805  INFO      Dry   : False
+2026-10-20 10:31:34,805  INFO    =================================================================
+2026-10-20 10:31:34,808  INFO      Already fetched: 41 dates
+2026-10-20 10:31:34,808  INFO      To fetch : 5 dates  |  Skipping 0 already done
+2026-10-20 10:31:34,808  INFO    
+2026-10-20 10:31:35,046  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 10:31:36,547  INFO      [1/5  20%]  OK=0  SKIP=0  FAIL=0
+2026-10-20 10:31:37,107  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:31:39,406  ERROR       2026-10-14 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:31:42,078  ERROR       2026-10-15 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:31:43,815  ERROR       2026-10-16 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:31:45,760  ERROR       2026-10-19 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:31:46,787  INFO    
+2026-10-20 10:31:46,788  INFO    =================================================================
+2026-10-20 10:31:46,788  INFO      DONE   OK=0  SKIP=0  FAIL=5
+2026-10-20 10:31:46,788  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 10:31:46,789  INFO    =================================================================
+2026-10-20 10:55:45,616  INFO    =================================================================
+2026-10-20 10:55:45,616  INFO      NSE Bhavcopy Downloader  |  2026-10-20 10:55:45
+2026-10-20 10:55:45,617  INFO      Range : 2026-10-13 -> 2026-10-19
+2026-10-20 10:55:45,617  INFO      Dry   : False
+2026-10-20 10:55:45,618  INFO    =================================================================
+2026-10-20 10:55:45,621  INFO      Already fetched: 41 dates
+2026-10-20 10:55:45,621  INFO      To fetch : 5 dates  |  Skipping 0 already done
+2026-10-20 10:55:45,622  INFO    
+2026-10-20 10:55:45,946  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 10:55:47,447  INFO      [1/5  20%]  OK=0  SKIP=0  FAIL=0
+2026-10-20 10:55:47,915  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:55:50,101  ERROR       2026-10-14 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:55:52,469  ERROR       2026-10-15 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:55:54,888  ERROR       2026-10-16 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:55:56,561  ERROR       2026-10-19 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 10:55:58,358  INFO    
+2026-10-20 10:55:58,358  INFO    =================================================================
+2026-10-20 10:55:58,359  INFO      DONE   OK=0  SKIP=0  FAIL=5
+2026-10-20 10:55:58,360  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 10:55:58,360  INFO    =================================================================
+2026-10-20 16:19:24,731  INFO    =================================================================
+2026-10-20 16:19:24,732  INFO      NSE Bhavcopy Downloader  |  2026-10-20 16:19:24
+2026-10-20 16:19:24,732  INFO      Range : 2026-10-13 -> 2026-10-19
+2026-10-20 16:19:24,732  INFO      Dry   : False
+2026-10-20 16:19:24,732  INFO    =================================================================
+2026-10-20 16:19:24,734  INFO      Already fetched: 41 dates
+2026-10-20 16:19:24,735  INFO      To fetch : 5 dates  |  Skipping 0 already done
+2026-10-20 16:19:24,735  INFO    
+2026-10-20 16:19:25,101  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 16:19:26,602  INFO      [1/5  20%]  OK=0  SKIP=0  FAIL=0
+2026-10-20 16:19:27,210  ERROR       2026-10-13 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 16:19:29,186  ERROR       2026-10-14 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 16:19:31,146  ERROR       2026-10-15 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 16:19:32,675  ERROR       2026-10-16 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 16:19:35,230  ERROR       2026-10-19 SAVE ERROR: name 'np' is not defined
+Traceback (most recent call last):
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 865, in main
+    rows    = save_to_db(conn, norm_df, td_str, source, args.dry_run)
+  File "D:\VPROFITABLES\vprofitables\download_bhavcopy.py", line 642, in save_to_db
+    strikes = np.sort(grp["strike"].unique())
+              ^^
+NameError: name 'np' is not defined
+
+2026-10-20 16:19:36,516  INFO    
+2026-10-20 16:19:36,516  INFO    =================================================================
+2026-10-20 16:19:36,516  INFO      DONE   OK=0  SKIP=0  FAIL=5
+2026-10-20 16:19:36,516  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 16:19:36,516  INFO    =================================================================
+2026-10-20 16:20:57,029  INFO    =================================================================
+2026-10-20 16:20:57,029  INFO      NSE Bhavcopy Downloader  |  2026-10-20 16:20:57
+2026-10-20 16:20:57,029  INFO      Range : 2026-10-13 -> 2026-10-19
+2026-10-20 16:20:57,029  INFO      Dry   : False
+2026-10-20 16:20:57,029  INFO    =================================================================
+2026-10-20 16:20:57,032  INFO      Already fetched: 41 dates
+2026-10-20 16:20:57,032  INFO      To fetch : 5 dates  |  Skipping 0 already done
+2026-10-20 16:20:57,032  INFO    
+2026-10-20 16:20:57,374  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 16:20:58,875  INFO      [1/5  20%]  OK=0  SKIP=0  FAIL=0
+2026-10-20 16:21:37,244  INFO        2026-10-19  [cdn]  15811 rows  OK
+2026-10-20 16:21:38,389  INFO    
+2026-10-20 16:21:38,389  INFO    =================================================================
+2026-10-20 16:21:38,389  INFO      DONE   OK=5  SKIP=0  FAIL=0
+2026-10-20 16:21:38,389  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 16:21:38,389  INFO    =================================================================
+2026-10-20 16:21:38,688  INFO      DB: 710,821 option rows  |  48 trading days  |  2024-12-23 -> 2026-10-20
+2026-10-20 17:50:50,823  INFO    =================================================================
+2026-10-20 17:50:50,823  INFO      NSE Bhavcopy Downloader  |  2026-10-20 17:50:50
+2026-10-20 17:50:50,823  INFO      Range : 2026-10-19 -> 2026-10-19
+2026-10-20 17:50:50,823  INFO      Dry   : False
+2026-10-20 17:50:50,823  INFO    =================================================================
+2026-10-20 17:50:50,826  INFO      Already fetched: 46 dates
+2026-10-20 17:50:50,826  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-20 17:50:50,826  INFO    
+2026-10-20 17:50:51,137  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 17:50:52,638  INFO    
+2026-10-20 17:50:52,639  INFO    =================================================================
+2026-10-20 17:50:52,639  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-20 17:50:52,639  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 17:50:52,639  INFO    =================================================================
+2026-10-20 20:51:49,299  INFO    =================================================================
+2026-10-20 20:51:49,302  INFO      NSE Bhavcopy Downloader  |  2026-10-20 20:51:49
+2026-10-20 20:51:49,310  INFO      Range : 2026-10-19 -> 2026-10-19
+2026-10-20 20:51:49,310  INFO      Dry   : False
+2026-10-20 20:51:49,310  INFO    =================================================================
+2026-10-20 20:51:49,313  INFO      Already fetched: 46 dates
+2026-10-20 20:51:49,314  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-20 20:51:49,314  INFO    
+2026-10-20 20:51:49,719  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 20:51:51,220  INFO    
+2026-10-20 20:51:51,221  INFO    =================================================================
+2026-10-20 20:51:51,222  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-20 20:51:51,222  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 20:51:51,223  INFO    =================================================================
+2026-10-20 21:10:05,211  INFO    =================================================================
+2026-10-20 21:10:05,213  INFO      NSE Bhavcopy Downloader  |  2026-10-20 21:10:05
+2026-10-20 21:10:05,213  INFO      Range : 2026-10-19 -> 2026-10-19
+2026-10-20 21:10:05,214  INFO      Dry   : False
+2026-10-20 21:10:05,214  INFO    =================================================================
+2026-10-20 21:10:05,224  INFO      Already fetched: 46 dates
+2026-10-20 21:10:05,225  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-20 21:10:05,225  INFO    
+2026-10-20 21:10:05,613  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 21:10:07,116  INFO    
+2026-10-20 21:10:07,117  INFO    =================================================================
+2026-10-20 21:10:07,117  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-20 21:10:07,118  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 21:10:07,118  INFO    =================================================================
+2026-10-20 23:30:59,079  INFO    =================================================================
+2026-10-20 23:30:59,080  INFO      NSE Bhavcopy Downloader  |  2026-10-20 23:30:59
+2026-10-20 23:30:59,080  INFO      Range : 2026-10-19 -> 2026-10-19
+2026-10-20 23:30:59,080  INFO      Dry   : False
+2026-10-20 23:30:59,080  INFO    =================================================================
+2026-10-20 23:30:59,083  INFO      Already fetched: 46 dates
+2026-10-20 23:30:59,083  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-20 23:30:59,083  INFO    
+2026-10-20 23:30:59,326  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 23:31:00,828  INFO    
+2026-10-20 23:31:00,828  INFO    =================================================================
+2026-10-20 23:31:00,828  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-20 23:31:00,828  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 23:31:00,829  INFO    =================================================================
+2026-10-20 23:55:20,170  INFO    =================================================================
+2026-10-20 23:55:20,170  INFO      NSE Bhavcopy Downloader  |  2026-10-20 23:55:20
+2026-10-20 23:55:20,170  INFO      Range : 2026-10-19 -> 2026-10-19
+2026-10-20 23:55:20,171  INFO      Dry   : False
+2026-10-20 23:55:20,171  INFO    =================================================================
+2026-10-20 23:55:20,173  INFO      Already fetched: 46 dates
+2026-10-20 23:55:20,173  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-20 23:55:20,173  INFO    
+2026-10-20 23:55:20,374  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-20 23:55:21,875  INFO    
+2026-10-20 23:55:21,876  INFO    =================================================================
+2026-10-20 23:55:21,876  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-20 23:55:21,876  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-20 23:55:21,877  INFO    =================================================================
+2026-10-21 00:10:22,442  INFO    =================================================================
+2026-10-21 00:10:22,442  INFO      NSE Bhavcopy Downloader  |  2026-10-21 00:10:22
+2026-10-21 00:10:22,443  INFO      Range : 2026-10-20 -> 2026-10-20
+2026-10-21 00:10:22,443  INFO      Dry   : False
+2026-10-21 00:10:22,443  INFO    =================================================================
+2026-10-21 00:10:22,445  INFO      Already fetched: 46 dates
+2026-10-21 00:10:22,445  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-21 00:10:22,445  INFO    
+2026-10-21 00:10:22,685  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-21 00:10:24,186  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-21 00:10:25,138  INFO    
+2026-10-21 00:10:25,138  INFO    =================================================================
+2026-10-21 00:10:25,139  INFO      DONE   OK=0  SKIP=1  FAIL=0
+2026-10-21 00:10:25,139  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-21 00:10:25,139  INFO    =================================================================
+2026-10-21 10:26:11,965  INFO    =================================================================
+2026-10-21 10:26:11,966  INFO      NSE Bhavcopy Downloader  |  2026-10-21 10:26:11
+2026-10-21 10:26:11,967  INFO      Range : 2026-10-20 -> 2026-10-20
+2026-10-21 10:26:11,967  INFO      Dry   : False
+2026-10-21 10:26:11,968  INFO    =================================================================
+2026-10-21 10:26:11,976  INFO      Already fetched: 46 dates
+2026-10-21 10:26:11,977  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-21 10:26:11,977  INFO    
+2026-10-21 10:26:12,428  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-21 10:26:13,930  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-21 10:26:14,902  INFO    
+2026-10-21 10:26:14,903  INFO    =================================================================
+2026-10-21 10:26:14,904  INFO      DONE   OK=0  SKIP=1  FAIL=0
+2026-10-21 10:26:14,904  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-21 10:26:14,905  INFO    =================================================================
+2026-10-22 09:19:49,900  INFO    =================================================================
+2026-10-22 09:19:49,901  INFO      NSE Bhavcopy Downloader  |  2026-10-22 09:19:49
+2026-10-22 09:19:49,901  INFO      Range : 2026-10-20 -> 2026-10-21
+2026-10-22 09:19:49,901  INFO      Dry   : False
+2026-10-22 09:19:49,902  INFO    =================================================================
+2026-10-22 09:19:49,905  INFO      Already fetched: 46 dates
+2026-10-22 09:19:49,905  INFO      To fetch : 2 dates  |  Skipping 0 already done
+2026-10-22 09:19:49,905  INFO    
+2026-10-22 09:19:50,147  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-22 09:19:51,648  INFO      [1/2  50%]  OK=0  SKIP=0  FAIL=0
+2026-10-22 09:20:03,055  INFO    
+2026-10-22 09:20:03,055  INFO    =================================================================
+2026-10-22 09:20:03,055  INFO      DONE   OK=1  SKIP=1  FAIL=0
+2026-10-22 09:20:03,055  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-22 09:20:03,055  INFO    =================================================================
+2026-10-22 09:20:03,517  INFO      DB: 735,570 option rows  |  49 trading days  |  2024-12-23 -> 2026-10-21
+2026-10-22 21:05:03,601  INFO    =================================================================
+2026-10-22 21:05:03,601  INFO      NSE Bhavcopy Downloader  |  2026-10-22 21:05:03
+2026-10-22 21:05:03,601  INFO      Range : 2026-10-21 -> 2026-10-21
+2026-10-22 21:05:03,601  INFO      Dry   : False
+2026-10-22 21:05:03,601  INFO    =================================================================
+2026-10-22 21:05:03,603  INFO      Already fetched: 47 dates
+2026-10-22 21:05:03,604  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-22 21:05:03,604  INFO    
+2026-10-22 21:05:04,031  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-22 21:05:05,533  INFO    
+2026-10-22 21:05:05,534  INFO    =================================================================
+2026-10-22 21:05:05,534  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-22 21:05:05,535  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-22 21:05:05,535  INFO    =================================================================
+2026-10-24 08:43:03,940  INFO    =================================================================
+2026-10-24 08:43:03,942  INFO      NSE Bhavcopy Downloader  |  2026-10-24 08:43:03
+2026-10-24 08:43:03,943  INFO      Range : 2026-10-22 -> 2026-10-23
+2026-10-24 08:43:03,943  INFO      Dry   : False
+2026-10-24 08:43:03,943  INFO    =================================================================
+2026-10-24 08:43:03,954  INFO      Already fetched: 47 dates
+2026-10-24 08:43:03,954  INFO      To fetch : 2 dates  |  Skipping 0 already done
+2026-10-24 08:43:03,955  INFO    
+2026-10-24 08:43:04,419  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-24 08:43:05,921  INFO      [1/2  50%]  OK=0  SKIP=0  FAIL=0
+2026-10-24 08:44:01,936  INFO    
+2026-10-24 08:44:01,937  INFO    =================================================================
+2026-10-24 08:44:01,938  INFO      DONE   OK=2  SKIP=0  FAIL=0
+2026-10-24 08:44:01,939  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-24 08:44:01,939  INFO    =================================================================
+2026-10-24 08:44:03,662  INFO      DB: 767,067 option rows  |  51 trading days  |  2024-12-23 -> 2026-10-23
+2026-10-24 21:05:01,697  INFO    =================================================================
+2026-10-24 21:05:01,698  INFO      NSE Bhavcopy Downloader  |  2026-10-24 21:05:01
+2026-10-24 21:05:01,698  INFO      Range : 2026-10-23 -> 2026-10-23
+2026-10-24 21:05:01,698  INFO      Dry   : False
+2026-10-24 21:05:01,698  INFO    =================================================================
+2026-10-24 21:05:01,702  INFO      Already fetched: 49 dates
+2026-10-24 21:05:01,702  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-24 21:05:01,702  INFO    
+2026-10-24 21:05:01,956  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-24 21:05:03,458  INFO    
+2026-10-24 21:05:03,459  INFO    =================================================================
+2026-10-24 21:05:03,459  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-24 21:05:03,459  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-24 21:05:03,460  INFO    =================================================================
+2026-10-25 21:10:03,835  INFO    =================================================================
+2026-10-25 21:10:03,836  INFO      NSE Bhavcopy Downloader  |  2026-10-25 21:10:03
+2026-10-25 21:10:03,836  INFO      Range : 2026-10-24 -> 2026-10-24
+2026-10-25 21:10:03,837  INFO      Dry   : False
+2026-10-25 21:10:03,837  INFO    =================================================================
+2026-10-25 21:10:03,843  INFO      Already fetched: 49 dates
+2026-10-25 21:10:03,844  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-25 21:10:03,844  INFO    
+2026-10-25 21:10:04,107  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-25 21:10:05,609  INFO    
+2026-10-25 21:10:05,610  INFO    =================================================================
+2026-10-25 21:10:05,610  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-25 21:10:05,611  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-25 21:10:05,611  INFO    =================================================================
+2026-10-25 23:13:16,965  INFO    =================================================================
+2026-10-25 23:13:16,966  INFO      NSE Bhavcopy Downloader  |  2026-10-25 23:13:16
+2026-10-25 23:13:16,966  INFO      Range : 2026-10-24 -> 2026-10-24
+2026-10-25 23:13:16,966  INFO      Dry   : False
+2026-10-25 23:13:16,966  INFO    =================================================================
+2026-10-25 23:13:16,970  INFO      Already fetched: 49 dates
+2026-10-25 23:13:16,971  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-25 23:13:16,971  INFO    
+2026-10-25 23:13:17,284  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-25 23:13:18,786  INFO    
+2026-10-25 23:13:18,787  INFO    =================================================================
+2026-10-25 23:13:18,787  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-25 23:13:18,788  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-25 23:13:18,788  INFO    =================================================================
+2026-10-26 00:02:16,565  INFO    =================================================================
+2026-10-26 00:02:16,567  INFO      NSE Bhavcopy Downloader  |  2026-10-26 00:02:16
+2026-10-26 00:02:16,573  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 00:02:16,575  INFO      Dry   : False
+2026-10-26 00:02:16,575  INFO    =================================================================
+2026-10-26 00:02:16,584  INFO      Already fetched: 49 dates
+2026-10-26 00:02:16,585  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 00:02:16,587  INFO    
+2026-10-26 00:02:17,325  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 00:02:18,828  INFO    
+2026-10-26 00:02:18,829  INFO    =================================================================
+2026-10-26 00:02:18,831  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 00:02:18,832  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 00:02:18,833  INFO    =================================================================
+2026-10-26 03:57:04,385  INFO    =================================================================
+2026-10-26 03:57:04,386  INFO      NSE Bhavcopy Downloader  |  2026-10-26 03:57:04
+2026-10-26 03:57:04,386  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 03:57:04,386  INFO      Dry   : False
+2026-10-26 03:57:04,386  INFO    =================================================================
+2026-10-26 03:57:04,389  INFO      Already fetched: 49 dates
+2026-10-26 03:57:04,389  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 03:57:04,389  INFO    
+2026-10-26 03:57:04,698  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 03:57:06,200  INFO    
+2026-10-26 03:57:06,200  INFO    =================================================================
+2026-10-26 03:57:06,200  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 03:57:06,201  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 03:57:06,201  INFO    =================================================================
+2026-10-26 10:18:44,233  INFO    =================================================================
+2026-10-26 10:18:44,233  INFO      NSE Bhavcopy Downloader  |  2026-10-26 10:18:44
+2026-10-26 10:18:44,233  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 10:18:44,233  INFO      Dry   : False
+2026-10-26 10:18:44,234  INFO    =================================================================
+2026-10-26 10:18:44,236  INFO      Already fetched: 49 dates
+2026-10-26 10:18:44,236  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 10:18:44,236  INFO    
+2026-10-26 10:18:44,470  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 10:18:45,972  INFO    
+2026-10-26 10:18:45,972  INFO    =================================================================
+2026-10-26 10:18:45,973  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 10:18:45,973  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 10:18:45,974  INFO    =================================================================
+2026-10-26 10:37:00,301  INFO    =================================================================
+2026-10-26 10:37:00,301  INFO      NSE Bhavcopy Downloader  |  2026-10-26 10:37:00
+2026-10-26 10:37:00,302  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 10:37:00,302  INFO      Dry   : False
+2026-10-26 10:37:00,302  INFO    =================================================================
+2026-10-26 10:37:00,304  INFO      Already fetched: 49 dates
+2026-10-26 10:37:00,305  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 10:37:00,305  INFO    
+2026-10-26 10:37:00,712  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 10:37:02,213  INFO    
+2026-10-26 10:37:02,214  INFO    =================================================================
+2026-10-26 10:37:02,214  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 10:37:02,214  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 10:37:02,214  INFO    =================================================================
+2026-10-26 10:53:28,392  INFO    =================================================================
+2026-10-26 10:53:28,392  INFO      NSE Bhavcopy Downloader  |  2026-10-26 10:53:28
+2026-10-26 10:53:28,392  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 10:53:28,393  INFO      Dry   : False
+2026-10-26 10:53:28,393  INFO    =================================================================
+2026-10-26 10:53:28,397  INFO      Already fetched: 49 dates
+2026-10-26 10:53:28,397  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 10:53:28,397  INFO    
+2026-10-26 10:53:28,909  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 10:53:30,410  INFO    
+2026-10-26 10:53:30,410  INFO    =================================================================
+2026-10-26 10:53:30,410  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 10:53:30,411  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 10:53:30,411  INFO    =================================================================
+2026-10-26 13:39:44,382  INFO    =================================================================
+2026-10-26 13:39:44,383  INFO      NSE Bhavcopy Downloader  |  2026-10-26 13:39:44
+2026-10-26 13:39:44,383  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 13:39:44,383  INFO      Dry   : False
+2026-10-26 13:39:44,383  INFO    =================================================================
+2026-10-26 13:39:44,386  INFO      Already fetched: 49 dates
+2026-10-26 13:39:44,387  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 13:39:44,387  INFO    
+2026-10-26 13:39:44,617  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 13:39:46,119  INFO    
+2026-10-26 13:39:46,120  INFO    =================================================================
+2026-10-26 13:39:46,120  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 13:39:46,120  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 13:39:46,120  INFO    =================================================================
+2026-10-26 15:25:30,370  INFO    =================================================================
+2026-10-26 15:25:30,371  INFO      NSE Bhavcopy Downloader  |  2026-10-26 15:25:30
+2026-10-26 15:25:30,371  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 15:25:30,371  INFO      Dry   : False
+2026-10-26 15:25:30,372  INFO    =================================================================
+2026-10-26 15:25:30,374  INFO      Already fetched: 49 dates
+2026-10-26 15:25:30,375  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 15:25:30,375  INFO    
+2026-10-26 15:25:30,629  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 15:25:32,130  INFO    
+2026-10-26 15:25:32,131  INFO    =================================================================
+2026-10-26 15:25:32,131  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 15:25:32,131  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 15:25:32,132  INFO    =================================================================
+2026-10-26 15:44:13,932  INFO    =================================================================
+2026-10-26 15:44:13,933  INFO      NSE Bhavcopy Downloader  |  2026-10-26 15:44:13
+2026-10-26 15:44:13,933  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 15:44:13,933  INFO      Dry   : False
+2026-10-26 15:44:13,933  INFO    =================================================================
+2026-10-26 15:44:13,936  INFO      Already fetched: 49 dates
+2026-10-26 15:44:13,936  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 15:44:13,936  INFO    
+2026-10-26 15:44:14,346  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 15:44:15,848  INFO    
+2026-10-26 15:44:15,849  INFO    =================================================================
+2026-10-26 15:44:15,850  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 15:44:15,850  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 15:44:15,851  INFO    =================================================================
+2026-10-26 17:42:31,401  INFO    =================================================================
+2026-10-26 17:42:31,402  INFO      NSE Bhavcopy Downloader  |  2026-10-26 17:42:31
+2026-10-26 17:42:31,402  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 17:42:31,402  INFO      Dry   : False
+2026-10-26 17:42:31,403  INFO    =================================================================
+2026-10-26 17:42:31,405  INFO      Already fetched: 49 dates
+2026-10-26 17:42:31,406  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 17:42:31,406  INFO    
+2026-10-26 17:42:31,697  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 17:42:33,200  INFO    
+2026-10-26 17:42:33,201  INFO    =================================================================
+2026-10-26 17:42:33,202  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 17:42:33,202  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 17:42:33,203  INFO    =================================================================
+2026-10-26 19:07:52,551  INFO    =================================================================
+2026-10-26 19:07:52,551  INFO      NSE Bhavcopy Downloader  |  2026-10-26 19:07:52
+2026-10-26 19:07:52,552  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 19:07:52,552  INFO      Dry   : False
+2026-10-26 19:07:52,552  INFO    =================================================================
+2026-10-26 19:07:52,558  INFO      Already fetched: 49 dates
+2026-10-26 19:07:52,558  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 19:07:52,558  INFO    
+2026-10-26 19:07:53,017  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 19:07:54,519  INFO    
+2026-10-26 19:07:54,519  INFO    =================================================================
+2026-10-26 19:07:54,520  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 19:07:54,520  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 19:07:54,520  INFO    =================================================================
+2026-10-26 20:11:05,506  INFO    =================================================================
+2026-10-26 20:11:05,506  INFO      NSE Bhavcopy Downloader  |  2026-10-26 20:11:05
+2026-10-26 20:11:05,506  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 20:11:05,507  INFO      Dry   : False
+2026-10-26 20:11:05,507  INFO    =================================================================
+2026-10-26 20:11:05,509  INFO      Already fetched: 49 dates
+2026-10-26 20:11:05,509  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 20:11:05,509  INFO    
+2026-10-26 20:11:06,088  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 20:11:07,590  INFO    
+2026-10-26 20:11:07,590  INFO    =================================================================
+2026-10-26 20:11:07,591  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 20:11:07,591  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 20:11:07,592  INFO    =================================================================
+2026-10-26 21:06:51,711  INFO    =================================================================
+2026-10-26 21:06:51,712  INFO      NSE Bhavcopy Downloader  |  2026-10-26 21:06:51
+2026-10-26 21:06:51,712  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 21:06:51,712  INFO      Dry   : False
+2026-10-26 21:06:51,712  INFO    =================================================================
+2026-10-26 21:06:51,714  INFO      Already fetched: 49 dates
+2026-10-26 21:06:51,714  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 21:06:51,715  INFO    
+2026-10-26 21:06:52,009  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 21:06:53,511  INFO    
+2026-10-26 21:06:53,511  INFO    =================================================================
+2026-10-26 21:06:53,511  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 21:06:53,512  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 21:06:53,512  INFO    =================================================================
+2026-10-26 21:11:23,551  INFO    =================================================================
+2026-10-26 21:11:23,552  INFO      NSE Bhavcopy Downloader  |  2026-10-26 21:11:23
+2026-10-26 21:11:23,552  INFO      Range : 2026-10-24 -> 2026-10-25
+2026-10-26 21:11:23,553  INFO      Dry   : False
+2026-10-26 21:11:23,553  INFO    =================================================================
+2026-10-26 21:11:23,555  INFO      Already fetched: 49 dates
+2026-10-26 21:11:23,556  INFO      To fetch : 0 dates  |  Skipping 0 already done
+2026-10-26 21:11:23,556  INFO    
+2026-10-26 21:11:23,769  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-26 21:11:25,270  INFO    
+2026-10-26 21:11:25,271  INFO    =================================================================
+2026-10-26 21:11:25,271  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-26 21:11:25,271  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-26 21:11:25,272  INFO    =================================================================
+2026-10-27 09:57:06,468  INFO    =================================================================
+2026-10-27 09:57:06,469  INFO      NSE Bhavcopy Downloader  |  2026-10-27 09:57:06
+2026-10-27 09:57:06,470  INFO      Range : 2026-10-24 -> 2026-10-26
+2026-10-27 09:57:06,470  INFO      Dry   : False
+2026-10-27 09:57:06,470  INFO    =================================================================
+2026-10-27 09:57:06,473  INFO      Already fetched: 49 dates
+2026-10-27 09:57:06,473  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-27 09:57:06,473  INFO    
+2026-10-27 09:57:06,978  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-27 09:57:08,480  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-27 09:57:40,932  INFO    
+2026-10-27 09:57:40,933  INFO    =================================================================
+2026-10-27 09:57:40,934  INFO      DONE   OK=1  SKIP=0  FAIL=0
+2026-10-27 09:57:40,935  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-27 09:57:40,935  INFO    =================================================================
+2026-10-27 09:57:42,317  INFO      DB: 775,328 option rows  |  52 trading days  |  2024-12-23 -> 2026-10-27
+2026-10-27 12:53:16,355  INFO    =================================================================
+2026-10-27 12:53:16,355  INFO      NSE Bhavcopy Downloader  |  2026-10-27 12:53:16
+2026-10-27 12:53:16,356  INFO      Range : 2026-10-26 -> 2026-10-26
+2026-10-27 12:53:16,356  INFO      Dry   : False
+2026-10-27 12:53:16,356  INFO    =================================================================
+2026-10-27 12:53:16,360  INFO      Already fetched: 50 dates
+2026-10-27 12:53:16,361  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-27 12:53:16,361  INFO    
+2026-10-27 12:53:17,700  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-27 12:53:19,202  INFO    
+2026-10-27 12:53:19,202  INFO    =================================================================
+2026-10-27 12:53:19,202  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-27 12:53:19,203  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-27 12:53:19,203  INFO    =================================================================
+2026-10-27 15:47:00,931  INFO    =================================================================
+2026-10-27 15:47:00,932  INFO      NSE Bhavcopy Downloader  |  2026-10-27 15:47:00
+2026-10-27 15:47:00,932  INFO      Range : 2026-10-26 -> 2026-10-26
+2026-10-27 15:47:00,932  INFO      Dry   : False
+2026-10-27 15:47:00,933  INFO    =================================================================
+2026-10-27 15:47:00,939  INFO      Already fetched: 50 dates
+2026-10-27 15:47:00,940  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-27 15:47:00,940  INFO    
+2026-10-27 15:47:01,232  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-27 15:47:02,734  INFO    
+2026-10-27 15:47:02,735  INFO    =================================================================
+2026-10-27 15:47:02,738  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-27 15:47:02,739  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-27 15:47:02,739  INFO    =================================================================
+2026-10-27 16:18:22,349  INFO    =================================================================
+2026-10-27 16:18:22,350  INFO      NSE Bhavcopy Downloader  |  2026-10-27 16:18:22
+2026-10-27 16:18:22,350  INFO      Range : 2026-10-26 -> 2026-10-26
+2026-10-27 16:18:22,351  INFO      Dry   : False
+2026-10-27 16:18:22,351  INFO    =================================================================
+2026-10-27 16:18:22,353  INFO      Already fetched: 50 dates
+2026-10-27 16:18:22,354  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-27 16:18:22,354  INFO    
+2026-10-27 16:18:23,777  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-27 16:18:25,280  INFO    
+2026-10-27 16:18:25,280  INFO    =================================================================
+2026-10-27 16:18:25,281  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-27 16:18:25,281  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-27 16:18:25,282  INFO    =================================================================
+2026-10-27 20:27:58,537  INFO    =================================================================
+2026-10-27 20:27:58,537  INFO      NSE Bhavcopy Downloader  |  2026-10-27 20:27:58
+2026-10-27 20:27:58,538  INFO      Range : 2026-10-26 -> 2026-10-26
+2026-10-27 20:27:58,538  INFO      Dry   : False
+2026-10-27 20:27:58,538  INFO    =================================================================
+2026-10-27 20:27:58,541  INFO      Already fetched: 50 dates
+2026-10-27 20:27:58,542  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-27 20:27:58,542  INFO    
+2026-10-27 20:27:58,764  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-27 20:28:00,265  INFO    
+2026-10-27 20:28:00,266  INFO    =================================================================
+2026-10-27 20:28:00,266  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-27 20:28:00,266  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-27 20:28:00,267  INFO    =================================================================
+2026-10-27 22:59:56,042  INFO    =================================================================
+2026-10-27 22:59:56,043  INFO      NSE Bhavcopy Downloader  |  2026-10-27 22:59:56
+2026-10-27 22:59:56,043  INFO      Range : 2026-10-26 -> 2026-10-26
+2026-10-27 22:59:56,043  INFO      Dry   : False
+2026-10-27 22:59:56,043  INFO    =================================================================
+2026-10-27 22:59:56,046  INFO      Already fetched: 50 dates
+2026-10-27 22:59:56,047  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-27 22:59:56,047  INFO    
+2026-10-27 22:59:57,686  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-27 22:59:59,188  INFO    
+2026-10-27 22:59:59,188  INFO    =================================================================
+2026-10-27 22:59:59,188  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-27 22:59:59,188  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-27 22:59:59,189  INFO    =================================================================
+2026-10-27 23:40:48,665  INFO    =================================================================
+2026-10-27 23:40:48,666  INFO      NSE Bhavcopy Downloader  |  2026-10-27 23:40:48
+2026-10-27 23:40:48,667  INFO      Range : 2026-10-26 -> 2026-10-26
+2026-10-27 23:40:48,667  INFO      Dry   : False
+2026-10-27 23:40:48,667  INFO    =================================================================
+2026-10-27 23:40:48,670  INFO      Already fetched: 50 dates
+2026-10-27 23:40:48,670  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-27 23:40:48,670  INFO    
+2026-10-27 23:40:49,062  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-27 23:40:50,564  INFO    
+2026-10-27 23:40:50,565  INFO    =================================================================
+2026-10-27 23:40:50,566  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-27 23:40:50,566  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-27 23:40:50,567  INFO    =================================================================
+2026-10-28 10:46:58,291  INFO    =================================================================
+2026-10-28 10:46:58,293  INFO      NSE Bhavcopy Downloader  |  2026-10-28 10:46:58
+2026-10-28 10:46:58,295  INFO      Range : 2026-10-27 -> 2026-10-27
+2026-10-28 10:46:58,296  INFO      Dry   : False
+2026-10-28 10:46:58,296  INFO    =================================================================
+2026-10-28 10:46:58,299  INFO      Already fetched: 50 dates
+2026-10-28 10:46:58,299  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-28 10:46:58,299  INFO    
+2026-10-28 10:46:58,611  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-28 10:47:00,112  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-28 10:47:14,392  INFO    
+2026-10-28 10:47:14,393  INFO    =================================================================
+2026-10-28 10:47:14,393  INFO      DONE   OK=1  SKIP=0  FAIL=0
+2026-10-28 10:47:14,394  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-28 10:47:14,394  INFO    =================================================================
+2026-10-28 10:47:14,942  INFO      DB: 795,672 option rows  |  53 trading days  |  2024-12-23 -> 2026-10-28
+2026-10-28 12:13:07,334  INFO    =================================================================
+2026-10-28 12:13:07,335  INFO      NSE Bhavcopy Downloader  |  2026-10-28 12:13:07
+2026-10-28 12:13:07,336  INFO      Range : 2026-10-27 -> 2026-10-27
+2026-10-28 12:13:07,336  INFO      Dry   : False
+2026-10-28 12:13:07,336  INFO    =================================================================
+2026-10-28 12:13:07,339  INFO      Already fetched: 51 dates
+2026-10-28 12:13:07,339  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-28 12:13:07,339  INFO    
+2026-10-28 12:13:07,581  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-28 12:13:09,082  INFO    
+2026-10-28 12:13:09,083  INFO    =================================================================
+2026-10-28 12:13:09,083  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-28 12:13:09,084  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-28 12:13:09,085  INFO    =================================================================
+2026-10-28 12:59:34,042  INFO    =================================================================
+2026-10-28 12:59:34,043  INFO      NSE Bhavcopy Downloader  |  2026-10-28 12:59:34
+2026-10-28 12:59:34,043  INFO      Range : 2026-10-27 -> 2026-10-27
+2026-10-28 12:59:34,043  INFO      Dry   : False
+2026-10-28 12:59:34,044  INFO    =================================================================
+2026-10-28 12:59:34,047  INFO      Already fetched: 51 dates
+2026-10-28 12:59:34,048  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-28 12:59:34,048  INFO    
+2026-10-28 12:59:34,426  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-28 12:59:35,928  INFO    
+2026-10-28 12:59:35,928  INFO    =================================================================
+2026-10-28 12:59:35,929  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-28 12:59:35,929  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-28 12:59:35,930  INFO    =================================================================
+2026-10-28 14:06:38,985  INFO    =================================================================
+2026-10-28 14:06:38,985  INFO      NSE Bhavcopy Downloader  |  2026-10-28 14:06:38
+2026-10-28 14:06:38,986  INFO      Range : 2026-10-27 -> 2026-10-27
+2026-10-28 14:06:38,986  INFO      Dry   : False
+2026-10-28 14:06:38,986  INFO    =================================================================
+2026-10-28 14:06:38,989  INFO      Already fetched: 51 dates
+2026-10-28 14:06:38,989  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-28 14:06:38,989  INFO    
+2026-10-28 14:06:39,268  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-28 14:06:40,771  INFO    
+2026-10-28 14:06:40,771  INFO    =================================================================
+2026-10-28 14:06:40,772  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-28 14:06:40,772  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-28 14:06:40,772  INFO    =================================================================
+2026-10-29 03:35:49,931  INFO    =================================================================
+2026-10-29 03:35:49,932  INFO      NSE Bhavcopy Downloader  |  2026-10-29 03:35:49
+2026-10-29 03:35:49,932  INFO      Range : 2026-10-28 -> 2026-10-28
+2026-10-29 03:35:49,932  INFO      Dry   : False
+2026-10-29 03:35:49,933  INFO    =================================================================
+2026-10-29 03:35:49,935  INFO      Already fetched: 51 dates
+2026-10-29 03:35:49,935  INFO      To fetch : 1 dates  |  Skipping 0 already done
+2026-10-29 03:35:49,936  INFO    
+2026-10-29 03:35:50,290  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-29 03:35:51,790  INFO      [1/1  100%]  OK=0  SKIP=0  FAIL=0
+2026-10-29 03:36:02,396  INFO    
+2026-10-29 03:36:02,397  INFO    =================================================================
+2026-10-29 03:36:02,397  INFO      DONE   OK=1  SKIP=0  FAIL=0
+2026-10-29 03:36:02,397  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-29 03:36:02,398  INFO    =================================================================
+2026-10-29 03:36:03,004  INFO      DB: 811,465 option rows  |  53 trading days  |  2024-12-23 -> 2026-10-28
+2026-10-29 08:55:50,543  INFO    =================================================================
+2026-10-29 08:55:50,544  INFO      NSE Bhavcopy Downloader  |  2026-10-29 08:55:50
+2026-10-29 08:55:50,546  INFO      Range : 2026-10-28 -> 2026-10-28
+2026-10-29 08:55:50,547  INFO      Dry   : False
+2026-10-29 08:55:50,548  INFO    =================================================================
+2026-10-29 08:55:50,553  INFO      Already fetched: 52 dates
+2026-10-29 08:55:50,553  INFO      To fetch : 0 dates  |  Skipping 1 already done
+2026-10-29 08:55:50,553  INFO    
+2026-10-29 08:55:51,097  INFO      Warm-up OK [200]: https://www.nseindia.com/market-data/equity-derivatives-watch
+2026-10-29 08:55:52,602  INFO    
+2026-10-29 08:55:52,603  INFO    =================================================================
+2026-10-29 08:55:52,604  INFO      DONE   OK=0  SKIP=0  FAIL=0
+2026-10-29 08:55:52,605  INFO      Log: D:\VPROFITABLES\vprofitables\bhavcopy_download.log
+2026-10-29 08:55:52,606  INFO    =================================================================

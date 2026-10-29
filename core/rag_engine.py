@@ -151,38 +151,128 @@ def _extract_text_from_pdf_bytes(raw: bytes) -> str:
         return "\n".join(page.get_text() for page in doc)
     except Exception:
         pass
-    # Last resort: naive decode (works for text-layer PDFs)
-    return raw.decode("utf-8", errors="replace")
+    try:
+        import pypdf, io
+        reader = pypdf.PdfReader(io.BytesIO(raw))
+        t = "\n".join(page.extract_text() or "" for page in reader.pages)
+        if len(t.strip()) > 100:
+            return t
+    except Exception:
+        pass
+    return ""
 
 # ══════════════════════════════════════════════════════════════════════════════
 # CHUNKING
 # ══════════════════════════════════════════════════════════════════════════════
 
+def classify_speaker(turn: str) -> Tuple[str, str]:
+    """
+    Classify speaker role as EXECUTIVE, ANALYST, or OPERATOR.
+    Returns (role, speaker_name).
+    """
+    first_line = turn.split('\n')[0].strip() if '\n' in turn else turn[:60]
+    first_line_lower = first_line.lower()
+
+    exec_keywords = ['management', 'md', 'ceo', 'cfo', 'chairman', 'director', 'president', 'coo', 'vp', 'officer', 'a:']
+    if any(k in first_line_lower for k in exec_keywords):
+        name = first_line.split(':')[0].strip() if ':' in first_line else "Executive"
+        return "EXECUTIVE", name
+
+    analyst_keywords = ['analyst', 'securities', 'capital', 'research', 'equities', 'incred', 'investec', 'nomura', 'q:']
+    if any(k in first_line_lower for k in analyst_keywords):
+        name = first_line.split(':')[0].strip() if ':' in first_line else "Analyst"
+        return "ANALYST", name
+
+    if 'operator' in first_line_lower or 'moderator' in first_line_lower:
+        return "OPERATOR", "Operator"
+
+    return "GENERAL", first_line.split(':')[0].strip() if ':' in first_line else "Speaker"
+
+def extract_fiscal_period(text: str, filename: str = "") -> str:
+    """
+    Extract standardized fiscal period (e.g. '2025-Q2', '2024-Q4').
+    Checks text header first, then filename. Never returns 'Recent'.
+    """
+    combined = f"{filename} {text[:800]}"
+    m = re.search(r'\b(Q[1-4]|1Q|2Q|3Q|4Q)\s*(?:FY|20)?(\d{2,4})\b', combined, re.IGNORECASE)
+    if m:
+        q_raw, yr_raw = m.group(1).upper(), m.group(2)
+        q = q_raw if q_raw.startswith('Q') else f"Q{q_raw[0]}"
+        yr = int(yr_raw)
+        if yr < 100: yr += 2000
+        return f"{yr}-{q}"
+
+    month_map = {
+        'jan': 'Q4', 'feb': 'Q4', 'mar': 'Q4',
+        'apr': 'Q1', 'may': 'Q1', 'jun': 'Q1',
+        'jul': 'Q2', 'aug': 'Q2', 'sep': 'Q2',
+        'oct': 'Q3', 'nov': 'Q3', 'dec': 'Q3'
+    }
+    m2 = re.search(r'\b(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+(\d{4})\b', combined, re.IGNORECASE)
+    if m2:
+        mon = m2.group(1)[:3].lower()
+        yr = int(m2.group(2))
+        q = month_map.get(mon, 'Q2')
+        fy_year = yr if mon in ['jan', 'feb', 'mar'] else yr + 1
+        return f"{fy_year}-{q}"
+
+    m3 = re.search(r'\b(202\d)\b', combined)
+    if m3:
+        return f"{m3.group(1)}-Q4"
+
+    return "FY25"
+
+BOILERPLATE_REGEXES = [
+    re.compile(r"safe\s*harbor", re.I),
+    re.compile(r"forward-looking\s*statement", re.I),
+    re.compile(r"listen-only\s*mode", re.I),
+    re.compile(r"touch-?tone\s*telephone", re.I),
+    re.compile(r"does\s*not\s*constitute\s*an\s*offer\s*to\s*(?:buy|sell)", re.I),
+    re.compile(r"undertakes\s*no\s*obligation\s*to\s*(?:publicly\s*)?update", re.I),
+    re.compile(r"ladies\s*and\s*gentlemen\s*,\s*good\s*day\s*and\s*welcome", re.I),
+    re.compile(r"please\s*press\s*\*?\s*(?:then|and)?\s*1", re.I),
+    re.compile(r"give\s*your\s*name\s*and\s*company\s*name", re.I),
+    re.compile(r"i\s*now\s*hand\s*the\s*conference\s*over\s*to", re.I),
+]
+
+def is_boilerplate(text: str) -> bool:
+    """Detect Safe Harbor disclaimers, operator greetings, and legal roll-call boilerplate."""
+    t_clean = text.strip()
+    if len(t_clean) < 70:
+        return True
+    matches = sum(1 for rgx in BOILERPLATE_REGEXES if rgx.search(t_clean))
+    if matches >= 1:
+        if "forward-looking" in t_clean.lower() or "listen-only" in t_clean.lower() or matches >= 2:
+            return True
+        if len(t_clean) < 400 and ("welcome" in t_clean.lower() or "moderator" in t_clean.lower()):
+            return True
+    return False
+
 def chunk_transcript(text: str, symbol: str) -> List[Dict]:
     """
-    Split an earnings call transcript by Q&A turns.
-    Pattern: lines starting with "Q:", "A:", "Operator:", speaker names.
-    Falls back to 800-word sliding window with 200-word overlap.
+    Split an earnings call transcript by Q&A turns with speaker attribution.
     """
     chunks = []
-    # Split on Q&A speaker markers
     turns = re.split(
         r'\n(?=(?:Q\s*:|A\s*:|Operator\s*:|Moderator\s*:|'
         r'Analyst\s*:|Management\s*:|[A-Z][a-z]+\s+[A-Z][a-z]+\s*:))',
         text
     )
     for i, turn in enumerate(turns):
-        turn = _clean(turn).strip()
-        if len(turn) < 60:
+        turn_clean = _clean(turn).strip()
+        if len(turn_clean) < 60 or is_boilerplate(turn_clean):
             continue
+        role, speaker_name = classify_speaker(turn)
+        annotated_text = f"[SPEAKER: {role} ({speaker_name})]\n{turn_clean[:2000]}"
         chunks.append({
-            "text":     turn[:2000],
-            "symbol":   symbol,
-            "doc_type": "transcript",
-            "chunk_id": f"{symbol}_transcript_{i}",
+            "text":         annotated_text,
+            "symbol":       symbol,
+            "doc_type":     "transcript",
+            "chunk_id":     f"{symbol}_transcript_{i}",
+            "speaker_role": role,
+            "speaker_name": speaker_name[:50]
         })
     if not chunks:
-        # Sliding window fallback
         words = text.split()
         step, size = 600, 800
         for i in range(0, len(words), step):
@@ -190,12 +280,16 @@ def chunk_transcript(text: str, symbol: str) -> List[Dict]:
             if len(block) < 60:
                 continue
             chunks.append({
-                "text":     block,
-                "symbol":   symbol,
-                "doc_type": "transcript",
-                "chunk_id": f"{symbol}_transcript_sw_{i}",
+                "text":         f"[SPEAKER: GENERAL]\n{block}",
+                "symbol":       symbol,
+                "doc_type":     "transcript",
+                "chunk_id":     f"{symbol}_transcript_sw_{i}",
+                "speaker_role": "GENERAL",
+                "speaker_name": "Speaker"
             })
     return chunks
+
+def _old_chunk_transcript_marker(): pass
 
 def chunk_report(text: str, symbol: str, doc_type: str = "analyst") -> List[Dict]:
     """
@@ -244,7 +338,13 @@ _UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"
 
 def _get(url: str, timeout: int = 10) -> Optional[bytes]:
     try:
-        req = Request(url, headers={"User-Agent": _UA})
+        headers = {
+            "User-Agent": _UA,
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,application/pdf,*/*;q=0.8",
+            "Accept-Language": "en-US,en;q=0.9",
+            "Referer": "https://www.nseindia.com/",
+        }
+        req = Request(url, headers=headers)
         with urlopen(req, timeout=timeout) as r:
             return r.read()
     except Exception:

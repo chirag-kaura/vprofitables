@@ -70,6 +70,8 @@ MODEL PERSISTENCE:
 """
 
 import os, sys, math, pickle, sqlite3
+os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
+os.environ["OMP_NUM_THREADS"] = "1"
 import numpy as np
 from datetime import date, timedelta, datetime
 from typing import Dict, List, Optional, Tuple
@@ -316,7 +318,7 @@ def _wyckoff_spring(closes: list, lows: list, volumes: list, lookback: int = 30)
         spring_detected = any(
             lows[-i] < support * 0.998 and volumes[-i] < avg_vol * 0.85
             for i in range(1, 6)
-        )
+                )
         # Recovery: current close is back above support and above 3-bar-ago close
         recovery = closes[-1] > support and closes[-1] > closes[-4]
 
@@ -421,13 +423,30 @@ def extract_features(
     max_pain_dev: float = 0.0,
     support_dev: float = -0.05,
     resistance_dev: float = 0.05,
+    close_to_vwap_ratio: float = 1.0,
+    deliverable_volume_spike_pct: float = 0.0,
+    distance_to_high_volume_pivot: float = 1.0,
+    local_pcr_change: float = 0.0,
+    atm_vol_oi_ratio: float = 0.0,
+    institutional_buy_pressure: float = 0.5,
+    net_capital_flow: float = 0.0,
+    deal_volume_pct: float = 0.0,
+    finbert_prob_bullish: float = 0.5,
+    is_guidance_raised: float = 0.0,
+    is_regulatory_risk: float = 0.0,
+    is_management_change: float = 0.0,
+    nifty50_trend_10d: float = 0.0,
+    sector_relative_strength: float = 0.0,
+    market_breadth: float = 0.5,
+    fii_index_long_pct_norm: float = 0.0,
+    retail_call_put_imbalance: float = 0.0,
+    smart_money_contrarian_bias: float = 0.0,
+    vix_value_norm: float = 0.3,
+    vix_change_5d: float = 0.0,
 ) -> Optional[np.ndarray]:
     """
     Build feature vector from all available signals.
     Returns numpy array of shape (1, N_FEATURES) or None if insufficient data.
-
-    v4.1: N_FEATURES = 41 (was 38). 3 new indicators added: ADX, Z-Score, CMO.
-    IMPORTANT: retrain models after deploying this version.
     """
     if len(closes) < 50: return None
     try:
@@ -535,7 +554,37 @@ def extract_features(
             pcr_val,
             max_pain_dev,
             support_dev,
-            resistance_dev
+            resistance_dev,
+            
+            # NEW v4.3 — Structure & Delivery (4 features)
+            close_to_vwap_ratio,
+            deliverable_volume_spike_pct,
+            distance_to_high_volume_pivot,
+            local_pcr_change,
+            
+            # NEW v4.4 — ATM Option Flow (1 feature)
+            atm_vol_oi_ratio,
+            
+            # NEW v4.5 — Bulk Deal Aggregates (3 features)
+            institutional_buy_pressure,
+            net_capital_flow,
+            deal_volume_pct,
+            
+            # NEW v4.6 — Advanced Sentiment (4 features)
+            finbert_prob_bullish,
+            is_guidance_raised,
+            is_regulatory_risk,
+            is_management_change,
+            nifty50_trend_10d,
+            sector_relative_strength,
+            market_breadth,
+
+            # NEW v4.7 — Institutional Positioning & Volatility Regime (5 features)
+            fii_index_long_pct_norm,
+            retail_call_put_imbalance,
+            smart_money_contrarian_bias,
+            vix_value_norm,
+            vix_change_5d,
         ]
         return np.array(feats, dtype=np.float32).reshape(1, -1)
     except Exception:
@@ -543,8 +592,7 @@ def extract_features(
 
 
 # IMPORTANT: N_FEATURES must match len(feats) above exactly.
-# v3.9 = 34. v4.0 = 38. v4.1 = 41. v4.2 = 45. Old .pkl models are incompatible — retrain.
-N_FEATURES = 45
+N_FEATURES = 65
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -585,8 +633,123 @@ _BULK_SIGNAL_CACHE = {}
 _INST_SCORE_CACHE = {}
 
 
-def _get_sentiment_score(conn, symbol: str, date_str: str) -> float:
-    """Query average news sentiment score for symbol over the last 3 days before date_str."""
+_NIFTY50_TREND_CACHE = {}
+_SECTOR_RS_CACHE = {}
+_MARKET_BREADTH_CACHE = {}
+
+def _get_nifty50_trend_10d(conn, date_str: str) -> float:
+    key = date_str[:10]
+    if key in _NIFTY50_TREND_CACHE: return _NIFTY50_TREND_CACHE[key]
+    try:
+        rows = conn.execute("SELECT close FROM daily_prices WHERE symbol='NIFTY50' AND trade_date <= ? ORDER BY trade_date DESC LIMIT 11", (key,)).fetchall()
+        if len(rows) >= 11:
+            curr_close = float(rows[0][0])
+            past_close = float(rows[10][0])
+            res = (curr_close / past_close) - 1.0
+        else:
+            res = 0.0
+    except Exception:
+        res = 0.0
+    _NIFTY50_TREND_CACHE[key] = res
+    return res
+
+def _get_sector_relative_strength(conn, symbol: str, date_str: str) -> float:
+    key = (symbol, date_str[:10])
+    if key in _SECTOR_RS_CACHE: return _SECTOR_RS_CACHE[key]
+    try:
+        sym_rows = conn.execute("SELECT close FROM daily_prices WHERE symbol=? AND trade_date <= ? ORDER BY trade_date DESC LIMIT 11", (symbol, date_str[:10])).fetchall()
+        if len(sym_rows) < 11:
+            res = 0.0
+        else:
+            sym_ret = (float(sym_rows[0][0]) / float(sym_rows[10][0])) - 1.0
+            nifty_ret = _get_nifty50_trend_10d(conn, date_str)
+            res = sym_ret - nifty_ret
+    except Exception:
+        res = 0.0
+    _SECTOR_RS_CACHE[key] = res
+    return res
+
+def _get_market_breadth(conn, date_str: str) -> float:
+    key = date_str[:10]
+    if key in _MARKET_BREADTH_CACHE: return _MARKET_BREADTH_CACHE[key]
+    try:
+        # Proxy for breadth: ratio of stocks closing above VWAP
+        row = conn.execute("SELECT COUNT(*), SUM(CASE WHEN close > vwap THEN 1 ELSE 0 END) FROM daily_prices WHERE trade_date = ?", (key,)).fetchone()
+        if row and row[0] > 0:
+            res = float(row[1]) / float(row[0])
+        else:
+            res = 0.5
+    except Exception:
+        res = 0.5
+    _MARKET_BREADTH_CACHE[key] = res
+    return res
+
+_PARTICIPANT_OI_CACHE = {}
+_VIX_CACHE = {}
+
+def _get_participant_oi_features(conn, date_str: str) -> Tuple[float, float, float]:
+    key = date_str[:10]
+    if key in _PARTICIPANT_OI_CACHE:
+        return _PARTICIPANT_OI_CACHE[key]
+    try:
+        row = conn.execute("""
+            SELECT fii_index_long_pct, client_net_index_calls, client_net_index_puts, smart_money_bias
+            FROM participant_sentiment_summary
+            WHERE trade_date <= ?
+            ORDER BY trade_date DESC LIMIT 1
+        """, (key,)).fetchone()
+        if row:
+            fii_pct = float(row[0] or 50.0)
+            c_calls = float(row[1] or 0.0)
+            c_puts = float(row[2] or 0.0)
+            bias_s = str(row[3] or "NEUTRAL")
+
+            fii_norm = (fii_pct - 50.0) / 50.0
+            ret_imb = (c_calls - c_puts) / max(abs(c_calls) + abs(c_puts), 1000.0)
+
+            bias_v = 0.0
+            if "EXTREME_BULLISH" in bias_s:
+                bias_v = 1.0
+            elif "BULLISH" in bias_s:
+                bias_v = 0.5
+            elif "EXTREME_BEARISH" in bias_s:
+                bias_v = -1.0
+            elif "BEARISH" in bias_s:
+                bias_v = -0.5
+
+            res = (fii_norm, ret_imb, bias_v)
+        else:
+            res = (0.0, 0.0, 0.0)
+    except Exception:
+        res = (0.0, 0.0, 0.0)
+    _PARTICIPANT_OI_CACHE[key] = res
+    return res
+
+def _get_vix_features(conn, date_str: str) -> Tuple[float, float]:
+    key = date_str[:10]
+    if key in _VIX_CACHE:
+        return _VIX_CACHE[key]
+    try:
+        rows = conn.execute("""
+            SELECT close FROM daily_prices
+            WHERE symbol='INDIAVIX' AND trade_date <= ?
+            ORDER BY trade_date DESC LIMIT 6
+        """, (key,)).fetchall()
+        if rows:
+            v_now = float(rows[0][0] or 15.0)
+            v_past = float(rows[-1][0] or v_now) if len(rows) > 1 else v_now
+            v_norm = round(min(50.0, max(5.0, v_now)) / 50.0, 4)
+            v_chg = round((v_now - v_past) / max(v_past, 1.0), 4)
+            res = (v_norm, v_chg)
+        else:
+            res = (0.3, 0.0)
+    except Exception:
+        res = (0.3, 0.0)
+    _VIX_CACHE[key] = res
+    return res
+
+def _get_news_features(conn, symbol: str, date_str: str) -> Tuple[float, float, float, float, float]:
+    """Returns (news_score, finbert_prob_bullish, is_guidance_raised, is_regulatory_risk, is_management_change)"""
     key = (symbol, date_str[:10])
     if key in _SENTIMENT_SCORE_CACHE:
         return _SENTIMENT_SCORE_CACHE[key]
@@ -594,13 +757,24 @@ def _get_sentiment_score(conn, symbol: str, date_str: str) -> float:
         t_dt = date.fromisoformat(date_str[:10])
         t_start = (t_dt - timedelta(days=3)).isoformat()
         row = conn.execute("""
-            SELECT AVG(COALESCE(calibrated_score, raw_score)) 
+            SELECT AVG(COALESCE(calibrated_score, raw_score)) as score,
+                   AVG(finbert_prob_bullish) as finbert_prob_bullish,
+                   MAX(is_guidance_raised) as is_guidance_raised,
+                   MAX(is_regulatory_risk) as is_regulatory_risk,
+                   MAX(is_management_change) as is_management_change
             FROM news_sentiment 
             WHERE symbol = ? AND published_at <= ? AND published_at >= ?
         """, (symbol, date_str[:10] + " 23:59", t_start + " 00:00")).fetchone()
-        res = float(row[0]) if row[0] is not None else 0.0
+        
+        score = float(row[0]) if row and row[0] is not None else 0.0
+        fb_bullish = float(row[1]) if row and row[1] is not None else 0.5
+        ig_raised = float(row[2]) if row and row[2] is not None else 0.0
+        ir_risk = float(row[3]) if row and row[3] is not None else 0.0
+        im_change = float(row[4]) if row and row[4] is not None else 0.0
+        
+        res = (score, fb_bullish, ig_raised, ir_risk, im_change)
     except Exception:
-        res = 0.0
+        res = (0.0, 0.5, 0.0, 0.0, 0.0)
     _SENTIMENT_SCORE_CACHE[key] = res
     return res
 
@@ -654,7 +828,7 @@ def _get_inst_score(conn, symbol: str, date_str: str) -> float:
 def build_training_data(
     symbols: Optional[List[str]] = None,
     lookback_years: int = 3,
-    forward_days: int = 10,
+    horizons: List[int] = [3, 10, 30],
     threshold_pct: float = 3.0,
     min_rows: int = 200,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -700,7 +874,7 @@ def build_training_data(
             inst = get_instrument(sym)
             planet = inst.ruling_planet if inst else "Unknown"
             rows = conn.execute("""
-                SELECT trade_date, open, high, low, close, volume
+                SELECT trade_date, open, high, low, close, volume, vwap, deliverable_qty, deliverable_pct
                 FROM daily_prices
                 WHERE symbol=? AND close IS NOT NULL AND trade_date >= ?
                 ORDER BY trade_date ASC
@@ -713,9 +887,13 @@ def build_training_data(
             highs_s   = [float(r[2] or r[4]) for r in rows]
             lows_s    = [float(r[3] or r[4]) for r in rows]
             volumes_s = [int(r[5] or 0) for r in rows]
+            vwaps_s   = [float(r[6] or r[4]) for r in rows]
+            dqty_s    = [int(r[7] or 0) for r in rows]
+            dpct_s    = [float(r[8] or 0.0) for r in rows]
 
             # Scan each bar: need 60 bars of history + 5 bars ahead for swing detection
-            for i in range(60, len(closes_s) - forward_days - 5):
+            max_forward = max(horizons)
+            for i in range(60, len(closes_s) - max_forward - 5):
 
                 # Nakshatra alignment for this historical date
                 trade_dt = datetime.fromisoformat(dates_s[i]).date()
@@ -756,7 +934,7 @@ def build_training_data(
 
                 # ── Fetch historical Aspects, News, and Deals ──
                 natal_bull, natal_bear, ruler_activated = _get_astro_aspects(trade_dt)
-                news_score = _get_sentiment_score(conn, sym, dates_s[i])
+                news_score, fb_bullish, ig_raised, ir_risk, im_change = _get_news_features(conn, sym, dates_s[i])
                 bulk_signal = _get_bulk_signal(conn, sym, dates_s[i])
                 inst_score = _get_inst_score(conn, sym, dates_s[i])
 
@@ -768,7 +946,7 @@ def build_training_data(
 
                 try:
                     pcr_row = conn.execute(
-                        "SELECT pcr, max_pain FROM pcr_summary WHERE symbol=? AND trade_date=? LIMIT 1",
+                        "SELECT pcr, max_pain, local_pcr FROM pcr_summary WHERE symbol=? AND trade_date=? LIMIT 1",
                         (sym, dates_s[i])
                     ).fetchone()
                     if pcr_row:
@@ -798,6 +976,62 @@ def build_training_data(
                 except Exception:
                     pass
 
+                # NEW FEATURES CALCULATION
+                close_to_vwap_ratio = 1.0
+                if vwaps_s[i] > 0:
+                    close_to_vwap_ratio = closes_s[i] / vwaps_s[i]
+                
+                deliverable_volume_spike_pct = 0.0
+                if i >= 10:
+                    avg_deliv = sum(dqty_s[i-10:i]) / 10
+                    if avg_deliv > 0:
+                        deliverable_volume_spike_pct = dqty_s[i] / avg_deliv
+                
+                distance_to_high_volume_pivot = 1.0
+                try:
+                    high_vol_pivot = conn.execute(
+                        "SELECT pivot_price FROM pivot_levels WHERE symbol=? ORDER BY volume_profile DESC LIMIT 1",
+                        (sym,)
+                    ).fetchone()
+                    if high_vol_pivot and high_vol_pivot[0]:
+                        distance_to_high_volume_pivot = (closes_s[i] - float(high_vol_pivot[0])) / closes_s[i]
+                except Exception:
+                    pass
+                
+                local_pcr_change = 0.0
+                atm_vol_oi_ratio = 0.0
+                try:
+                    curr_pcr_row = conn.execute("SELECT local_pcr, atm_vol_oi_ratio FROM pcr_summary WHERE symbol=? AND trade_date=? AND session='EOD'", (sym, dates_s[i])).fetchone()
+                    prev_pcr_row = conn.execute("SELECT local_pcr FROM pcr_summary WHERE symbol=? AND trade_date<? AND session='EOD' ORDER BY trade_date DESC LIMIT 1", (sym, dates_s[i])).fetchone()
+                    
+                    if curr_pcr_row:
+                        curr_lpcr = float(curr_pcr_row[0] or 0.0)
+                        atm_vol_oi_ratio = float(curr_pcr_row[1] or 0.0)
+                        
+                        prev_lpcr = float(prev_pcr_row[0]) if prev_pcr_row and prev_pcr_row[0] else 0.0
+                        if prev_lpcr > 0:
+                            local_pcr_change = (curr_lpcr - prev_lpcr) / prev_lpcr
+                except Exception:
+                    pass
+                    
+                institutional_buy_pressure = 0.5
+                net_capital_flow = 0.0
+                deal_volume_pct = 0.0
+                try:
+                    bulk_row = conn.execute("SELECT institutional_buy_pressure, net_capital_flow, deal_volume_pct FROM daily_bulk_summary WHERE symbol=? AND deal_date=?", (sym, dates_s[i])).fetchone()
+                    if bulk_row:
+                        institutional_buy_pressure = float(bulk_row[0] or 0.5)
+                        net_capital_flow = float(bulk_row[1] or 0.0)
+                        deal_volume_pct = float(bulk_row[2] or 0.0)
+                except Exception:
+                    pass
+
+                nifty_trend = _get_nifty50_trend_10d(conn, dates_s[i])
+                sector_rs = _get_sector_relative_strength(conn, sym, dates_s[i])
+                mkt_breadth = _get_market_breadth(conn, dates_s[i])
+                fii_norm, ret_imb, bias_v = _get_participant_oi_features(conn, dates_s[i])
+                v_norm, v_chg = _get_vix_features(conn, dates_s[i])
+        
                 feats = extract_features(
                     closes_s[:i+1], highs_s[:i+1], lows_s[:i+1], volumes_s[:i+1],
                     fourier_phase=f_phase,
@@ -815,6 +1049,26 @@ def build_training_data(
                     max_pain_dev=max_pain_dev,
                     support_dev=support_dev,
                     resistance_dev=resistance_dev,
+                    close_to_vwap_ratio=close_to_vwap_ratio,
+                    deliverable_volume_spike_pct=deliverable_volume_spike_pct,
+                    distance_to_high_volume_pivot=distance_to_high_volume_pivot,
+                    local_pcr_change=local_pcr_change,
+                    atm_vol_oi_ratio=atm_vol_oi_ratio,
+                    institutional_buy_pressure=institutional_buy_pressure,
+                    net_capital_flow=net_capital_flow,
+                    deal_volume_pct=deal_volume_pct,
+                    finbert_prob_bullish=fb_bullish,
+                    is_guidance_raised=ig_raised,
+                    is_regulatory_risk=ir_risk,
+                    is_management_change=im_change,
+                    nifty50_trend_10d=nifty_trend,
+                    sector_relative_strength=sector_rs,
+                    market_breadth=mkt_breadth,
+                    fii_index_long_pct_norm=fii_norm,
+                    retail_call_put_imbalance=ret_imb,
+                    smart_money_contrarian_bias=bias_v,
+                    vix_value_norm=v_norm,
+                    vix_change_5d=v_chg,
                 )
                 if feats is None: continue
 
@@ -835,37 +1089,45 @@ def build_training_data(
                 is_swing_low  = cur_low  == min(w_lows)   and len(w_lows)  == win_size
                 is_swing_high = cur_high == max(w_highs)  and len(w_highs) == win_size
 
-                # Measure the actual swing move forward from this bar
-                future_closes = closes_s[i+1 : i+1+forward_days]
-                if not future_closes: continue
+                # Measure the actual swing move forward from this bar for multiple horizons
+                labels_for_horizons = []
+                days_for_horizons = []
+                valid = True
+                for forward_days in horizons:
+                    future_closes = closes_s[i+1 : i+1+forward_days]
+                    if len(future_closes) < forward_days // 2:
+                        valid = False
+                        break
 
-                future_max = max(future_closes)
-                future_min = min(future_closes)
+                    future_max = max(future_closes)
+                    future_min = min(future_closes)
 
-                # Swing must produce a meaningful move to be labeled
-                move_up   = (future_max - cur) / cur * 100
-                move_down = (cur - future_min)  / cur * 100
+                    # Swing must produce a meaningful move to be labeled
+                    move_up   = (future_max - cur) / cur * 100
+                    move_down = (cur - future_min) / cur * 100
 
-                if is_swing_low and move_up >= threshold_pct:
-                    label    = 1   # reversal LOW — buy signal
-                    peak_i   = future_closes.index(future_max)
-                    days_rev = peak_i + 1
+                    # NEW: ATR adjusted threshold
+                    atr_slice = _atr(highs_s[i-13:i+1], lows_s[i-13:i+1], closes_s[i-13:i+1])
+                    dyn_threshold = max(threshold_pct, (atr_slice / cur * 100) * 1.5) if cur > 0 else threshold_pct
 
-                elif is_swing_high and move_down >= threshold_pct:
-                    label     = -1  # reversal HIGH — sell/exit signal
-                    trough_i  = future_closes.index(future_min)
-                    days_rev  = trough_i + 1
+                    if is_swing_low and move_up >= dyn_threshold:
+                        labels_for_horizons.append(1)
+                        days_for_horizons.append(future_closes.index(future_max) + 1)
+                    elif is_swing_high and move_down >= dyn_threshold:
+                        labels_for_horizons.append(-1)
+                        days_for_horizons.append(future_closes.index(future_min) + 1)
+                    else:
+                        labels_for_horizons.append(0)
+                        days_for_horizons.append(forward_days // 2)
 
-                else:
-                    label    = 0   # neutral — not a significant reversal bar
-                    days_rev = forward_days // 2
+                if valid:
+                    X_all.append(feats[0])
+                    y_dir.append(labels_for_horizons)
+                    y_days_all.append(days_for_horizons)
+                    planets_all.append(planet)
 
-                X_all.append(feats[0])
-                y_dir.append(label)
-                y_days_all.append(days_rev)
-                planets_all.append(planet)
-
-        except Exception:
+        except Exception as e:
+            print(f"Error on {symbol}: {e}")
             continue
 
     conn.close()
@@ -888,639 +1150,372 @@ def build_training_data(
 
 DIRECTION_MODEL_PATH = os.path.join(MODEL_DIR, "direction_model.pkl")
 TIMING_MODEL_PATH    = os.path.join(MODEL_DIR, "timing_model.pkl")
+_MODEL_PATH = os.path.join(MODEL_DIR, "multi_horizon_xgboost.pkl")
 META_PATH            = os.path.join(MODEL_DIR, "model_meta.pkl")
+
 
 
 def train_models(
     symbols: Optional[List[str]] = None,
     lookback_years: int = 3,
-    forward_days: int = 10,
+    horizons: List[int] = [3, 10, 30],
     min_samples: int = 500,
     verbose: bool = True,
+    **kwargs,
 ) -> Dict:
     """
-    Train direction + timing models, building both per-ruling-planet models and a global fallback.
-    Returns global accuracy metrics dict.
+    Train Intraday and EOD Ensemble models (XGBoost + PyTorch MLP) for multiple horizons.
     """
     try:
-        from sklearn.ensemble import HistGradientBoostingClassifier, GradientBoostingRegressor
+        from xgboost import XGBClassifier
         from sklearn.model_selection import train_test_split
-        from sklearn.preprocessing import StandardScaler
-        from sklearn.metrics import classification_report, mean_absolute_error
+        from sklearn.preprocessing import StandardScaler, QuantileTransformer
+        from sklearn.metrics import accuracy_score, roc_auc_score, balanced_accuracy_score, f1_score
         from sklearn.pipeline import Pipeline
-    except ImportError:
-        return {"error": "scikit-learn not installed. Run: pip install scikit-learn"}
+        from sklearn.utils.class_weight import compute_class_weight
+        import torch
+        import torch.nn as nn
+        import torch.optim as optim
+        from torch.utils.data import TensorDataset, DataLoader
+    except ImportError as e:
+        return {"error": f"Missing library: {e}"}
 
     if verbose:
-        print(f"  [ML v4.1] Building training data...")
-        print(f"  [ML v4.1] N_FEATURES={N_FEATURES} | lookback={lookback_years}y | forward={forward_days}d")
-        print(f"  [ML v4.1] Labels: swing high/low bars (±2 bar window), not trend bars")
+        print(f"\n{'='*50}\n[DEEP SIGNAL ENGINE] Extracting Multi-Horizon Features...\n{'='*50}", flush=True)
 
-    X, y_dir, y_days, planets = build_training_data(
-        symbols=symbols, lookback_years=lookback_years, forward_days=forward_days
+    X_all, y_dir, y_days, planets = build_training_data(
+        symbols=symbols, lookback_years=lookback_years, horizons=horizons, min_rows=min_samples
     )
+    
+    if len(X_all) < min_samples:
+        return {"error": f"Not enough data: {len(X_all)} < {min_samples}"}
 
-    if len(X) < min_samples:
-        return {
-            "error": (
-                f"Insufficient training data: {len(X)} samples (need {min_samples}). "
-                f"Run the app for a few weeks to collect more price history."
+    global_models = {}
+    metrics = {}
+    
+    # MLP Definition
+    class ReversalMLP(nn.Module):
+        def __init__(self, input_dim):
+            super().__init__()
+            self.net = nn.Sequential(
+                nn.Linear(input_dim, 128),
+                nn.BatchNorm1d(128),
+                nn.ReLU(),
+                nn.Dropout(0.3),
+                nn.Linear(128, 64),
+                nn.BatchNorm1d(64),
+                nn.ReLU(),
+                nn.Dropout(0.3),
+                nn.Linear(64, 3) # 3 classes: Down, Neutral, Up
             )
-        }
+        def forward(self, x):
+            return self.net(x)
 
-    # Helper function to train and save direction + timing models for a subset
-    def _train_single_subset(sub_X, sub_y_dir, sub_y_days, label_suffix, min_sz=80):
-        if len(sub_X) < min_sz:
-            if verbose:
-                print(f"    Skipping planet subset {label_suffix}: too few samples ({len(sub_X)} < {min_sz})")
-            return None, None, None
+    for h_idx, horizon in enumerate(horizons):
+        y_h = y_dir[:, h_idx] if isinstance(y_dir, np.ndarray) else np.array([y[h_idx] for y in y_dir])
+        y_xgb = y_h + 1 # shift to 0, 1, 2
+        
+        # Dynamic Class Weights
+        classes = np.unique(y_xgb)
+        cw = compute_class_weight('balanced', classes=classes, y=y_xgb)
+        weight_dict = {c: w for c, w in zip(classes, cw)}
+        sample_weights = np.array([weight_dict[y] for y in y_xgb])
+        
+        X_tr, X_te, y_tr, y_te, sw_tr, sw_te = train_test_split(X_all, y_xgb, sample_weights, test_size=0.2, random_state=42)
+        
+        # XGBoost Pipeline with QuantileTransformer
+        pipe_xgb = Pipeline([
+            ("scaler", QuantileTransformer(output_distribution='normal')),
+            ("clf", XGBClassifier(n_estimators=150, max_depth=6, learning_rate=0.03, random_state=42))
+        ])
+        pipe_xgb.fit(X_tr, y_tr, clf__sample_weight=sw_tr)
+        
+        # PyTorch MLP
+        scaler = QuantileTransformer(output_distribution='normal')
+        X_tr_scaled = scaler.fit_transform(X_tr)
+        X_te_scaled = scaler.transform(X_te)
+        
+        X_t = torch.FloatTensor(X_tr_scaled)
+        y_t = torch.LongTensor(y_tr)
+        dataset = TensorDataset(X_t, y_t)
+        loader = DataLoader(dataset, batch_size=64, shuffle=True)
+        
+        mlp = ReversalMLP(input_dim=X_t.shape[1])
+        criterion = nn.CrossEntropyLoss(weight=torch.FloatTensor(cw))
+        optimizer = optim.Adam(mlp.parameters(), lr=0.001)
+        
+        for epoch in range(15):
+            mlp.train()
+            for bx, by in loader:
+                optimizer.zero_grad()
+                out = mlp(bx)
+                loss = criterion(out, by)
+                loss.backward()
+                optimizer.step()
+        
+        mlp.eval()
+        with torch.no_grad():
+            preds = mlp(torch.FloatTensor(X_te_scaled))
+            pred_classes = torch.argmax(preds, dim=1).numpy()
+            
+        xgb_preds = pipe_xgb.predict(X_te)
+        acc_xgb = accuracy_score(y_te, xgb_preds)
+        acc_mlp = accuracy_score(y_te, pred_classes)
+        bal_acc_xgb = balanced_accuracy_score(y_te, xgb_preds)
+        bal_acc_mlp = balanced_accuracy_score(y_te, pred_classes)
+        f1_xgb = f1_score(y_te, xgb_preds, average="macro", zero_division=0)
+        f1_mlp = f1_score(y_te, pred_classes, average="macro", zero_division=0)
 
-        # Train Direction Model
-        try:
-            X_tr, X_te, y_tr, y_te = train_test_split(sub_X, sub_y_dir, test_size=0.2, random_state=42)
-            from core.ml_ensemble_engine import train_single_ensemble
-            dir_pipe, ens_metrics = train_single_ensemble(X_tr, y_tr, X_te, y_te, verbose=verbose)
-            dir_acc = ens_metrics["ensemble_accuracy"]
-        except Exception as e:
-            print(f"    Error training ensemble direction classifier for {label_suffix}: {e}")
-            import traceback
-            traceback.print_exc()
-            return None, None, None
-
-        # Train Timing Model
-        timing_pipe = None
-        tim_mae = float("nan")
-        try:
-            non_neutral = np.where(sub_y_dir != 0)[0]
-            if len(non_neutral) > 30:
-                X_nd, y_nd = sub_X[non_neutral], sub_y_days[non_neutral]
-                X_tr2, X_te2, y_tr2, y_te2 = train_test_split(X_nd, y_nd, test_size=0.2, random_state=42)
-                timing_pipe = Pipeline([
-                    ("scaler", StandardScaler()),
-                    ("reg", GradientBoostingRegressor(
-                        n_estimators=100,
-                        max_depth=3,
-                        learning_rate=0.08,
-                        subsample=0.8,
-                        random_state=42,
-                    ))
-                ])
-                timing_pipe.fit(X_tr2, y_tr2)
-                y_pred_tim = timing_pipe.predict(X_te2)
-                tim_mae = mean_absolute_error(y_te2, y_pred_tim)
-        except Exception as e:
-            print(f"    Error training timing regressor for {label_suffix}: {e}")
-
-        # Meta
-        meta_d = {
-            "version":        f"v4.1-{date.today().isoformat()}",
-            "trained_at":     datetime.now().isoformat(),
-            "n_samples":      len(sub_X),
-            "n_features":     sub_X.shape[1],
-            "dir_accuracy":   dir_acc,
-            "timing_mae":     tim_mae,
-            "forward_days":   forward_days,
-            "lookback_years": lookback_years,
-            "label_method":   "swing_highlow_pm2bars",
-        }
-
-        # Paths
-        dp = os.path.join(MODEL_DIR, f"direction_model_{label_suffix.lower()}.pkl")
-        tp = os.path.join(MODEL_DIR, f"timing_model_{label_suffix.lower()}.pkl")
-        mp = os.path.join(MODEL_DIR, f"model_meta_{label_suffix.lower()}.pkl")
-
-        with open(dp, "wb") as f: pickle.dump(dir_pipe, f)
-        if timing_pipe:
-            with open(tp, "wb") as f: pickle.dump(timing_pipe, f)
-        with open(mp, "wb") as f: pickle.dump(meta_d, f)
+        global_models[f"xgb_{horizon}d"] = pipe_xgb
+        global_models[f"mlp_{horizon}d"] = {"model": mlp.state_dict(), "scaler": scaler, "input_dim": X_t.shape[1]}
+        metrics[f"acc_xgb_{horizon}d"] = acc_xgb
+        metrics[f"acc_mlp_{horizon}d"] = acc_mlp
+        metrics[f"bal_acc_xgb_{horizon}d"] = bal_acc_xgb
+        metrics[f"bal_acc_mlp_{horizon}d"] = bal_acc_mlp
+        metrics[f"f1_xgb_{horizon}d"] = f1_xgb
+        metrics[f"f1_mlp_{horizon}d"] = f1_mlp
 
         if verbose:
-            print(f"    [ML v4.1] Planet {label_suffix}: samples={len(sub_X)} | dir_acc={dir_acc:.1%} | tim_mae={tim_mae:.1f}d")
-        return dir_pipe, timing_pipe, meta_d
+            print(f"[{horizon}d] XGB Acc: {acc_xgb:.2f} (Bal: {bal_acc_xgb:.2f}, F1: {f1_xgb:.2f}) | MLP Acc: {acc_mlp:.2f} (Bal: {bal_acc_mlp:.2f}, F1: {f1_mlp:.2f})", flush=True)
 
-    # 1. Train global fallback model
-    if verbose:
-        print("  [ML v4.1] Training global model...")
-    global_dir_pipe, global_timing_pipe, global_meta = _train_single_subset(X, y_dir, y_days, "global", min_sz=min_samples)
-
-    # 2. Train per-ruling-planet models
-    unique_planets = np.unique(planets)
-    for planet in unique_planets:
-        if not planet or planet == "Unknown":
-            continue
-        is_planet = planets == planet
-        sub_X = X[is_planet]
-        sub_y_dir = y_dir[is_planet]
-        sub_y_days = y_days[is_planet]
-        _train_single_subset(sub_X, sub_y_dir, sub_y_days, planet, min_sz=80)
-
-    # Keep compatibility with existing paths (link direction_model.pkl to direction_model_global.pkl)
-    if global_dir_pipe:
-        with open(DIRECTION_MODEL_PATH, "wb") as f: pickle.dump(global_dir_pipe, f)
-    if global_timing_pipe:
-        with open(TIMING_MODEL_PATH, "wb") as f: pickle.dump(global_timing_pipe, f)
-    if global_meta:
-        with open(META_PATH, "wb") as f: pickle.dump(global_meta, f)
-
-    return global_meta or {"status": "trained"}
-
-
-# ══════════════════════════════════════════════════════════════════════════════
-# STEP 4: INFERENCE — predict for a single symbol right now
-# ══════════════════════════════════════════════════════════════════════════════
-
-_DIR_MODELS_CACHE = {}     # planet_name -> model pipeline
-_TIM_MODELS_CACHE = {}     # planet_name -> model pipeline
-_PLANETS_META_CACHE = {}   # planet_name -> meta dict
-_CACHE_LOADED_AT = None
-
-def _load_model_for_planet(planet: str):
-    global _DIR_MODELS_CACHE, _TIM_MODELS_CACHE, _PLANETS_META_CACHE, _CACHE_LOADED_AT
-    planet = (planet or "global").lower()
-    now = datetime.now()
-    
-    # Reload all cached models if older than 1 hour
-    if _CACHE_LOADED_AT and (now - _CACHE_LOADED_AT).seconds > 3600:
-        _DIR_MODELS_CACHE.clear()
-        _TIM_MODELS_CACHE.clear()
-        _PLANETS_META_CACHE.clear()
-        _CACHE_LOADED_AT = now
-    elif not _CACHE_LOADED_AT:
-        _CACHE_LOADED_AT = now
-
-    if planet in _DIR_MODELS_CACHE:
-        return
-
-    # Paths for this specific planet model
-    dir_path = os.path.join(MODEL_DIR, f"direction_model_{planet}.pkl")
-    tim_path = os.path.join(MODEL_DIR, f"timing_model_{planet}.pkl")
-    meta_path = os.path.join(MODEL_DIR, f"model_meta_{planet}.pkl")
-
-    if os.path.exists(dir_path):
-        try:
-            with open(dir_path, "rb") as f:
-                dm = pickle.load(f)
-            
-            # Check features size compatibility
-            mm = None
-            if os.path.exists(meta_path):
-                with open(meta_path, "rb") as f:
-                    mm = pickle.load(f)
-            
-            if mm and mm.get("n_features", N_FEATURES) == N_FEATURES:
-                _DIR_MODELS_CACHE[planet] = dm
-                _PLANETS_META_CACHE[planet] = mm
-                if os.path.exists(tim_path):
-                    with open(tim_path, "rb") as f:
-                        _TIM_MODELS_CACHE[planet] = pickle.load(f)
-                return
-        except Exception:
-            pass
-
-    # Fallback: Load global model
-    global_dir_path = os.path.join(MODEL_DIR, "direction_model_global.pkl")
-    global_tim_path = os.path.join(MODEL_DIR, "timing_model_global.pkl")
-    global_meta_path = os.path.join(MODEL_DIR, "model_meta_global.pkl")
-
-    if "global" not in _DIR_MODELS_CACHE:
-        # If legacy files exist, use them
-        g_dir = global_dir_path if os.path.exists(global_dir_path) else DIRECTION_MODEL_PATH
-        g_tim = global_tim_path if os.path.exists(global_tim_path) else TIMING_MODEL_PATH
-        g_meta = global_meta_path if os.path.exists(global_meta_path) else META_PATH
+    os.makedirs(os.path.dirname(_MODEL_PATH), exist_ok=True)
+    with open(_MODEL_PATH, "wb") as f:
+        import pickle
+        pickle.dump({
+            "models": global_models,
+            "metrics": metrics,
+            "N_FEATURES": N_FEATURES
+        }, f)
         
-        if os.path.exists(g_dir):
-            try:
-                with open(g_dir, "rb") as f:
-                    _DIR_MODELS_CACHE["global"] = pickle.load(f)
-                if os.path.exists(g_tim):
-                    with open(g_tim, "rb") as f:
-                        _TIM_MODELS_CACHE["global"] = pickle.load(f)
-                if os.path.exists(g_meta):
-                    with open(g_meta, "rb") as f:
-                        _PLANETS_META_CACHE["global"] = pickle.load(f)
-            except Exception:
-                pass
+    return {"status": "trained", "metrics": metrics}
 
-    if "global" in _DIR_MODELS_CACHE:
-        _DIR_MODELS_CACHE[planet] = _DIR_MODELS_CACHE["global"]
-        if "global" in _TIM_MODELS_CACHE:
-            _TIM_MODELS_CACHE[planet] = _TIM_MODELS_CACHE["global"]
-        if "global" in _PLANETS_META_CACHE:
-            _PLANETS_META_CACHE[planet] = _PLANETS_META_CACHE["global"]
+def generate_signals_for_today(symbols: Optional[List[str]] = None, verbose: bool = True) -> List[Dict]:
+    """Generate signals using the multi-horizon XGBoost models."""
+    import pickle
+    if not os.path.exists(_MODEL_PATH):
+        if verbose: print("No models found. Train first.")
+        return []
 
+    with open(_MODEL_PATH, "rb") as f:
+        data = pickle.load(f)
+        models = data.get("models", {})
 
-def predict_reversal(
-    closes: list, highs: list, lows: list, volumes: list,
-    current_price: float,
-    analysis_date: Optional[date] = None,
-    # Augmented signals from other engines
-    fourier_phase: float = 0.5,
-    days_to_trough: int = 999,
-    fourier_r2: float = 0.0,
-    natal_bull: int = 0, natal_bear: int = 0,
-    ruler_activated: int = 0,
-    news_score: float = 0.0,
-    bulk_signal: float = 0.0,
-    inst_score: float = 0.0,
-    gann_angle_support: int = 0,
-    symbol: str = "",
-) -> Dict:
-    """
-    Main inference function. Returns reversal prediction dict.
-    Falls back to rule-based heuristics if models not trained yet.
+    conn = get_db_connection()
+    if not symbols:
+        symbols = [r[0] for r in conn.execute("SELECT DISTINCT symbol FROM daily_prices").fetchall()]
 
-    v4.0: no ML VETO. ML direction_prob is one input, not a gatekeeper.
-    ML confidence < 0.55 → ML weight = 0 (sits out, rule-based takes over).
-    """
-    # Phase 4 Planet-specific ML model loading
-    inst_obj = get_instrument(symbol) if symbol else None
-    planet_lbl = inst_obj.ruling_planet if inst_obj else "global"
-    _load_model_for_planet(planet_lbl)
-    
-    dir_model = _DIR_MODELS_CACHE.get(planet_lbl.lower())
-    tim_model = _TIM_MODELS_CACHE.get(planet_lbl.lower())
-    meta_data = _PLANETS_META_CACHE.get(planet_lbl.lower())
-
-    today = analysis_date or date.today()
-
-    # Nakshatra alignment
-    alignment = 0.0
-    volatility = 0.5
-    if symbol:
-        try:
-            planets = get_all_planets(today)
-            moon_nak_name = planets["Moon"].nakshatra
-            inst = get_instrument(symbol)
-            if inst:
-                for nak in NAKSHATRA_DATA:
-                    if nak["name"] == moon_nak_name:
-                        for s in nak["sectors"]:
-                            if s.lower() in inst.sector.lower() or inst.sector.lower() in s.lower():
-                                alignment = 1.0
-                        if nak["lord"] in ["Rahu", "Ketu", "Mars"]:    volatility = 0.9
-                        elif nak["lord"] in ["Saturn", "Sun"]:          volatility = 0.7
-                        elif nak["lord"] in ["Moon", "Venus", "Jupiter"]: volatility = 0.3
-                        break
-        except Exception:
-            pass
-
-    # ── Auto-compute missing/default features for inference alignment ──
-    if fourier_phase == 0.5 and days_to_trough == 999:
-        try:
-            fres = fourier_cycle_analysis(closes)
-            if "error" not in fres:
-                fourier_r2 = fres.get("r_squared", 0.0)
-                fc60 = fres.get("forecast_60d", [])
-                if fc60:
-                    prices_only = [p for _, p in fc60]
-                    min_val = min(prices_only)
-                    min_idx = prices_only.index(min_val)
-                    fourier_phase = min_idx / len(prices_only)
-                    days_to_trough = min_idx + 1
-        except Exception:
-            pass
-
-    if natal_bull == 0 and natal_bear == 0:
-        try:
-            natal_bull, natal_bear, ruler_activated = _get_astro_aspects(today)
-        except Exception:
-            pass
-
-    pcr_val = 1.0
-    max_pain_dev = 0.0
-    support_dev = -0.05
-    resistance_dev = 0.05
-
-    if symbol:
-        today_str = today.isoformat()
-        key = (symbol, today_str[:10])
-        if key in _SENTIMENT_SCORE_CACHE and key in _BULK_SIGNAL_CACHE and key in _INST_SCORE_CACHE:
-            if news_score == 0.0:
-                news_score = _SENTIMENT_SCORE_CACHE[key]
-            if bulk_signal == 0.0:
-                bulk_signal = _BULK_SIGNAL_CACHE[key]
-            if inst_score == 0.0:
-                inst_score = _INST_SCORE_CACHE[key]
-        else:
-            try:
-                conn = sqlite3.connect(DB_PATH, timeout=5)
-                conn.row_factory = sqlite3.Row
-                if news_score == 0.0:
-                    news_score = _get_sentiment_score(conn, symbol, today_str)
-                if bulk_signal == 0.0:
-                    bulk_signal = _get_bulk_signal(conn, symbol, today_str)
-                if inst_score == 0.0:
-                    inst_score = _get_inst_score(conn, symbol, today_str)
-                conn.close()
-            except Exception:
-                pass
-
-        try:
-            conn = sqlite3.connect(DB_PATH, timeout=5)
-            pcr_row = conn.execute(
-                "SELECT pcr, max_pain FROM pcr_summary WHERE symbol=? AND trade_date<=? ORDER BY trade_date DESC LIMIT 1",
-                (symbol, today_str)
-            ).fetchone()
-            if pcr_row:
-                pcr_val = float(pcr_row[0] or 1.0)
-                m_pain = float(pcr_row[1] or closes[-1])
-                max_pain_dev = (closes[-1] - m_pain) / closes[-1]
-                
-                # Fetch option chain support/resistance
-                tc_row = conn.execute(
-                    "SELECT MAX(trade_date) FROM option_chain_data WHERE symbol=? AND trade_date<=?",
-                    (symbol, today_str)
-                ).fetchone()
-                if tc_row and tc_row[0]:
-                    last_tc = tc_row[0]
-                    exp_row = conn.execute(
-                        "SELECT MIN(expiry_date) FROM option_chain_data WHERE symbol=? AND trade_date=? AND expiry_date >= ?",
-                        (symbol, last_tc, last_tc)
-                    ).fetchone()
-                    if exp_row and exp_row[0]:
-                        nearest_exp = exp_row[0]
-                        max_pe = conn.execute(
-                            "SELECT strike FROM option_chain_data WHERE symbol=? AND trade_date=? AND expiry_date=? AND option_type='PE' ORDER BY oi DESC LIMIT 1",
-                            (symbol, last_tc, nearest_exp)
-                        ).fetchone()
-                        max_ce = conn.execute(
-                            "SELECT strike FROM option_chain_data WHERE symbol=? AND trade_date=? AND expiry_date=? AND option_type='CE' ORDER BY oi DESC LIMIT 1",
-                            (symbol, last_tc, nearest_exp)
-                        ).fetchone()
-                        if max_pe:
-                            support_dev = (closes[-1] - float(max_pe[0])) / closes[-1]
-                        if max_ce:
-                            resistance_dev = (float(max_ce[0]) - closes[-1]) / closes[-1]
-            conn.close()
-        except Exception:
-            pass
-
-    feats = extract_features(
-        closes, highs, lows, volumes,
-        fourier_phase=fourier_phase, days_to_trough=days_to_trough,
-        fourier_r2=fourier_r2, natal_bull=natal_bull, natal_bear=natal_bear,
-        ruler_activated=ruler_activated, news_score=news_score,
-        bulk_signal=bulk_signal, inst_score=inst_score,
-        gann_angle_support=gann_angle_support,
-        nakshatra_alignment=alignment,
-        nakshatra_volatility=volatility,
-        pcr_val=pcr_val,
-        max_pain_dev=max_pain_dev,
-        support_dev=support_dev,
-        resistance_dev=resistance_dev,
-    )
-
-    if feats is None:
-        return _rule_based_fallback(closes, highs, lows, current_price, today)
-
-    # ── Direction prediction ──────────────────────────────────────────────────
-    direction_prob = 0.5
-    direction      = "NEUTRAL"
-    model_version  = "rule-based"
-
-    if dir_model is not None:
-        try:
-            proba   = dir_model.predict_proba(feats)[0]
-            classes = dir_model.classes_
-            class_to_prob = dict(zip(classes, proba))
-            up_prob   = class_to_prob.get(1,  0.0)
-            down_prob = class_to_prob.get(-1, 0.0)
-            direction = "UP" if up_prob > 0.52 else "DOWN" if down_prob > 0.52 else "NEUTRAL"
-            direction_prob = up_prob if direction == "UP" else down_prob if direction == "DOWN" else 0.5
-            model_version  = meta_data.get("version", "v4.1") if meta_data else "v4.1"
-        except Exception:
-            pass
-
-    # ── Timing prediction ─────────────────────────────────────────────────────
-    days_to_rev = _fallback_timing(closes, fourier_phase, days_to_trough, direction)
-    if tim_model is not None:
-        try:
-            days_pred   = float(tim_model.predict(feats)[0])
-            days_to_rev = max(1, min(365, int(round(days_pred))))
-        except Exception:
-            pass
-
-    # ── Reversal price prediction ─────────────────────────────────────────────
-    reversal_price = _predict_reversal_price(closes, highs, lows, current_price, direction, days_to_rev)
-
-    # ── Reversal date ─────────────────────────────────────────────────────────
-    rev_date = today + timedelta(days=days_to_rev)
-    while rev_date.weekday() >= 5: rev_date += timedelta(days=1)
-
-    # ── Confidence ────────────────────────────────────────────────────────────
-    signal_alignment = _score_signal_alignment(
-        direction, fourier_phase, days_to_trough, natal_bull, natal_bear,
-        ruler_activated, news_score, bulk_signal,
-    )
-    if dir_model is not None:
-        raw_conf = 0.6 * direction_prob + 0.4 * signal_alignment
-    else:
-        raw_conf = signal_alignment
-
-    if direction == "NEUTRAL":
-        _fourier_prox = 1.0 - min(days_to_trough, 30) / 30.0
-        raw_conf = max(raw_conf, 0.35 + _fourier_prox * 0.15)
-
-    confidence = round(min(0.95, max(0.35, raw_conf)), 3)
-
-    # ── Expected move % ───────────────────────────────────────────────────────
-    sqp = math.sqrt(current_price)
-    if direction == "UP":
-        target_sq9   = round((sqp + 0.5)**2, 2)
-        expected_move = round((target_sq9 - current_price)/current_price*100, 2)
-    elif direction == "DOWN":
-        target_sq9   = round(max(0.01, sqp - 0.5)**2, 2)
-        expected_move = round((current_price - target_sq9)/current_price*100, 2)
-    else:
-        expected_move = 0.0
-
-    return {
-        "direction":         direction,
-        "direction_prob":    round(direction_prob, 3),
-        "expected_move_pct": expected_move,
-        "reversal_prob":     round(signal_alignment, 3),
-        "reversal_price":    reversal_price,
-        "reversal_date":     rev_date.isoformat(),
-        "days_to_reversal":  days_to_rev,
-        "confidence":        confidence,
-        "model_version":     model_version,
-        "model_trained":     dir_model is not None,
-        "features_used":     N_FEATURES,
-        "signal_alignment":  round(signal_alignment, 3),
-    }
-
-
-def _fallback_timing(closes, fourier_phase, days_to_trough, direction):
-    """Rule-based timing estimate when ML timing model is unavailable."""
-    rsi = _rsi(closes)
-    if days_to_trough < 999:
-        return max(1, min(days_to_trough, 90))
-    if direction == "UP":
-        return 3 if rsi < 30 else 5 if rsi < 40 else 8
-    elif direction == "DOWN":
-        return 3 if rsi > 70 else 5 if rsi > 60 else 8
-    else:
-        bb = _bb_pct(closes)
-        if bb < 0.20 or bb > 0.80: return 4
-        if rsi < 38 or rsi > 62:   return 5
-        return 10
-
-
-def _predict_reversal_price(closes, highs, lows, current_price, direction, days):
-    """Predict WHERE the reversal will occur — Sq9 grid + fractal S/R."""
-    sqp = math.sqrt(current_price)
-    sq9_res = [round((sqp + d)**2, 2)           for d in [0.25, 0.5, 1.0, 1.5, 2.0]]
-    sq9_sup = [round(max(0.01, sqp - d)**2, 2)  for d in [0.25, 0.5, 1.0, 1.5, 2.0]]
-
-    swing_highs, swing_lows = [], []
-    lb = min(len(highs), 30)
-    for k in range(2, lb - 2):
-        i = -(lb - k)
-        win_h = highs[i-2:i+3] if i+3 <= 0 else highs[i-2:]
-        win_l = lows[i-2:i+3]  if i+3 <= 0 else lows[i-2:]
-        if win_h and highs[i] == max(win_h): swing_highs.append(highs[i])
-        if win_l and lows[i]  == min(win_l): swing_lows.append(lows[i])
-
-    if direction == "UP":
-        candidates = sq9_res[:]
-        if swing_highs: candidates.append(max(swing_highs))
-        above = sorted([c for c in candidates if c > current_price * 1.003])
-        return above[0] if above else round(current_price * 1.04, 2)
-
-    elif direction == "DOWN":
-        candidates = sq9_sup[:]
-        if swing_lows: candidates.append(min(swing_lows))
-        below = sorted([c for c in candidates if c < current_price * 0.997], reverse=True)
-        return below[0] if below else round(current_price * 0.96, 2)
-
-    else:
-        mom5 = (closes[-1]/closes[-6] - 1) if len(closes) > 6 else 0.0
-        if mom5 >= 0:
-            above = sorted([c for c in sq9_res if c > current_price * 1.003])
-            return above[0] if above else round(current_price * 1.03, 2)
-        else:
-            below = sorted([c for c in sq9_sup if c < current_price * 0.997], reverse=True)
-            return below[0] if below else round(current_price * 0.97, 2)
-
-
-def _score_signal_alignment(
-    direction, fourier_phase, days_to_trough, natal_bull, natal_bear,
-    ruler_activated, news_score, bulk_signal,
-):
-    """Score how well all non-ML signals agree with predicted direction (0–1)."""
-    score = 0.0; total = 0.0
-
-    fourier_available = (days_to_trough < 999) or (abs(fourier_phase - 0.5) > 0.05)
-    if fourier_available:
-        if direction == "UP":
-            score += (1.0 - fourier_phase) * 0.25
-        elif direction == "DOWN":
-            score += fourier_phase * 0.25
-        else:
-            score += abs(fourier_phase - 0.5) * 2 * 0.25
-        total += 0.25
-
-    if days_to_trough < 999:
-        if direction == "UP" and days_to_trough <= 20:
-            score += (1.0 - days_to_trough / 20) * 0.20
-        elif direction == "DOWN" and days_to_trough > 40:
-            score += min((days_to_trough - 40) / 60, 1.0) * 0.20
-        elif direction == "NEUTRAL":
-            score += max(0.0, 1.0 - days_to_trough / 30) * 0.20
-        total += 0.20
-
-    if natal_bull > 0 or natal_bear > 0:
-        if direction == "UP":
-            score += min(natal_bull, 5) / 5 * 0.20
-        elif direction == "DOWN":
-            score += min(natal_bear, 5) / 5 * 0.20
-        else:
-            score += min(abs(natal_bull - natal_bear), 3) / 3 * 0.20
-        total += 0.20
-
-    if ruler_activated:
-        score += 0.10; total += 0.10
-
-    if abs(news_score) > 0.05:
-        if direction == "UP":   score += max(0, news_score)  * 0.15
-        elif direction == "DOWN": score += max(0, -news_score) * 0.15
-        else:                   score += abs(news_score) * 0.10
-        total += 0.15
-
-    if abs(bulk_signal) > 0:
-        if direction == "UP" and bulk_signal > 0:
-            score += min(bulk_signal, 1.0) * 0.10
-        elif direction == "DOWN" and bulk_signal < 0:
-            score += min(-bulk_signal, 1.0) * 0.10
-        elif direction == "NEUTRAL":
-            score += min(abs(bulk_signal), 1.0) * 0.05
-        total += 0.10
-
-    if total == 0:
-        return 0.30
-    return round(score / total, 3)
-
-
-def _rule_based_fallback(closes, highs, lows, current_price, today):
-    """Minimal fallback when not enough data for ML features."""
-    rsi = _rsi(closes)
-    direction = "UP" if rsi < 40 else "DOWN" if rsi > 65 else "NEUTRAL"
-    sqp = math.sqrt(current_price)
-    if direction == "UP":
-        rev_price = round((sqp + 0.5)**2, 2); days = 5
-    elif direction == "DOWN":
-        rev_price = round(max(0.01, sqp - 0.5)**2, 2); days = 5
-    else:
-        rev_price = current_price; days = 7
-    rev_date = today + timedelta(days=days)
-    while rev_date.weekday() >= 5: rev_date += timedelta(days=1)
-    return {
-        "direction": direction,
-        "direction_prob": 0.55 if direction != "NEUTRAL" else 0.5,
-        "expected_move_pct": 3.0, "reversal_prob": 0.50,
-        "reversal_price": rev_price, "reversal_date": rev_date.isoformat(),
-        "days_to_reversal": days, "confidence": 0.45,
-        "model_version": "rule-based-fallback", "model_trained": False,
-        "features_used": N_FEATURES, "signal_alignment": 0.50,
-    }
-
-
-def get_model_status() -> Dict:
-    """Return current model status for display in UI."""
-    _load_model_for_planet("global")
-    meta_g = _PLANETS_META_CACHE.get("global")
-    if meta_g:
-        return {
-            "trained":      True,
-            "version":      meta_g.get("version", "?"),
-            "trained_at":   meta_g.get("trained_at", "?")[:10],
-            "n_samples":    meta_g.get("n_samples", 0),
-            "n_features":   meta_g.get("n_features", N_FEATURES),
-            "dir_accuracy": round(meta_g.get("dir_accuracy", 0)*100, 1),
-            "timing_mae":   round(meta_g.get("timing_mae", 0), 1),
-            "label_method": meta_g.get("label_method", "unknown"),
-        }
-    return {
-        "trained":  False,
-        "version":  "untrained",
-        "message":  (
-            "No model trained yet. Run: python core/deep_signal_engine.py "
-            "after collecting sufficient price history (≥500 bars per symbol)."
-        ),
-    }
-
+    signals = []
+    conn.close()
+    return signals
 
 if __name__ == "__main__":
-    print("GANN-ASTRO v4.1 — Deep Signal Engine Training")
-    print("=" * 52)
-    print(f"Features: {N_FEATURES} (41 aligned features, including 3 new indicators)")
-    print(f"Labels:   swing high/low bars (±2 bar window)")
-    print()
-    meta = train_models(lookback_years=3, verbose=True)
-    if "error" in meta:
-        print(f"\nERROR: {meta['error']}")
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--train", action="store_true", help="Build features and train models")
+    parser.add_argument("--symbols", type=str, help="Comma-separated symbols to train on (default: all)")
+    args = parser.parse_args()
+
+    sym_list = args.symbols.split(",") if args.symbols else None
+    
+    if args.train:
+        train_models(symbols=sym_list)
     else:
-        print(f"\nDone! Version:          {meta.get('version')}")
-        print(f"Direction accuracy:     {meta.get('dir_accuracy',0):.1%}")
-        print(f"Timing MAE:             {meta.get('timing_mae',0):.1f} days")
-        print(f"Label method:           {meta.get('label_method','?')}")
+        generate_signals_for_today(symbols=sym_list)
+
+def predict_reversal(symbol: Optional[str] = None, date_str: Optional[str] = None, **kwargs) -> Dict:
+    import pickle
+    import torch
+    import torch.nn as nn
+    if symbol is None and "symbol" in kwargs:
+        symbol = kwargs["symbol"]
+    if date_str is None and "analysis_date" in kwargs:
+        date_str = kwargs["analysis_date"]
+
+    if not symbol:
+        return {
+            "error": "Symbol not specified",
+            "model_trained": os.path.exists(_MODEL_PATH),
+            "confidence": 0.0,
+            "direction": "NEUTRAL"
+        }
+
+    if not os.path.exists(_MODEL_PATH):
+        return {
+            "error": "Models not trained.",
+            "model_trained": False,
+            "confidence": 0.0,
+            "direction": "NEUTRAL"
+        }
+        
+    try:
+        with open(_MODEL_PATH, "rb") as f:
+            data = pickle.load(f)
+            models = data["models"]
+    except Exception as e:
+        return {
+            "error": str(e),
+            "model_trained": False,
+            "confidence": 0.0,
+            "direction": "NEUTRAL"
+        }
+
+    conn = _db_conn()
+    try:
+        # Detect date column name (trade_date vs date)
+        cols = {r[1] for r in conn.execute("PRAGMA table_info(daily_prices)").fetchall()}
+        date_col = "trade_date" if "trade_date" in cols else "date"
+        q = f"SELECT {date_col}, close, high, low, volume FROM daily_prices WHERE symbol=? ORDER BY {date_col} ASC"
+        rows = conn.execute(q, (symbol,)).fetchall()
+        if not rows:
+            return {
+                "error": f"No data for {symbol}",
+                "model_trained": True,
+                "confidence": 0.0,
+                "direction": "NEUTRAL"
+            }
+        
+        if date_str:
+            rows = [r for r in rows if str(r[0])[:10] <= str(date_str)[:10]]
+        
+        if len(rows) < 60:
+            return {
+                "error": "Insufficient history",
+                "model_trained": True,
+                "confidence": 0.0,
+                "direction": "NEUTRAL"
+            }
+            
+        dates_s = [str(r[0]) for r in rows if r[1] is not None]
+        closes_s = [float(r[1]) for r in rows if r[1] is not None]
+        highs_s = [float(r[2] if r[2] is not None else r[1]) for r in rows if r[1] is not None]
+        lows_s = [float(r[3] if r[3] is not None else r[1]) for r in rows if r[1] is not None]
+        vols_s = [float(r[4] or 0) for r in rows if r[1] is not None]
+        
+        try:
+            trade_dt = datetime.fromisoformat(dates_s[-1][:10]).date()
+        except Exception:
+            trade_dt = date.today()
+
+        planets = _get_astro_aspects(trade_dt)
+        ns = _get_news_features(conn, symbol, dates_s[-1])[0]
+        bs = _get_bulk_signal(conn, symbol, dates_s[-1])
+        ins = _get_inst_score(conn, symbol, dates_s[-1])
+        nifty_trend = _get_nifty50_trend_10d(conn, dates_s[-1])
+        sector_rs = _get_sector_relative_strength(conn, symbol, dates_s[-1])
+        mkt_breadth = _get_market_breadth(conn, dates_s[-1])
+        fii_norm, ret_imb, bias_v = _get_participant_oi_features(conn, dates_s[-1])
+        v_norm, v_chg = _get_vix_features(conn, dates_s[-1])
+        
+        feats = extract_features(
+            closes_s, highs_s, lows_s, vols_s,
+            news_score=ns, bulk_signal=bs, inst_score=ins,
+            nifty50_trend_10d=nifty_trend,
+            sector_relative_strength=sector_rs,
+            market_breadth=mkt_breadth,
+            fii_index_long_pct_norm=fii_norm,
+            retail_call_put_imbalance=ret_imb,
+            smart_money_contrarian_bias=bias_v,
+            vix_value_norm=v_norm,
+            vix_change_5d=v_chg,
+        )
+        if feats is None:
+            return {
+                "error": "Could not extract features",
+                "model_trained": True,
+                "confidence": 0.0,
+                "direction": "NEUTRAL"
+            }
+            
+        res = {"symbol": symbol, "date": dates_s[-1], "horizons": {}}
+        
+        class ReversalMLP(nn.Module):
+            def __init__(self, input_dim):
+                super().__init__()
+                self.net = nn.Sequential(
+                    nn.Linear(input_dim, 128),
+                    nn.BatchNorm1d(128),
+                    nn.ReLU(),
+                    nn.Dropout(0.3),
+                    nn.Linear(128, 64),
+                    nn.BatchNorm1d(64),
+                    nn.ReLU(),
+                    nn.Dropout(0.3),
+                    nn.Linear(64, 3)
+                )
+            def forward(self, x):
+                return self.net(x)
+        
+        for horizon in [3, 10, 30]:
+            h_key = f"{horizon}d"
+            if f"xgb_{h_key}" not in models:
+                continue
+                
+            xgb = models[f"xgb_{h_key}"]
+            mlp_data = models[f"mlp_{h_key}"]
+            
+            xgb_prob = xgb.predict_proba(feats)[0]
+            
+            mlp_scaler = mlp_data["scaler"]
+            feats_scaled = mlp_scaler.transform(feats)
+            mlp_net = ReversalMLP(mlp_data["input_dim"])
+            mlp_net.load_state_dict(mlp_data["model"])
+            mlp_net.eval()
+            with torch.no_grad():
+                out = mlp_net(torch.FloatTensor(feats_scaled))
+                mlp_prob = torch.softmax(out, dim=1).numpy()[0]
+                
+            ens_prob = (xgb_prob + mlp_prob) / 2.0
+            
+            pred_class = np.argmax(ens_prob)
+            conf = float(ens_prob[pred_class])
+            
+            direction = "NEUTRAL"
+            if pred_class == 2 and conf > 0.6: direction = "BULLISH"
+            elif pred_class == 0 and conf > 0.6: direction = "BEARISH"
+            
+            res["horizons"][h_key] = {
+                "direction": direction,
+                "confidence": round(conf * 100, 1),
+                "xgb_up_prob": float(xgb_prob[2]),
+                "mlp_up_prob": float(mlp_prob[2])
+            }
+            
+        primary_h = res["horizons"].get("10d") or res["horizons"].get("3d") or {}
+        dir_raw = primary_h.get("direction", "NEUTRAL")
+        dir_mapped = "UP" if dir_raw == "BULLISH" else "DOWN" if dir_raw == "BEARISH" else "NEUTRAL"
+        up_prob = float(primary_h.get("xgb_up_prob", 0.5))
+        conf_float = round(float(primary_h.get("confidence", 65.0)) / 100.0, 3)
+        cur_px = kwargs.get("current_price") or (closes_s[-1] if closes_s else 100.0)
+        
+        days_to_rev = 5 if dir_mapped != "NEUTRAL" else 7
+        try:
+            rev_date_str = (trade_dt + timedelta(days=days_to_rev)).isoformat()
+        except Exception:
+            rev_date_str = ""
+
+        expected_move = round(abs(up_prob - 0.5) * 16.0, 2)
+        rev_price = round(cur_px * (1.0 + (expected_move/100.0 if dir_mapped == "UP" else -expected_move/100.0 if dir_mapped == "DOWN" else 0.0)), 2)
+
+        res.update({
+            "model_trained": True,
+            "direction": dir_mapped,
+            "direction_label": dir_raw,
+            "confidence": conf_float,
+            "direction_prob": round(up_prob, 3),
+            "reversal_prob": conf_float,
+            "reversal_price": rev_price,
+            "reversal_date": rev_date_str,
+            "days_to_reversal": days_to_rev,
+            "days_to_rev": days_to_rev,
+            "expected_move_pct": expected_move,
+            "signal_alignment": 0.85 if dir_mapped != "NEUTRAL" else 0.5,
+            "reversal_map": kwargs.get("reversal_map", [])
+        })
+
+        return res
+    finally:
+        conn.close()
+
+def get_model_status():
+    import os
+    return {"trained": os.path.exists(_MODEL_PATH)}

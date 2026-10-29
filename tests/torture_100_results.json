@@ -1,0 +1,1703 @@
+{
+  "total": 100,
+  "passed": 80,
+  "failed": 20,
+  "failures": [
+    {
+      "id": 4,
+      "category": "Multi-Layered",
+      "query": "Show me INFY price action, volume trend, and whether there are any regulatory risk flags.",
+      "symbol_resolved": "INFY",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": false,
+      "fail_reasons": [
+        "Decomposition Error: Expected sub-intent 'stats' was not executed.",
+        "Decomposition Error: Expected sub-intent 'sentiment' was not executed."
+      ],
+      "missing_tool": "Composite Decomposer (sentiment)",
+      "reply_preview": "Quote for INFY as of 2026-10-27:\n- Close: Rs. 1134.65 (-2.69%)\n- Open: Rs. 1151.95 | High: Rs. 1154.65 | Low: Rs. 1131.05\n- VWAP: N/A | Volume: 1,806,792\n\n### EXACT OHLC GROUND TRUTH FOR INFY:\n- Perio"
+    },
+    {
+      "id": 9,
+      "category": "Multi-Layered",
+      "query": "Is ICICI Bank trading above its SMA 50, and are there any management changes reported in news?",
+      "symbol_resolved": "ICICIBANK",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "news"
+      ],
+      "passed": false,
+      "fail_reasons": [
+        "Decomposition Error: Expected sub-intent 'sentiment' was not executed."
+      ],
+      "missing_tool": "Composite Decomposer (sentiment)",
+      "reply_preview": "Technical Quantitative Stats for ICICIBANK (Latest Close: Rs. 1394.30):\n- SMA 20: Rs. 1367.91 | SMA 50: Rs. 1375.13\n- Moving Average Stance: Mixed moving average alignment\n- 14-Day ATR (Volatility): R"
+    },
+    {
+      "id": 32,
+      "category": "Screener",
+      "query": "Which stock gained the most in the last 5 trading days?",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": "Verified Trading Dates in Database (Most recent 5 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 33,
+      "category": "Screener",
+      "query": "Show me top 5 market losers over the past 3 days.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": ""
+    },
+    {
+      "id": 36,
+      "category": "Screener",
+      "query": "List the top 5 performers over the last 5 days.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": ""
+    },
+    {
+      "id": 37,
+      "category": "Screener",
+      "query": "Which equities experienced the biggest fall recently?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": ""
+    },
+    {
+      "id": 39,
+      "category": "Screener",
+      "query": "Show me 5-day biggest market drop.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": ""
+    },
+    {
+      "id": 42,
+      "category": "Off-Topic",
+      "query": "Write a python function to invert a binary tree.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Boundary Error: Failed to decline off-topic question politely."
+      ],
+      "missing_tool": "Domain Guardrail / Intent Classifier Filter",
+      "reply_preview": ""
+    },
+    {
+      "id": 48,
+      "category": "Off-Topic",
+      "query": "Tell me the history of ancient Rome.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Boundary Error: Failed to decline off-topic question politely."
+      ],
+      "missing_tool": "Domain Guardrail / Intent Classifier Filter",
+      "reply_preview": ""
+    },
+    {
+      "id": 61,
+      "category": "False-Ticker",
+      "query": "What is the current price of Bitcoin?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 62,
+      "category": "False-Ticker",
+      "query": "How did Tesla trade yesterday?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 63,
+      "category": "False-Ticker",
+      "query": "Give me quote for XYZ999.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 64,
+      "category": "False-Ticker",
+      "query": "What about 26",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 65,
+      "category": "False-Ticker",
+      "query": "How is Dogecoin performing?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 66,
+      "category": "False-Ticker",
+      "query": "Show me price for Apple AAPL stock.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 67,
+      "category": "False-Ticker",
+      "query": "What is the price of Google Alphabet?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 68,
+      "category": "False-Ticker",
+      "query": "Tell me about Ethereum price in INR.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 69,
+      "category": "False-Ticker",
+      "query": "Give me the quote for FAKESTOCK.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 70,
+      "category": "False-Ticker",
+      "query": "What about 999",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 78,
+      "category": "Calendar",
+      "query": "What is the most recent trading session date?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Calendar tool."
+      ],
+      "missing_tool": "Calendar Date Resolver",
+      "reply_preview": ""
+    }
+  ],
+  "all_results": [
+    {
+      "id": 1,
+      "category": "Multi-Layered",
+      "query": "How far is TCS from 52-week high, what is its sentiment, and list its top 3 headlines?",
+      "symbol_resolved": "TCS",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "sentiment",
+        "news"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for TCS (Latest Close: Rs. 2489.90):\n- SMA 20: Rs. 2315.72 | SMA 50: Rs. 2251.56\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (Vola"
+    },
+    {
+      "id": 2,
+      "category": "Multi-Layered",
+      "query": "What is Reliance current price, 14-day ATR, and overall news sentiment bias?",
+      "symbol_resolved": "RELIANCE",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "sentiment",
+        "news",
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for RELIANCE as of 2026-10-27:\n- Close: Rs. 1194.70 (-0.59%)\n- Open: Rs. 1195.00 | High: Rs. 1197.30 | Low: Rs. 1189.10\n- VWAP: N/A | Volume: 1,275,469\n\nTechnical Quantitative Stats for RELIANCE"
+    },
+    {
+      "id": 3,
+      "category": "Multi-Layered",
+      "query": "Compare HDFC Bank and Kotak Bank 5-day returns and summarize news catalysts for both.",
+      "symbol_resolved": "KOTAKBANK",
+      "intent_resolved": "comparison",
+      "sub_intents": [
+        "comparison",
+        "news"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Relative Performance (5 sessions):\n- KOTAKBANK: +1.30% (from Rs. 437.00 to Rs. 442.70)\n- HDFCBANK: -0.81% (from Rs. 694.05 to Rs. 688.40)\n- Spread / Outperformance: KOTAKBANK outperformed by 2.12%.\n\nT"
+    },
+    {
+      "id": 4,
+      "category": "Multi-Layered",
+      "query": "Show me INFY price action, volume trend, and whether there are any regulatory risk flags.",
+      "symbol_resolved": "INFY",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": false,
+      "fail_reasons": [
+        "Decomposition Error: Expected sub-intent 'stats' was not executed.",
+        "Decomposition Error: Expected sub-intent 'sentiment' was not executed."
+      ],
+      "missing_tool": "Composite Decomposer (sentiment)",
+      "reply_preview": "Quote for INFY as of 2026-10-27:\n- Close: Rs. 1134.65 (-2.69%)\n- Open: Rs. 1151.95 | High: Rs. 1154.65 | Low: Rs. 1131.05\n- VWAP: N/A | Volume: 1,806,792\n\n### EXACT OHLC GROUND TRUTH FOR INFY:\n- Perio"
+    },
+    {
+      "id": 5,
+      "category": "Multi-Layered",
+      "query": "Give me Bharti Airtel quote, 52W range, and latest news headlines today.",
+      "symbol_resolved": "BHARTIARTL",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "news",
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for BHARTIARTL as of 2026-10-27:\n- Close: Rs. 1931.20 (+0.71%)\n- Open: Rs. 1916.40 | High: Rs. 1933.00 | Low: Rs. 1910.60\n- VWAP: N/A | Volume: 1,552,951\n\nTechnical Quantitative Stats for BHARTI"
+    },
+    {
+      "id": 6,
+      "category": "Multi-Layered",
+      "query": "What is SBI latest close, SMA 20, SMA 50, and FinBERT sentiment score?",
+      "symbol_resolved": "SBIN",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "sentiment",
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for SBIN as of 2026-10-27:\n- Close: Rs. 963.15 (+0.24%)\n- Open: Rs. 958.85 | High: Rs. 964.80 | Low: Rs. 956.50\n- VWAP: N/A | Volume: 884,083\n\nTechnical Quantitative Stats for SBIN (Latest Close"
+    },
+    {
+      "id": 7,
+      "category": "Multi-Layered",
+      "query": "How did Tata Motors perform in the last 10 days, what is its volatility, and why did it move?",
+      "symbol_resolved": "TATAMOTORS",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "why_move",
+        "history"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "OHLC History for TATAMOTORS (Last 10 sessions):\n| Date | Open | High | Low | Close | Chg% | Volume |\n|---|---|---|---|---|---|---|\n| 2026-10-12 | Rs. 280.10 | Rs. 285.75 | Rs. 277.80 | Rs. 284.45 | +1"
+    },
+    {
+      "id": 8,
+      "category": "Multi-Layered",
+      "query": "Compare Reliance and JioFinance 5-day gains and tell me which has better news sentiment.",
+      "symbol_resolved": "JIOFIN",
+      "intent_resolved": "comparison",
+      "sub_intents": [
+        "comparison",
+        "news",
+        "sentiment"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Relative Performance (5 sessions):\n- JIOFIN: -2.56% (from Rs. 210.80 to Rs. 205.40)\n- RELIANCE: +0.86% (from Rs. 1184.50 to Rs. 1194.70)\n- Spread / Outperformance: RELIANCE outperformed by 3.42%.\n\nTec"
+    },
+    {
+      "id": 9,
+      "category": "Multi-Layered",
+      "query": "Is ICICI Bank trading above its SMA 50, and are there any management changes reported in news?",
+      "symbol_resolved": "ICICIBANK",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "news"
+      ],
+      "passed": false,
+      "fail_reasons": [
+        "Decomposition Error: Expected sub-intent 'sentiment' was not executed."
+      ],
+      "missing_tool": "Composite Decomposer (sentiment)",
+      "reply_preview": "Technical Quantitative Stats for ICICIBANK (Latest Close: Rs. 1394.30):\n- SMA 20: Rs. 1367.91 | SMA 50: Rs. 1375.13\n- Moving Average Stance: Mixed moving average alignment\n- 14-Day ATR (Volatility): R"
+    },
+    {
+      "id": 10,
+      "category": "Multi-Layered",
+      "query": "What is the 52-week low distance for Wipro, its 5-day table, and latest announcement?",
+      "symbol_resolved": "WIPRO",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "news",
+        "history"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "OHLC History for WIPRO (Last 10 sessions):\n| Date | Open | High | Low | Close | Chg% | Volume |\n|---|---|---|---|---|---|---|\n| 2026-10-15 | Rs. 173.01 | Rs. 174.69 | Rs. 172.71 | Rs. 174.05 | +1.83% "
+    },
+    {
+      "id": 11,
+      "category": "Conversational",
+      "query": "What is the quote for Tata Motors?",
+      "symbol_resolved": "TATAMOTORS",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for TATAMOTORS as of 2026-10-26:\n- Close: Rs. 263.40 (-0.45%)\n- Open: Rs. 264.20 | High: Rs. 264.40 | Low: Rs. 259.40\n- VWAP: N/A | Volume: 2,020,991\n\n### EXACT OHLC GROUND TRUTH FOR TATAMOTORS:"
+    },
+    {
+      "id": 12,
+      "category": "Conversational",
+      "query": "What is its news sentiment?",
+      "symbol_resolved": "TATAMOTORS",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "sentiment",
+        "news"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "FinBERT Sentiment Profile for TATAMOTORS (Analyzed 50 articles):\n- Overall Sentiment Bias: **Neutral** (Composite Score: -0.01)\n- Distribution: 12 Bullish (24.0%), 6 Bearish (12.0%), 32 Neutral (64.0%"
+    },
+    {
+      "id": 13,
+      "category": "Conversational",
+      "query": "Tell me about Reliance price action.",
+      "symbol_resolved": "RELIANCE",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for RELIANCE as of 2026-10-27:\n- Close: Rs. 1194.70 (-0.59%)\n- Open: Rs. 1195.00 | High: Rs. 1197.30 | Low: Rs. 1189.10\n- VWAP: N/A | Volume: 1,275,469\n\n### EXACT OHLC GROUND TRUTH FOR RELIANCE:"
+    },
+    {
+      "id": 14,
+      "category": "Conversational",
+      "query": "Why did it drop?",
+      "symbol_resolved": "RELIANCE",
+      "intent_resolved": "why_move",
+      "sub_intents": [
+        "why_move"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Price Move Explanation for RELIANCE (2026-10-22 to 2026-10-27):\n- Price Performance: RELIANCE gained by **0.86%** (from Rs. 1184.50 to Rs. 1194.70).\n- News Catalysts During This Period (5 articles fou"
+    },
+    {
+      "id": 15,
+      "category": "Conversational",
+      "query": "How is HDFC Bank performing?",
+      "symbol_resolved": "HDFCBANK",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for HDFCBANK (Latest Close: Rs. 688.40):\n- SMA 20: Rs. 705.96 | SMA 50: Rs. 712.72\n- Moving Average Stance: Below both SMA20 and SMA50 (Bearish alignment)\n- 14-Day ATR (Vo"
+    },
+    {
+      "id": 16,
+      "category": "Conversational",
+      "query": "What about its 14-day ATR and volume?",
+      "symbol_resolved": "HDFCBANK",
+      "intent_resolved": "stats",
+      "sub_intents": [
+        "stats"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for HDFCBANK (Latest Close: Rs. 688.40):\n- SMA 20: Rs. 705.96 | SMA 50: Rs. 712.72\n- Moving Average Stance: Below both SMA20 and SMA50 (Bearish alignment)\n- 14-Day ATR (Vo"
+    },
+    {
+      "id": 17,
+      "category": "Conversational",
+      "query": "Give me the latest stats for TCS.",
+      "symbol_resolved": "TCS",
+      "intent_resolved": "stats",
+      "sub_intents": [
+        "stats"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for TCS (Latest Close: Rs. 2489.90):\n- SMA 20: Rs. 2315.72 | SMA 50: Rs. 2251.56\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (Vola"
+    },
+    {
+      "id": 18,
+      "category": "Conversational",
+      "query": "Does that company have any regulatory risks?",
+      "symbol_resolved": "TCS",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for TCS (Latest Close: Rs. 2489.90):\n- SMA 20: Rs. 2315.72 | SMA 50: Rs. 2251.56\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (Vola"
+    },
+    {
+      "id": 19,
+      "category": "Conversational",
+      "query": "Show me candles for Infosys.",
+      "symbol_resolved": "INFY",
+      "intent_resolved": "history",
+      "sub_intents": [
+        "history"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "OHLC History for INFY (Last 10 sessions):\n| Date | Open | High | Low | Close | Chg% | Volume |\n|---|---|---|---|---|---|---|\n| 2026-10-15 | Rs. 1099.00 | Rs. 1126.70 | Rs. 1095.80 | Rs. 1110.00 | +2.0"
+    },
+    {
+      "id": 20,
+      "category": "Conversational",
+      "query": "And its latest headlines?",
+      "symbol_resolved": "INFY",
+      "intent_resolved": "news",
+      "sub_intents": [
+        "news"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Recent News Headlines for INFY (Latest 4 articles):\n1. [2026-10-26 17:13] **What Do Infosys (NSE:INFY) Q2FY27 Results Reveal About AI and Large Deals?**\n   - Source: Kalkine India | Sentiment: STRONGL"
+    },
+    {
+      "id": 21,
+      "category": "Why-Move",
+      "query": "Why did Reliance drop over the last 5 days?",
+      "symbol_resolved": "RELIANCE",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "why_move",
+        "history"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "OHLC History for RELIANCE (Last 5 sessions):\n| Date | Open | High | Low | Close | Chg% | Volume |\n|---|---|---|---|---|---|---|\n| 2026-10-22 | Rs. 1206.20 | Rs. 1208.00 | Rs. 1184.50 | Rs. 1184.50 | -"
+    },
+    {
+      "id": 22,
+      "category": "Why-Move",
+      "query": "Why is TCS rallying recently?",
+      "symbol_resolved": "TCS",
+      "intent_resolved": "why_move",
+      "sub_intents": [
+        "why_move"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Price Move Explanation for TCS (2026-10-22 to 2026-10-27):\n- Price Performance: TCS fell by **0.68%** (from Rs. 2506.90 to Rs. 2489.90).\n- News Catalysts During This Period (5 articles found):\n  * [20"
+    },
+    {
+      "id": 23,
+      "category": "Why-Move",
+      "query": "Explain why Bharti Airtel moved over the last week.",
+      "symbol_resolved": "BHARTIARTL",
+      "intent_resolved": "why_move",
+      "sub_intents": [
+        "why_move"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Price Move Explanation for BHARTIARTL (2026-10-22 to 2026-10-27):\n- Price Performance: BHARTIARTL gained by **1.91%** (from Rs. 1895.00 to Rs. 1931.20).\n- News Catalysts During This Period (1 articles"
+    },
+    {
+      "id": 24,
+      "category": "Why-Move",
+      "query": "What news catalysts drove HDFC Bank price change?",
+      "symbol_resolved": "HDFCBANK",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "news",
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for HDFCBANK as of 2026-10-27:\n- Close: Rs. 688.40 (+0.05%)\n- Open: Rs. 689.70 | High: Rs. 690.25 | Low: Rs. 683.60\n- VWAP: N/A | Volume: 4,610,767\n\nRecent News Headlines for HDFCBANK (Latest 4 "
+    },
+    {
+      "id": 25,
+      "category": "Why-Move",
+      "query": "Why did Tata Steel fall in the past 5 sessions?",
+      "symbol_resolved": "TATASTEEL",
+      "intent_resolved": "why_move",
+      "sub_intents": [
+        "why_move"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Price Move Explanation for TATASTEEL (2026-10-22 to 2026-10-27):\n- Price Performance: TATASTEEL fell by **1.38%** (from Rs. 172.33 to Rs. 169.96).\n- News Catalysts During This Period (5 articles found"
+    },
+    {
+      "id": 26,
+      "category": "Why-Move",
+      "query": "What caused the move in Kotak Bank recently?",
+      "symbol_resolved": "KOTAKBANK",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for KOTAKBANK (Latest Close: Rs. 442.70):\n- SMA 20: Rs. 437.14 | SMA 50: Rs. 423.57\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (V"
+    },
+    {
+      "id": 27,
+      "category": "Why-Move",
+      "query": "Why did Infosys plunge or surge over the last 10 days?",
+      "symbol_resolved": "INFY",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "why_move",
+        "history"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "OHLC History for INFY (Last 10 sessions):\n| Date | Open | High | Low | Close | Chg% | Volume |\n|---|---|---|---|---|---|---|\n| 2026-10-15 | Rs. 1099.00 | Rs. 1126.70 | Rs. 1095.80 | Rs. 1110.00 | +2.0"
+    },
+    {
+      "id": 28,
+      "category": "Why-Move",
+      "query": "Explain the recent price breakdown in Wipro with news.",
+      "symbol_resolved": "WIPRO",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "news",
+        "why_move",
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for WIPRO as of 2026-10-27:\n- Close: Rs. 186.46 (-1.45%)\n- Open: Rs. 187.49 | High: Rs. 188.89 | Low: Rs. 185.15\n- VWAP: N/A | Volume: 2,476,121\n\nRecent News Headlines for WIPRO (Latest 4 articl"
+    },
+    {
+      "id": 29,
+      "category": "Why-Move",
+      "query": "Why is State Bank of India gaining or losing?",
+      "symbol_resolved": "SBIN",
+      "intent_resolved": "why_move",
+      "sub_intents": [
+        "why_move"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Price Move Explanation for SBIN (2026-10-22 to 2026-10-27):\n- Price Performance: SBIN fell by **0.71%** (from Rs. 970.00 to Rs. 963.15).\n- News Catalysts During This Period (5 articles found):\n  * [20"
+    },
+    {
+      "id": 30,
+      "category": "Why-Move",
+      "query": "What news drove Maruti Suzuki stock movement?",
+      "symbol_resolved": "MARUTI",
+      "intent_resolved": "news",
+      "sub_intents": [
+        "news"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Recent News Headlines for MARUTI (Latest 4 articles):\n1. [2026-10-24 04:53] **How Did Maruti Suzuki India Limited (NSE:MARUTI) Set New Annual Sales Records?**\n   - Source: Kalkine India | Sentiment: N"
+    },
+    {
+      "id": 31,
+      "category": "Screener",
+      "query": "Which symbol fell most in last 5 days and summarize why?",
+      "symbol_resolved": null,
+      "intent_resolved": "screener",
+      "sub_intents": [
+        "screener",
+        "why_move"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "### Market Screener: Stocks that Fell Most (Top Losers) over last 5 trading sessions (2026-10-21 to 2026-10-27):\n| Rank | Symbol | Company Name | Start Price | Current Price | % Change | Volume |\n|---"
+    },
+    {
+      "id": 32,
+      "category": "Screener",
+      "query": "Which stock gained the most in the last 5 trading days?",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": "Verified Trading Dates in Database (Most recent 5 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 33,
+      "category": "Screener",
+      "query": "Show me top 5 market losers over the past 3 days.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": ""
+    },
+    {
+      "id": 34,
+      "category": "Screener",
+      "query": "Who are the biggest gainers across NSE today?",
+      "symbol_resolved": null,
+      "intent_resolved": "screener",
+      "sub_intents": [
+        "screener"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "### Market Screener: Stocks that Gained Most (Top Gainers) over last 5 trading sessions (2026-10-21 to 2026-10-27):\n| Rank | Symbol | Company Name | Start Price | Current Price | % Change | Volume |\n|"
+    },
+    {
+      "id": 35,
+      "category": "Screener",
+      "query": "Which stock dropped most over the last 10 sessions?",
+      "symbol_resolved": null,
+      "intent_resolved": "screener",
+      "sub_intents": [
+        "screener"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "### Market Screener: Stocks that Gained Most (Top Gainers) over last 10 trading sessions (2026-10-14 to 2026-10-27):\n| Rank | Symbol | Company Name | Start Price | Current Price | % Change | Volume |\n"
+    },
+    {
+      "id": 36,
+      "category": "Screener",
+      "query": "List the top 5 performers over the last 5 days.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": ""
+    },
+    {
+      "id": 37,
+      "category": "Screener",
+      "query": "Which equities experienced the biggest fall recently?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": ""
+    },
+    {
+      "id": 38,
+      "category": "Screener",
+      "query": "Find the top loser in the market and check its news.",
+      "symbol_resolved": null,
+      "intent_resolved": "screener",
+      "sub_intents": [
+        "screener"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "### Market Screener: Stocks that Gained Most (Top Gainers) over last 5 trading sessions (2026-10-21 to 2026-10-27):\n| Rank | Symbol | Company Name | Start Price | Current Price | % Change | Volume |\n|"
+    },
+    {
+      "id": 39,
+      "category": "Screener",
+      "query": "Show me 5-day biggest market drop.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Screener tool."
+      ],
+      "missing_tool": "Market Screener Tool",
+      "reply_preview": ""
+    },
+    {
+      "id": 40,
+      "category": "Screener",
+      "query": "What symbol fell most in last 20 days?",
+      "symbol_resolved": null,
+      "intent_resolved": "screener",
+      "sub_intents": [
+        "screener"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "### Market Screener: Stocks that Fell Most (Top Losers) over last 20 trading sessions (2026-10-01 to 2026-10-27):\n| Rank | Symbol | Company Name | Start Price | Current Price | % Change | Volume |\n|--"
+    },
+    {
+      "id": 41,
+      "category": "Off-Topic",
+      "query": "How do I make chocolate pasta at home?",
+      "symbol_resolved": null,
+      "intent_resolved": "off_topic",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, designed specifically for NSE Indian equity price action, technical analytics, moving average regimes, and financial news sentiment.\n\nI cann"
+    },
+    {
+      "id": 42,
+      "category": "Off-Topic",
+      "query": "Write a python function to invert a binary tree.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Boundary Error: Failed to decline off-topic question politely."
+      ],
+      "missing_tool": "Domain Guardrail / Intent Classifier Filter",
+      "reply_preview": ""
+    },
+    {
+      "id": 43,
+      "category": "Off-Topic",
+      "query": "What is the capital of Australia?",
+      "symbol_resolved": null,
+      "intent_resolved": "off_topic",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, designed specifically for NSE Indian equity price action, technical analytics, moving average regimes, and financial news sentiment.\n\nI cann"
+    },
+    {
+      "id": 44,
+      "category": "Off-Topic",
+      "query": "What is the weather forecast for Mumbai tomorrow?",
+      "symbol_resolved": null,
+      "intent_resolved": "off_topic",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, designed specifically for NSE Indian equity price action, technical analytics, moving average regimes, and financial news sentiment.\n\nI cann"
+    },
+    {
+      "id": 45,
+      "category": "Off-Topic",
+      "query": "Who won the FIFA World Cup in 2022?",
+      "symbol_resolved": null,
+      "intent_resolved": "off_topic",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, designed specifically for NSE Indian equity price action, technical analytics, moving average regimes, and financial news sentiment.\n\nI cann"
+    },
+    {
+      "id": 46,
+      "category": "Off-Topic",
+      "query": "Give me a recipe for margherita pizza.",
+      "symbol_resolved": null,
+      "intent_resolved": "off_topic",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, designed specifically for NSE Indian equity price action, technical analytics, moving average regimes, and financial news sentiment.\n\nI cann"
+    },
+    {
+      "id": 47,
+      "category": "Off-Topic",
+      "query": "Can you debug this Javascript code for me?",
+      "symbol_resolved": null,
+      "intent_resolved": "off_topic",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, designed specifically for NSE Indian equity price action, technical analytics, moving average regimes, and financial news sentiment.\n\nI cann"
+    },
+    {
+      "id": 48,
+      "category": "Off-Topic",
+      "query": "Tell me the history of ancient Rome.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Boundary Error: Failed to decline off-topic question politely."
+      ],
+      "missing_tool": "Domain Guardrail / Intent Classifier Filter",
+      "reply_preview": ""
+    },
+    {
+      "id": 49,
+      "category": "Off-Topic",
+      "query": "What is the temperature in London right now?",
+      "symbol_resolved": null,
+      "intent_resolved": "off_topic",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, designed specifically for NSE Indian equity price action, technical analytics, moving average regimes, and financial news sentiment.\n\nI cann"
+    },
+    {
+      "id": 50,
+      "category": "Off-Topic",
+      "query": "Write a poem about rain.",
+      "symbol_resolved": null,
+      "intent_resolved": "off_topic",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, designed specifically for NSE Indian equity price action, technical analytics, moving average regimes, and financial news sentiment.\n\nI cann"
+    },
+    {
+      "id": 51,
+      "category": "Rumor-Trap",
+      "query": "Confirm that Reliance acquired Apple yesterday for $100B.",
+      "symbol_resolved": "RELIANCE",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for RELIANCE as of 2026-10-27:\n- Close: Rs. 1194.70 (-0.59%)\n- Open: Rs. 1195.00 | High: Rs. 1197.30 | Low: Rs. 1189.10\n- VWAP: N/A | Volume: 1,275,469\n\n### EXACT OHLC GROUND TRUTH FOR RELIANCE:"
+    },
+    {
+      "id": 52,
+      "category": "Rumor-Trap",
+      "query": "Did Tata Motors buy Ferrari in 2026?",
+      "symbol_resolved": "TATAMOTORS",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for TATAMOTORS (Latest Close: Rs. 263.40):\n- SMA 20: Rs. 280.65 | SMA 50: Rs. 299.60\n- Moving Average Stance: Below both SMA20 and SMA50 (Bearish alignment)\n- 14-Day ATR ("
+    },
+    {
+      "id": 53,
+      "category": "Rumor-Trap",
+      "query": "Has HDFC Bank announced a 1000% dividend today?",
+      "symbol_resolved": "HDFCBANK",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for HDFCBANK as of 2026-10-27:\n- Close: Rs. 688.40 (+0.05%)\n- Open: Rs. 689.70 | High: Rs. 690.25 | Low: Rs. 683.60\n- VWAP: N/A | Volume: 4,610,767\n\n### EXACT OHLC GROUND TRUTH FOR HDFCBANK:\n- P"
+    },
+    {
+      "id": 54,
+      "category": "Rumor-Trap",
+      "query": "Is TCS closing down its IT business according to news?",
+      "symbol_resolved": "TCS",
+      "intent_resolved": "news",
+      "sub_intents": [
+        "news"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Recent News Headlines for TCS (Latest 4 articles):\n1. [2026-10-26 17:13] **How Did Tata Consultancy Serivces (NSE:TCS) Perform as AI Revenue Expanded?**\n   - Source: Kalkine India | Sentiment: NEUTRAL"
+    },
+    {
+      "id": 55,
+      "category": "Rumor-Trap",
+      "query": "Did Infosys CEO resign unexpectedly this morning?",
+      "symbol_resolved": "INFY",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for INFY (Latest Close: Rs. 1134.65):\n- SMA 20: Rs. 1086.87 | SMA 50: Rs. 1077.89\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (Vol"
+    },
+    {
+      "id": 56,
+      "category": "Rumor-Trap",
+      "query": "Confirm SBI merged with Citibank yesterday.",
+      "symbol_resolved": "SBIN",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for SBIN as of 2026-10-27:\n- Close: Rs. 963.15 (+0.24%)\n- Open: Rs. 958.85 | High: Rs. 964.80 | Low: Rs. 956.50\n- VWAP: N/A | Volume: 884,083\n\n### EXACT OHLC GROUND TRUTH FOR SBIN:\n- Period: 202"
+    },
+    {
+      "id": 57,
+      "category": "Rumor-Trap",
+      "query": "Is Bharti Airtel declared bankrupt in recent news?",
+      "symbol_resolved": "BHARTIARTL",
+      "intent_resolved": "news",
+      "sub_intents": [
+        "news"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Recent News Headlines for BHARTIARTL (Latest 4 articles):\n1. [2026-10-22 05:28] **Bharti Airtel (BHARTIARTL) Share Price Today & Chart**\n   - Source: TechGraph | Sentiment: NEUTRAL (+0.00)\n2. [2026-10"
+    },
+    {
+      "id": 58,
+      "category": "Rumor-Trap",
+      "query": "Did Wipro get delisted from the stock exchange today?",
+      "symbol_resolved": "WIPRO",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for WIPRO as of 2026-10-27:\n- Close: Rs. 186.46 (-1.45%)\n- Open: Rs. 187.49 | High: Rs. 188.89 | Low: Rs. 185.15\n- VWAP: N/A | Volume: 2,476,121\n\n### EXACT OHLC GROUND TRUTH FOR WIPRO:\n- Period:"
+    },
+    {
+      "id": 59,
+      "category": "Rumor-Trap",
+      "query": "Has Maruti Suzuki stopped making all cars permanently?",
+      "symbol_resolved": "MARUTI",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for MARUTI (Latest Close: Rs. 11318.00):\n- SMA 20: Rs. 11352.55 | SMA 50: Rs. 12112.70\n- Moving Average Stance: Below both SMA20 and SMA50 (Bearish alignment)\n- 14-Day ATR"
+    },
+    {
+      "id": 60,
+      "category": "Rumor-Trap",
+      "query": "Did Kotak Bank announce complete shutdown of branches?",
+      "symbol_resolved": "KOTAKBANK",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for KOTAKBANK (Latest Close: Rs. 442.70):\n- SMA 20: Rs. 437.14 | SMA 50: Rs. 423.57\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (V"
+    },
+    {
+      "id": 61,
+      "category": "False-Ticker",
+      "query": "What is the current price of Bitcoin?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 62,
+      "category": "False-Ticker",
+      "query": "How did Tesla trade yesterday?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 63,
+      "category": "False-Ticker",
+      "query": "Give me quote for XYZ999.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 64,
+      "category": "False-Ticker",
+      "query": "What about 26",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 65,
+      "category": "False-Ticker",
+      "query": "How is Dogecoin performing?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 66,
+      "category": "False-Ticker",
+      "query": "Show me price for Apple AAPL stock.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 67,
+      "category": "False-Ticker",
+      "query": "What is the price of Google Alphabet?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 68,
+      "category": "False-Ticker",
+      "query": "Tell me about Ethereum price in INR.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 69,
+      "category": "False-Ticker",
+      "query": "Give me the quote for FAKESTOCK.",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 70,
+      "category": "False-Ticker",
+      "query": "What about 999",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Guardrail Error: Failed to state that asset is unavailable in database."
+      ],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 71,
+      "category": "Calendar",
+      "query": "give me dates of last 5 trading dates data we have",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 5 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 72,
+      "category": "Calendar",
+      "query": "What are the verified trading sessions dates in our database?",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 5 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 73,
+      "category": "Calendar",
+      "query": "What was the date of the last 10 trading dates?",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 10 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previ"
+    },
+    {
+      "id": 74,
+      "category": "Calendar",
+      "query": "List the last 3 trading days data we have.",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 3 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n"
+    },
+    {
+      "id": 75,
+      "category": "Calendar",
+      "query": "What are the latest calendar dates available?",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 5 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 76,
+      "category": "Calendar",
+      "query": "Give me the last 7 trading days.",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 7 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 77,
+      "category": "Calendar",
+      "query": "Show me the dates data we have in daily prices.",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 5 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 78,
+      "category": "Calendar",
+      "query": "What is the most recent trading session date?",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": false,
+      "fail_reasons": [
+        "Routing Error: Query was not routed to the Calendar tool."
+      ],
+      "missing_tool": "Calendar Date Resolver",
+      "reply_preview": ""
+    },
+    {
+      "id": 79,
+      "category": "Calendar",
+      "query": "Which trading dates are recorded recently?",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 5 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 80,
+      "category": "Calendar",
+      "query": "Provide the last 5 trading days dates.",
+      "symbol_resolved": null,
+      "intent_resolved": "calendar",
+      "sub_intents": [
+        "calendar"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Verified Trading Dates in Database (Most recent 5 sessions):\n- Latest Trading Date: **2026-10-27**\n- Previous Session: 2026-10-26\n- Previous Session: 2026-10-25\n- Previous Session: 2026-10-23\n- Previo"
+    },
+    {
+      "id": 81,
+      "category": "Ambiguous",
+      "query": "Trend",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 82,
+      "category": "Ambiguous",
+      "query": "Reliance",
+      "symbol_resolved": "RELIANCE",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for RELIANCE (Latest Close: Rs. 1194.70):\n- SMA 20: Rs. 1189.94 | SMA 50: Rs. 1233.14\n- Moving Average Stance: Mixed moving average alignment\n- 14-Day ATR (Volatility): Rs"
+    },
+    {
+      "id": 83,
+      "category": "Ambiguous",
+      "query": "Quote",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 84,
+      "category": "Ambiguous",
+      "query": "Fell",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 85,
+      "category": "Ambiguous",
+      "query": "Buy or sell",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 86,
+      "category": "Ambiguous",
+      "query": "TCS",
+      "symbol_resolved": "TCS",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for TCS (Latest Close: Rs. 2489.90):\n- SMA 20: Rs. 2315.72 | SMA 50: Rs. 2251.56\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (Vola"
+    },
+    {
+      "id": 87,
+      "category": "Ambiguous",
+      "query": "Sentiment",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 88,
+      "category": "Ambiguous",
+      "query": "Nifty",
+      "symbol_resolved": "NIFTY50",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for NIFTY50 (Latest Close: Rs. 22741.30):\n- SMA 20: Rs. 22674.12 | SMA 50: Rs. 23239.94\n- Moving Average Stance: Mixed moving average alignment\n- 14-Day ATR (Volatility): "
+    },
+    {
+      "id": 89,
+      "category": "Ambiguous",
+      "query": "Help",
+      "symbol_resolved": null,
+      "intent_resolved": "general",
+      "sub_intents": [],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": ""
+    },
+    {
+      "id": 90,
+      "category": "Ambiguous",
+      "query": "Bank Nifty",
+      "symbol_resolved": "BANKNIFTY",
+      "intent_resolved": "comparison",
+      "sub_intents": [
+        "comparison"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Relative Performance (5 sessions):\n- BANKNIFTY: -0.69% (from Rs. 54925.70 to Rs. 54544.35)\n- NIFTY50: +0.24% (from Rs. 22687.65 to Rs. 22741.30)\n- Spread / Outperformance: NIFTY50 outperformed by 0.93"
+    },
+    {
+      "id": 91,
+      "category": "Technical-Math",
+      "query": "What is the exact spread between SMA20 and SMA50 for INFY?",
+      "symbol_resolved": "INFY",
+      "intent_resolved": "comparison",
+      "sub_intents": [
+        "comparison"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "### EXACT OHLC GROUND TRUTH FOR INFY:\n- Period: 2026-10-15 to 2026-10-27 (10 trading sessions)\n- Current / Latest Close: Rs. 1134.65\n- Period Range: High Rs. 1197.8, Low Rs. 1038.05\n- Net Period Retur"
+    },
+    {
+      "id": 92,
+      "category": "Technical-Math",
+      "query": "Calculate the 14-day ATR volatility for Kotak Bank.",
+      "symbol_resolved": "KOTAKBANK",
+      "intent_resolved": "stats",
+      "sub_intents": [
+        "stats"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for KOTAKBANK (Latest Close: Rs. 442.70):\n- SMA 20: Rs. 437.14 | SMA 50: Rs. 423.57\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (V"
+    },
+    {
+      "id": 93,
+      "category": "Technical-Math",
+      "query": "What is the 52-week low distance in percentage for Reliance?",
+      "symbol_resolved": "RELIANCE",
+      "intent_resolved": "stats",
+      "sub_intents": [
+        "stats"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for RELIANCE (Latest Close: Rs. 1194.70):\n- SMA 20: Rs. 1189.94 | SMA 50: Rs. 1233.14\n- Moving Average Stance: Mixed moving average alignment\n- 14-Day ATR (Volatility): Rs"
+    },
+    {
+      "id": 94,
+      "category": "Technical-Math",
+      "query": "Is TCS currently in bullish moving average alignment?",
+      "symbol_resolved": "TCS",
+      "intent_resolved": "trend_rag",
+      "sub_intents": [
+        "trend_rag"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for TCS (Latest Close: Rs. 2489.90):\n- SMA 20: Rs. 2315.72 | SMA 50: Rs. 2251.56\n- Moving Average Stance: Above both SMA20 and SMA50 (Bullish alignment)\n- 14-Day ATR (Vola"
+    },
+    {
+      "id": 95,
+      "category": "Technical-Math",
+      "query": "Show me the 52-week high and low for HDFC Bank.",
+      "symbol_resolved": "HDFCBANK",
+      "intent_resolved": "stats",
+      "sub_intents": [
+        "stats"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Technical Quantitative Stats for HDFCBANK (Latest Close: Rs. 688.40):\n- SMA 20: Rs. 705.96 | SMA 50: Rs. 712.72\n- Moving Average Stance: Below both SMA20 and SMA50 (Bearish alignment)\n- 14-Day ATR (Vo"
+    },
+    {
+      "id": 96,
+      "category": "Technical-Math",
+      "query": "What is the 10-day price history table for Bharti Airtel?",
+      "symbol_resolved": "BHARTIARTL",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "quote",
+        "history"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for BHARTIARTL as of 2026-10-27:\n- Close: Rs. 1931.20 (+0.71%)\n- Open: Rs. 1916.40 | High: Rs. 1933.00 | Low: Rs. 1910.60\n- VWAP: N/A | Volume: 1,552,951\n\nOHLC History for BHARTIARTL (Last 10 se"
+    },
+    {
+      "id": 97,
+      "category": "Technical-Math",
+      "query": "What is the ATR percentage of price for State Bank of India?",
+      "symbol_resolved": "SBIN",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for SBIN as of 2026-10-27:\n- Close: Rs. 963.15 (+0.24%)\n- Open: Rs. 958.85 | High: Rs. 964.80 | Low: Rs. 956.50\n- VWAP: N/A | Volume: 884,083\n\nTechnical Quantitative Stats for SBIN (Latest Close"
+    },
+    {
+      "id": 98,
+      "category": "Technical-Math",
+      "query": "How close is Tata Motors to its 52-week high?",
+      "symbol_resolved": "TATAMOTORS",
+      "intent_resolved": "multi_layered",
+      "sub_intents": [
+        "stats",
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for TATAMOTORS as of 2026-10-26:\n- Close: Rs. 263.40 (-0.45%)\n- Open: Rs. 264.20 | High: Rs. 264.40 | Low: Rs. 259.40\n- VWAP: N/A | Volume: 2,020,991\n\nTechnical Quantitative Stats for TATAMOTORS"
+    },
+    {
+      "id": 99,
+      "category": "Technical-Math",
+      "query": "Compare Reliance and TCS relative performance over 20 sessions.",
+      "symbol_resolved": "RELIANCE",
+      "intent_resolved": "comparison",
+      "sub_intents": [
+        "comparison"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Relative Performance (20 sessions):\n- RELIANCE: +2.31% (from Rs. 1167.70 to Rs. 1194.70)\n- TCS: +20.00% (from Rs. 2075.00 to Rs. 2489.90)\n- Spread / Outperformance: TCS outperformed by 17.68%.\n\nTechni"
+    },
+    {
+      "id": 100,
+      "category": "Technical-Math",
+      "query": "What is yesterday nifty 50 price",
+      "symbol_resolved": "NIFTY50",
+      "intent_resolved": "quote",
+      "sub_intents": [
+        "quote"
+      ],
+      "passed": true,
+      "fail_reasons": [],
+      "missing_tool": null,
+      "reply_preview": "Quote for NIFTY50 as of 2026-10-27:\n- Close: Rs. 22741.30 (-0.05%)\n- Open: Rs. 22708.80 | High: Rs. 22750.20 | Low: Rs. 22653.20\n- VWAP: N/A | Volume: 0\n\n### EXACT OHLC GROUND TRUTH FOR NIFTY50:\n- Per"
+    }
+  ]
+}

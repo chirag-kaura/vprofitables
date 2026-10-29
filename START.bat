@@ -38,13 +38,17 @@ if errorlevel 1 (
 )
 echo [OK] Dependencies ready
 
-:: ── Check for market_data.db ─────────────────────────────────────────────────
+:: ── Cloud Auto-Sync (Check for 9:00 PM IST automated update) ───────────────
 echo.
-if exist market_data.db (
-    echo [OK] market_data.db found - your historical data will be loaded
+echo [SETUP] Checking for automated 9:00 PM IST cloud database update...
+python cloud_sync.py --download
+
+:: ── Check for market_data_v2.db ──────────────────────────────────────────────
+echo.
+if exist market_data_v2.db (
+    echo [OK] market_data_v2.db ready - your historical data will be loaded
 ) else (
-    echo [INFO] No market_data.db found - a fresh database will be created
-    echo        Run download_history.py after startup to fetch historical prices
+    echo [INFO] No market_data_v2.db found - a fresh database will be created
 )
 
 :: ── Kill anything already on port 5050 (just in case) ────────────────────────
@@ -53,11 +57,25 @@ for /f "tokens=5" %%p in ('netstat -ano ^| findstr :5050 ^| findstr LISTENING') 
     taskkill /PID %%p /F >nul 2>&1
 )
 
+:: ── Check Windows 9:00 PM Scheduler ───────────────────────────────────────
+schtasks /query /tn "GANN-ASTRO-Daily-Update" >nul 2>&1
+if errorlevel 1 (
+    echo [SETUP] Daily 9:00 PM Windows Task not found. Auto-registering scheduler...
+    call setup_scheduler.bat --silent
+) else (
+    echo [OK] 9:00 PM IST Windows Scheduler registered and active
+)
+
+:: ── Autonomous Radar-to-Sniper Trade Tracker Desk ────────────────────────────
+echo.
+echo [SETUP] Auditing Autonomous Radar-to-Sniper Trade Tracker Desk...
+python run_daily_tracker_desk.py --quick-check
+
 :: ── Run Automated Daily Updates (BACKGROUND) ─────────────────────────────────
 echo.
 echo [SETUP] Launching automated daily updates in the background...
 echo         (A minimized window will open for the update and close when finished)
-start "GANN-ASTRO Background Update" /MIN /LOW cmd /c "python update_all.py & echo. & echo Update Complete! & timeout 5"
+start "GANN-ASTRO Background Update" /MIN /LOW cmd /c "timeout 20 & python update_all.py & echo. & echo Update Complete! & timeout 5"
 
 :: ── Run OI Scraper (after market close snapshot) ───────────────────────────
 echo [SETUP] Launching OI scraper in background (NSE option chain data)...
@@ -65,6 +83,17 @@ start "GANN-ASTRO OI Scraper" /MIN /LOW cmd /c "timeout 30 & python scrape_oi.py
 
 
 :: ── Set port (avoids conflict with port 8080) ────────────────────────────────
+echo.
+echo [CHECK] Verifying frontend script integrity...
+python -X utf8 tests/test_js_integrity.py
+if errorlevel 1 (
+    echo.
+    echo [ERROR] Frontend script syntax error detected!
+    echo Please fix the above error before running the terminal.
+    pause
+    exit /b 1
+)
+
 set GANN_PORT=5050
 
 echo.
@@ -77,7 +106,7 @@ echo.
 start "" powershell -WindowStyle Hidden -Command "Start-Sleep 6; Start-Process 'http://localhost:5050'"
 
 :: ── Start server ─────────────────────────────────────────────────────────────
-python app.py
+python -X utf8 app.py
 
 :: If we get here the server stopped
 echo.

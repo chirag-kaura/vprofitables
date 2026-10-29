@@ -6,6 +6,44 @@ import json
 import os
 from data.instruments import ALL_INSTRUMENTS
 
+
+import numpy as np
+
+def calculate_portfolio_variance_impact(candidate_symbol: str, open_positions: list, conn) -> float:
+    """
+    Calculates the average correlation between candidate and open positions over the last 30 days.
+    Returns a score from -1.0 (perfect hedge) to 1.0 (perfect correlation).
+    """
+    if not open_positions:
+        return 0.0
+
+    # Fetch candidate prices
+    c_prices = conn.execute("SELECT close FROM daily_prices WHERE symbol=? ORDER BY trade_date DESC LIMIT 30", (candidate_symbol,)).fetchall()
+    if len(c_prices) < 30:
+        return 0.0
+    
+    cand_returns = np.diff([p[0] for p in c_prices]) / [p[0] for p in c_prices][:-1]
+    
+    total_corr = 0.0
+    valid_pairs = 0
+    
+    for tr in open_positions:
+        sym = tr[0]
+        o_prices = conn.execute("SELECT close FROM daily_prices WHERE symbol=? ORDER BY trade_date DESC LIMIT 30", (sym,)).fetchall()
+        if len(o_prices) == 30:
+            open_returns = np.diff([p[0] for p in o_prices]) / [p[0] for p in o_prices][:-1]
+            # Handle standard deviation zero
+            if np.std(cand_returns) > 0 and np.std(open_returns) > 0:
+                corr = np.corrcoef(cand_returns, open_returns)[0, 1]
+                if not np.isnan(corr):
+                    total_corr += corr
+                    valid_pairs += 1
+                
+    if valid_pairs == 0:
+        return 0.0
+        
+    return total_corr / valid_pairs
+
 def generate_personalized_recommendations(user_id: str, candidates: list, conn) -> tuple:
     """
     Filters candidates based on user preferences and adds sizing + explanations.
@@ -89,6 +127,13 @@ def generate_personalized_recommendations(user_id: str, candidates: list, conn) 
         # Constraint: Market filter
         if market_tag not in pref_markets:
             continue
+            
+        # Calculate Portfolio Variance Impact
+        variance_impact = calculate_portfolio_variance_impact(sym, open_trades, conn)
+        cand["portfolio_variance_impact"] = variance_impact
+        
+        # Penalize positively correlated, boost negatively correlated
+
 
         # Sizing recommendation (target: 5% or 10% of capital depending on risk comfort)
         comfort = profile["risk_comfort"] or "Moderate"

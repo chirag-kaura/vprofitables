@@ -48,16 +48,34 @@ def _hash(title: str) -> str:
     return hashlib.sha1(title.lower().strip().encode()).hexdigest()[:16]
 
 def _skeleton_hash(title: str) -> str:
+    """
+    Normalise a headline to a canonical form for near-duplicate detection.
+    Strips: dates, times, quarter labels (Q1/Q2), currency amounts, % figures,
+            company suffixes (Ltd, Inc…), and punctuation separators.
+
+    FIX 3: Do NOT strip ticker symbols (ALL-CAPS tokens).
+    Old code stripped r'\\b[A-Z][A-Z0-9\\-&]{1,15}\\b' which caused
+    "TCS posts record profit" and "INFY posts record profit" to share the
+    same skeleton hash — INFY headlines were wrongly rejected as duplicates.
+    Tickers must remain in the skeleton so cross-symbol deduplication is accurate.
+    """
     import re as _r
     t = title.lower().strip()
+    # Strip full dates: "15 Jan 2026", "January 15, 2026"
     t = _r.sub(r'\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{4}\b','',t)
     t = _r.sub(r'\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{1,2},?\s*\d{4}\b','',t)
+    # Strip partial dates: "15 Jan", "Jan 15"
     t = _r.sub(r'\b\d{1,2}\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\b','',t)
     t = _r.sub(r'\b(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)\w*\s+\d{1,2}\b','',t)
+    # Strip quarter labels: Q1, Q2, Q3, Q4, FY26, H1, H2
+    t = _r.sub(r'\b(?:q[1-4]|h[12]|fy\d{2,4})\b','',t,flags=_r.IGNORECASE)
+    # Strip times: "03:30 PM", "09:15 IST"
     t = _r.sub(r'\b\d{1,2}:\d{2}\s*(?:am|pm|ist)?\b','',t,flags=_r.IGNORECASE)
-    t = _r.sub(r'\b\w[\w\s]{2,30}?\s+(?:ltd\.?|limited|inc\.?|corp\.?|co\.?|plc)\b','',t,flags=_r.IGNORECASE)
-    t = _r.sub(r'\b[A-Z][A-Z0-9\-&]{1,15}\b','',t)
-    t = _r.sub(r'\b\d+(?:[.,]\d+)?\s*(?:percent|%|cr|crore|lakh|bn|mn|rs|inr)?\b','',t,flags=_r.IGNORECASE)
+    # Strip company legal suffixes only (not the company name itself)
+    t = _r.sub(r'\b(?:ltd\.?|limited|inc\.?|corp\.?|co\.|plc|llp)\b','',t,flags=_r.IGNORECASE)
+    # Strip numbers with financial units: "₹12,000 cr", "9%", "45 lakh"
+    t = _r.sub(r'\b\d+(?:[.,]\d+)?\s*(?:percent|%|cr|crore|lakh|bn|mn|rs|inr|x|times)?\b','',t,flags=_r.IGNORECASE)
+    # Strip punctuation separators
     t = _r.sub(r'[;:,\-\|]+',' ',t)
     t = _r.sub(r'\s+',' ',t).strip()
     return hashlib.sha1(t[:70].encode()).hexdigest()[:16]
@@ -114,6 +132,10 @@ def init_sentiment_tables():
             calibrated_score  REAL DEFAULT NULL,
             prediction_error  REAL DEFAULT NULL,
             model_was_correct INTEGER DEFAULT NULL,
+            finbert_prob_bullish REAL DEFAULT NULL,
+            is_guidance_raised INTEGER DEFAULT NULL,
+            is_regulatory_risk INTEGER DEFAULT NULL,
+            is_management_change INTEGER DEFAULT NULL,
             UNIQUE(symbol, headline_hash)
         )
     """)
@@ -132,6 +154,10 @@ def init_sentiment_tables():
         ("calibrated_score",  "REAL DEFAULT NULL"),
         ("prediction_error",  "REAL DEFAULT NULL"),
         ("model_was_correct", "INTEGER DEFAULT NULL"),
+        ("finbert_prob_bullish", "REAL DEFAULT NULL"),
+        ("is_guidance_raised", "INTEGER DEFAULT NULL"),
+        ("is_regulatory_risk", "INTEGER DEFAULT NULL"),
+        ("is_management_change", "INTEGER DEFAULT NULL"),
     ]
     for col, defn in new_cols:
         if col not in existing:
@@ -194,6 +220,10 @@ def _migrate(conn, c, existing):
             calibrated_score  REAL DEFAULT NULL,
             prediction_error  REAL DEFAULT NULL,
             model_was_correct INTEGER DEFAULT NULL,
+            finbert_prob_bullish REAL DEFAULT NULL,
+            is_guidance_raised INTEGER DEFAULT NULL,
+            is_regulatory_risk INTEGER DEFAULT NULL,
+            is_management_change INTEGER DEFAULT NULL,
             UNIQUE(symbol, headline_hash)
         )
     """)
@@ -264,8 +294,9 @@ def save_headlines(symbol: str, headlines: list, instrument_type: str = "EQUITY"
                 INSERT INTO news_sentiment
                     (symbol, headline_hash, skeleton_hash, title, snippet,
                      source, url, published_at, fetched_at,
-                     raw_score, label, instrument_type)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                     raw_score, label, instrument_type,
+                     finbert_prob_bullish, is_guidance_raised, is_regulatory_risk, is_management_change)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(symbol, headline_hash) DO UPDATE SET
                     fetched_at    = excluded.fetched_at,
                     skeleton_hash = excluded.skeleton_hash,
@@ -279,6 +310,10 @@ def save_headlines(symbol: str, headlines: list, instrument_type: str = "EQUITY"
                 round(float(h.get("score", 0)), 4),
                 h.get("label", "NEUTRAL"),
                 instrument_type,
+                h.get("finbert_prob_bullish"),
+                h.get("is_guidance_raised"),
+                h.get("is_regulatory_risk"),
+                h.get("is_management_change"),
             ))
             inserted += 1
         except Exception as e:
@@ -356,7 +391,11 @@ def save_headlines_batch(batch_data: list) -> int:
             now,
             round(float(h.get("score", 0)), 4),
             h.get("label", "NEUTRAL"),
-            h.get("instrument_type", "EQUITY")
+            h.get("instrument_type", "EQUITY"),
+            h.get("finbert_prob_bullish"),
+            h.get("is_guidance_raised"),
+            h.get("is_regulatory_risk"),
+            h.get("is_management_change"),
         ))
 
     if tuples_to_insert:
@@ -365,8 +404,9 @@ def save_headlines_batch(batch_data: list) -> int:
                 INSERT INTO news_sentiment
                     (symbol, headline_hash, skeleton_hash, title, snippet,
                      source, url, published_at, fetched_at,
-                     raw_score, label, instrument_type)
-                VALUES (?,?,?,?,?,?,?,?,?,?,?,?)
+                     raw_score, label, instrument_type,
+                     finbert_prob_bullish, is_guidance_raised, is_regulatory_risk, is_management_change)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
                 ON CONFLICT(symbol, headline_hash) DO UPDATE SET
                     fetched_at    = excluded.fetched_at,
                     skeleton_hash = excluded.skeleton_hash,

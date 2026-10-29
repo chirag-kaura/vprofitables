@@ -18,10 +18,9 @@ HTML = r"""
   <div class="topbar" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
     <div style="display:flex;align-items:center;gap:6px;">
       <h2 style="margin:0;">📊 FUNDAMENTAL ANALYSIS</h2>
-      <span class="page-tag">VALUATION + SCORING</span>
     </div>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
-      <select id="fund-sym" style="min-width:220px;background:var(--p2);border:1px solid var(--b2);color:var(--t2);padding:5px 8px;font-family:Share Tech Mono,monospace;font-size:0.75rem;outline:none;">
+      <select id="fund-sym" onchange="loadFundamentals()" style="min-width:220px;background:var(--p2);border:1px solid var(--b2);color:var(--t2);padding:5px 8px;font-family:Share Tech Mono,monospace;font-size:0.75rem;outline:none;">
         <option value="">— Select equity —</option>
       </select>
       <button class="btn" onclick="loadFundamentals()" style="padding:5px 14px;">⚡ ANALYSE</button>
@@ -124,6 +123,42 @@ HTML = r"""
 
 
 JS = r"""
+async function initFundamentalsSymbols() {
+  const sel = document.getElementById('fund-sym');
+  if (!sel) return;
+  if (sel.options.length <= 1) {
+    try {
+      const d = await api('all_symbols');
+      const equities = d.equities || [];
+      sel.innerHTML = '';
+      equities.forEach(s => {
+        const sym = typeof s === 'object' ? s.symbol : s;
+        const name = typeof s === 'object' ? (s.name || '') : '';
+        const opt = document.createElement('option');
+        opt.value = sym;
+        opt.textContent = sym + (name ? ' — ' + name : '');
+        sel.appendChild(opt);
+      });
+      if (sel.options.length > 0) {
+        sel.selectedIndex = 0;
+        loadFundamentals();
+      }
+    } catch(e) {
+      console.warn("Could not init fund-sym:", e);
+    }
+  } else if (!document.getElementById('fund-results') || document.getElementById('fund-results').style.display === 'none') {
+    if (sel.value) loadFundamentals();
+  }
+}
+document.addEventListener('DOMContentLoaded', () => {
+  setTimeout(initFundamentalsSymbols, 300);
+});
+window.addEventListener('hashchange', () => {
+  if (window.location.hash === '#fundamentals') {
+    setTimeout(initFundamentalsSymbols, 100);
+  }
+});
+
 async function loadFundamentals(forceRefresh) {
   const sym = document.getElementById('fund-sym').value;
   if (!sym) return;
@@ -486,7 +521,324 @@ function renderFundCombined(d) {
   document.body.style.overflow = 'hidden';
 
   // Wait for DOM + all TV* functions to be ready, then take over
-  window.addEventListener('load', function() {
+  
+// ════════════════════════════════════════════════════════════════════
+// EXTENDED CHART: MULTI-CHART & PRICE ALERTS LOGIC (Bugs 3 & 4)
+// ════════════════════════════════════════════════════════════════════
+let _cwCurrentLayout = 1;
+let _cwPanes = [
+  { sym: 'NIFTY50', tf: '1D' },
+  { sym: 'NIFTY50', tf: '1W' },
+  { sym: 'BANKNIFTY', tf: '1D' },
+  { sym: 'RELIANCE', tf: '1D' }
+];
+
+window.cwSetLayout = function(n) {
+  _cwCurrentLayout = n;
+  ['1', '2', '4'].forEach(id => {
+    const btn = document.getElementById('cw-layout-' + id);
+    if (btn) {
+      if (id === String(n)) btn.classList.add('active');
+      else btn.classList.remove('active');
+    }
+  });
+
+  const singleCanvas = document.getElementById('price-canvas');
+  const multiGrid = document.getElementById('cw-multi-chart-grid');
+  const subPanels = document.querySelectorAll('[id^="sub-panel-"]');
+
+  if (n === 1) {
+    if (multiGrid) multiGrid.style.display = 'none';
+    if (singleCanvas) singleCanvas.style.display = 'block';
+    subPanels.forEach(p => {
+      const id = p.id.replace('sub-panel-', '');
+      if (TV.indicators && TV.indicators[id]) p.style.display = 'block';
+    });
+    tvRedraw();
+  } else {
+    if (singleCanvas) singleCanvas.style.display = 'none';
+    subPanels.forEach(p => p.style.display = 'none');
+    if (multiGrid) multiGrid.style.display = 'grid';
+    cwRenderMultiGrid();
+  }
+};
+
+window.cwRenderMultiGrid = function() {
+  const container = document.getElementById('cw-multi-chart-grid');
+  if (!container) return;
+  const currentSym = (document.getElementById('cw-sym-input')?.value || 'NIFTY50').trim().toUpperCase();
+  _cwPanes[0].sym = currentSym;
+  if (_cwCurrentLayout === 2) {
+    _cwPanes[1].sym = currentSym; // compare 1D vs 1W on same symbol
+  }
+
+  container.style.display = 'grid';
+  container.style.gridTemplateColumns = _cwCurrentLayout === 2 ? '1fr 1fr' : '1fr 1fr';
+  container.style.gridTemplateRows = _cwCurrentLayout === 4 ? '1fr 1fr' : '1fr';
+  container.style.gap = '8px';
+  container.style.padding = '8px';
+  container.style.boxSizing = 'border-box';
+
+  let html = '';
+  for (let i = 0; i < _cwCurrentLayout; i++) {
+    const pane = _cwPanes[i];
+    html += `
+    <div style="display:flex;flex-direction:column;background:#fff;border:1px solid var(--tv-color-border);border-radius:6px;overflow:hidden;position:relative;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 12px;border-bottom:1px solid var(--tv-color-border);background:#f8f9fb;gap:8px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <input type="text" value="${pane.sym}" id="cw-mc-sym-${i}"
+                 style="width:110px;border:1px solid var(--tv-color-border);border-radius:3px;padding:3px 6px;font-size:12px;font-weight:700;text-transform:uppercase;color:#131722;"
+                 onkeydown="if(event.key==='Enter')cwMcUpdateSym(${i},this.value)"
+                 onblur="cwMcUpdateSym(${i},this.value)">
+          <span id="cw-mc-px-${i}" style="font-size:12px;font-weight:600;color:#131722;">—</span>
+        </div>
+        <div style="display:flex;gap:3px;">
+          <button class="tv-btn ${pane.tf==='1D'?'active':''}" onclick="cwMcUpdateTf(${i},'1D')" style="width:auto;height:24px;padding:0 6px;font-size:11px;font-weight:600;">1D</button>
+          <button class="tv-btn ${pane.tf==='1W'?'active':''}" onclick="cwMcUpdateTf(${i},'1W')" style="width:auto;height:24px;padding:0 6px;font-size:11px;font-weight:600;">1W</button>
+          <button class="tv-btn ${pane.tf==='1M'?'active':''}" onclick="cwMcUpdateTf(${i},'1M')" style="width:auto;height:24px;padding:0 6px;font-size:11px;font-weight:600;">1M</button>
+        </div>
+      </div>
+      <div style="flex:1;position:relative;min-height:220px;width:100%;">
+        <canvas id="cw-mc-cvs-${i}" style="display:block;width:100%;height:100%;cursor:crosshair;"></canvas>
+      </div>
+    </div>`;
+  }
+  container.innerHTML = html;
+
+  for (let i = 0; i < _cwCurrentLayout; i++) {
+    cwMcLoadAndDraw(i);
+  }
+};
+
+window.cwMcUpdateSym = function(idx, sym) {
+  sym = (sym || '').toUpperCase().trim();
+  if (!sym || _cwPanes[idx].sym === sym) return;
+  _cwPanes[idx].sym = sym;
+  cwMcLoadAndDraw(idx);
+};
+
+window.cwMcUpdateTf = function(idx, tf) {
+  _cwPanes[idx].tf = tf;
+  cwRenderMultiGrid();
+};
+
+window.cwMcLoadAndDraw = async function(idx) {
+  const pane = _cwPanes[idx];
+  const cvs = document.getElementById('cw-mc-cvs-' + idx);
+  if (!cvs) return;
+  const pxEl = document.getElementById('cw-mc-px-' + idx);
+
+  try {
+    const res = await api('quant', {symbol: pane.sym});
+    if (res && res.chart && res.chart.closes) {
+      if (pxEl && res.current_price) {
+        pxEl.textContent = '₹' + Number(res.current_price.toFixed(2)).toLocaleString('en-IN');
+      }
+      cwMcDrawCandles(cvs, res.chart, pane.tf);
+    }
+  } catch(e) {}
+};
+
+function cwMcDrawCandles(cvs, raw, tf) {
+  const rect = cvs.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const W = rect.width || 450;
+  const H = rect.height || 260;
+  cvs.width = Math.round(W * dpr);
+  cvs.height = Math.round(H * dpr);
+  const ctx = cvs.getContext('2d');
+  ctx.scale(dpr, dpr);
+
+  let closes = raw.closes || [], opens = raw.opens || closes;
+  let highs = raw.highs || closes, lows = raw.lows || closes;
+
+  if (tf === '1W' && closes.length > 5) {
+    const step = 5;
+    let ac=[], ao=[], ah=[], al=[];
+    for (let i=0; i<closes.length; i+=step) {
+      ao.push(opens[i]);
+      ac.push(closes[Math.min(i+step-1, closes.length-1)]);
+      ah.push(Math.max(...highs.slice(i, i+step)));
+      al.push(Math.min(...lows.slice(i, i+step)));
+    }
+    closes=ac; opens=ao; highs=ah; lows=al;
+  } else if (tf === '1M' && closes.length > 21) {
+    const step = 21;
+    let ac=[], ao=[], ah=[], al=[];
+    for (let i=0; i<closes.length; i+=step) {
+      ao.push(opens[i]);
+      ac.push(closes[Math.min(i+step-1, closes.length-1)]);
+      ah.push(Math.max(...highs.slice(i, i+step)));
+      al.push(Math.min(...lows.slice(i, i+step)));
+    }
+    closes=ac; opens=ao; highs=ah; lows=al;
+  }
+
+  const count = Math.min(closes.length, 65);
+  const sCloses = closes.slice(-count);
+  const sOpens  = opens.slice(-count);
+  const sHighs  = highs.slice(-count);
+  const sLows   = lows.slice(-count);
+  if (!sCloses.length) return;
+
+  const minP = Math.min(...sLows);
+  const maxP = Math.max(...sHighs);
+  const range = (maxP - minP) || 1;
+  const pad = { t: 18, b: 22, l: 8, r: 52 };
+  const plotW = W - pad.l - pad.r;
+  const plotH = H - pad.t - pad.b;
+  const p2y = p => pad.t + plotH * (1 - (p - minP) / range);
+
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, W, H);
+
+  ctx.strokeStyle = '#e0e3eb';
+  ctx.lineWidth = 1;
+  for (let i=0; i<4; i++) {
+    const y = pad.t + (plotH / 3) * i;
+    ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(W - pad.r, y); ctx.stroke();
+    const pVal = maxP - (range / 3) * i;
+    ctx.fillStyle = '#787b86';
+    ctx.font = '10px -apple-system,BlinkMacSystemFont,sans-serif';
+    ctx.fillText('₹' + pVal.toFixed(1), W - pad.r + 4, y + 3);
+  }
+
+  const barW = Math.max(3, (plotW / count) * 0.7);
+  for (let i=0; i<count; i++) {
+    const x = pad.l + (i + 0.5) * (plotW / count);
+    const o = sOpens[i], c = sCloses[i], h = sHighs[i], l = sLows[i];
+    const isUp = c >= o;
+    const col = isUp ? '#089981' : '#f23645';
+
+    ctx.strokeStyle = col;
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(x, p2y(h));
+    ctx.lineTo(x, p2y(l));
+    ctx.stroke();
+
+    const yO = p2y(o), yC = p2y(c);
+    const bodyTop = Math.min(yO, yC);
+    const bodyH = Math.max(1.5, Math.abs(yO - yC));
+    ctx.fillStyle = col;
+    ctx.fillRect(x - barW/2, bodyTop, barW, bodyH);
+  }
+}
+
+// ── Price Alerts in Extended Window ─────────────────────────────────
+let _cwActiveAlerts = [];
+
+window.cwLoadAlerts = async function() {
+  const list = document.getElementById('cw-active-alerts-list');
+  const symInp = document.getElementById('cw-alert-sym');
+  const threshInp = document.getElementById('cw-alert-thresh');
+  const currentSym = (document.getElementById('cw-sym-input')?.value || 'NIFTY50').trim().toUpperCase();
+  const currentPrice = TV.data && TV.data.currentPrice ? TV.data.currentPrice : 0;
+
+  if (symInp && !symInp.value) symInp.value = currentSym;
+  if (threshInp && !threshInp.value && currentPrice > 0) threshInp.value = currentPrice.toFixed(2);
+
+  if (!list) return;
+  list.innerHTML = '<div style="color:var(--tv-color-text-secondary);font-size:12px;text-align:center;padding:12px;">Loading alerts…</div>';
+
+  try {
+    const res = await api('alert_get');
+    if (res && res.alerts) {
+      _cwActiveAlerts = res.alerts;
+      if (res.alerts.length === 0) {
+        list.innerHTML = '<div style="color:var(--tv-color-text-secondary);font-size:12px;text-align:center;padding:16px;">No active price alerts.</div>';
+        return;
+      }
+      let html = '';
+      res.alerts.forEach(a => {
+        const sign = a.condition === 'ABOVE' ? '≥' : '≤';
+        const col = a.condition === 'ABOVE' ? '#089981' : '#f23645';
+        html += `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 10px;background:#f8f9fb;border:1px solid var(--tv-color-border);border-radius:4px;font-size:12px;">
+          <div>
+            <span style="font-weight:700;color:var(--tv-color-text-primary);">${a.symbol}</span>
+            <span style="color:${col};font-weight:600;margin-left:6px;">${sign} ₹${Number(a.threshold).toLocaleString('en-IN', {minimumFractionDigits:2})}</span>
+          </div>
+          <button onclick="cwDeleteAlert(${a.id})" style="background:transparent;border:none;color:#787b86;cursor:pointer;font-size:14px;padding:0 4px;" title="Delete" onmouseover="this.style.color='#f23645'" onmouseout="this.style.color='#787b86'">✕</button>
+        </div>`;
+      });
+      list.innerHTML = html;
+      if (typeof cwDrawPositionLines === 'function') cwDrawPositionLines();
+    }
+  } catch(e) {
+    list.innerHTML = `<div style="color:#f23645;font-size:11px;padding:8px;">${e.message}</div>`;
+  }
+};
+
+window.cwSubmitAlert = async function() {
+  const sym = (document.getElementById('cw-alert-sym')?.value || '').trim().toUpperCase();
+  const cond = document.getElementById('cw-alert-cond')?.value || 'ABOVE';
+  const thresh = parseFloat(document.getElementById('cw-alert-thresh')?.value || 0);
+  const notify = document.getElementById('cw-alert-notify')?.checked ? 1 : 0;
+
+  if (!sym || thresh <= 0) {
+    alert('Please enter a valid symbol and target price.');
+    return;
+  }
+
+  try {
+    const res = await api('alert_set', { symbol: sym, condition: cond, threshold: thresh, notify_browser: notify });
+    if (res && res.ok) {
+      cwLoadAlerts();
+      const inp = document.getElementById('cw-alert-thresh');
+      if (inp) inp.value = '';
+    } else {
+      alert((res && res.error) || 'Failed to set alert');
+    }
+  } catch(e) {
+    alert('Error: ' + e.message);
+  }
+};
+
+window.cwDeleteAlert = async function(id) {
+  if (!confirm('Delete this price alert?')) return;
+  try {
+    const res = await api('alert_delete', {id: id});
+    if (res && res.ok) cwLoadAlerts();
+  } catch(e) {}
+};
+
+// ── Refresh Cash & Capital in extended modal ─────────────────────────
+window.cwRefreshAvailCash = async function() {
+  const el = document.getElementById('cw-modal-avail-cash');
+  if (!el) return;
+  try {
+    const res = await api('risk_settings');
+    if (res && res.settings) {
+      const cap = parseFloat(res.settings.starting_capital || 100000);
+      const ptf = await api('portfolio_get');
+      const deployed = (ptf && ptf.trades) ? ptf.trades.filter(t=>t.status==='OPEN').reduce((s,t)=>s+(t.entry_price*t.shares), 0) : 0;
+      const avail = Math.max(0, cap - deployed);
+      el.textContent = '₹' + Number(avail.toFixed(2)).toLocaleString('en-IN', {minimumFractionDigits:2});
+    }
+  } catch(e) {}
+};
+
+window.cwAddQuickCapital = async function(amt) {
+  try {
+    const res = await api('capital_topup', {amount: amt});
+    if (res && res.ok) {
+      await cwRefreshAvailCash();
+      const errEl = document.getElementById('cw-modal-err');
+      if (errEl) {
+        errEl.textContent = `✓ Added ₹${Number(amt).toLocaleString('en-IN')} capital top-up!`;
+        errEl.style.color = '#089981';
+        errEl.style.display = 'block';
+      }
+      const autoBtn = document.getElementById('cw-modal-auto-topup-btn');
+      if (autoBtn) autoBtn.style.display = 'none';
+    }
+  } catch(e) {
+    alert('Capital top-up error: ' + e.message);
+  }
+};
+
+window.addEventListener('load', function() {
     // Load state from sessionStorage
     let state;
     try {
@@ -534,6 +886,7 @@ function renderFundCombined(d) {
         document.querySelectorAll('.tv-right-content-view').forEach(v => v.style.display = 'none');
         const view = document.getElementById('tv-panel-' + panelId);
         if (view) view.style.display = 'flex';
+    if (panelId === 'alerts') cwLoadAlerts();
       }
       setTimeout(() => { tvRedraw(); }, 250);
     };
@@ -541,35 +894,145 @@ function renderFundCombined(d) {
     let _cwOrderSide = 'BUY';
     let _cwOpenPos = null;
 
-    window.cwShowOrder = function(side) {
-      _cwOrderSide = side;
-      const inp = document.getElementById('cw-sym-input');
-      const sym = inp ? inp.value.trim().toUpperCase() : '';
-      if (!sym) { alert('Enter or load a symbol first'); return; }
-      
-      const cmpVal = TV.data && TV.data.currentPrice ? TV.data.currentPrice : 0;
-      
-      const entry = cmpVal;
-      const sl = cmpVal > 0 ? parseFloat((cmpVal * 0.97).toFixed(2)) : 0;
-      const t1 = cmpVal > 0 ? parseFloat((cmpVal * 1.05).toFixed(2)) : 0;
-      const t2 = cmpVal > 0 ? parseFloat((cmpVal * 1.10).toFixed(2)) : 0;
+    window.cwShowOrder = function(side, params) {
+  _cwOrderSide = side;
+  const inp = document.getElementById('cw-sym-input');
+  const curSym = inp ? inp.value.trim().toUpperCase() : '';
+  const sym = (params && params.sym) ? params.sym.toUpperCase().trim() : curSym;
+  if (!sym) { alert('Enter or load a symbol first'); return; }
 
-      document.getElementById('cw-modal-sym').textContent = sym;
-      document.getElementById('cw-modal-cmp').textContent = '₹' + cmpVal.toFixed(2);
-      document.getElementById('cw-modal-entry').value = entry;
-      document.getElementById('cw-modal-sl').value = sl;
-      document.getElementById('cw-modal-t1').value = t1;
-      document.getElementById('cw-modal-t2').value = t2;
-      document.getElementById('cw-modal-qty').value = 1;
-      document.getElementById('cw-modal-err').style.display = 'none';
+  const cmpVal = TV.data && TV.data.currentPrice ? TV.data.currentPrice : (params && params.entry ? parseFloat(params.entry) : 0);
+  const entry = (params && params.entry) ? parseFloat(params.entry) : cmpVal;
+  const sl = (params && params.sl) ? parseFloat(params.sl) : (entry > 0 ? parseFloat((entry * 0.97).toFixed(2)) : 0);
+  const t1 = (params && params.t1) ? parseFloat(params.t1) : (entry > 0 ? parseFloat((entry * 1.05).toFixed(2)) : 0);
+  const t2 = (params && params.t2) ? parseFloat(params.t2) : (entry > 0 ? parseFloat((entry * 1.10).toFixed(2)) : 0);
+  const qty = (params && params.qty) ? parseInt(params.qty) : 1;
+  const itype = (params && params.inv_type) ? (params.inv_type.toLowerCase().includes('intra') ? 'intraday' : (params.inv_type.toLowerCase().includes('long') ? 'long' : 'swing')) : 'swing';
 
-      cwSetOrderSide(side);
-      cwUpdateOrderCost();
+  document.getElementById('cw-modal-sym').textContent = sym;
+  document.getElementById('cw-modal-cmp').textContent = '₹' + entry.toFixed(2);
+  document.getElementById('cw-modal-entry').value = entry;
+  document.getElementById('cw-modal-sl').value = sl;
+  document.getElementById('cw-modal-t1').value = t1;
+  document.getElementById('cw-modal-t2').value = t2;
+  document.getElementById('cw-modal-qty').value = qty;
+  if (document.getElementById('cw-modal-type')) document.getElementById('cw-modal-type').value = itype;
+  document.getElementById('cw-modal-err').style.display = 'none';
+  const autoBtn = document.getElementById('cw-modal-auto-topup-btn');
+  if (autoBtn) autoBtn.style.display = 'none';
 
-      document.getElementById('cw-order-modal').style.display = 'flex';
-    };
+  cwSetOrderSide(side);
+  cwUpdateOrderCost();
+  cwRefreshAvailCash();
 
-    window.cwCloseOrder = function() {
+  const modal = document.getElementById('cw-order-modal');
+  modal.style.display = 'flex';
+};
+
+window.cwSetOrderSide = function(side) {
+  _cwOrderSide = side;
+  const buyTab = document.getElementById('cw-modal-buy-tab');
+  const sellTab = document.getElementById('cw-modal-sell-tab');
+  const placeBtn = document.getElementById('cw-modal-place-btn');
+  if (side === 'BUY') {
+    buyTab.style.background = '#089981'; buyTab.style.color = '#fff';
+    sellTab.style.background = 'transparent'; sellTab.style.color = '#787b86';
+    placeBtn.style.background = '#089981'; placeBtn.textContent = 'PLACE BUY ORDER';
+  } else {
+    sellTab.style.background = '#f23645'; sellTab.style.color = '#fff';
+    buyTab.style.background = 'transparent'; buyTab.style.color = '#787b86';
+    placeBtn.style.background = '#f23645'; placeBtn.textContent = 'PLACE SELL ORDER';
+  }
+};
+
+window.cwUpdateOrderCost = function() {
+  const qty = parseInt(document.getElementById('cw-modal-qty').value || 1) || 1;
+  const entry = parseFloat(document.getElementById('cw-modal-entry').value || 0) || 0;
+  const sl = parseFloat(document.getElementById('cw-modal-sl').value || 0) || 0;
+  const t1 = parseFloat(document.getElementById('cw-modal-t1').value || 0) || 0;
+
+  const isMargin = document.getElementById('cw-modal-margin-toggle')?.checked;
+  const leverage = isMargin ? 5 : 1;
+  const cost = (qty * entry) / leverage;
+  const profit = t1 > 0 ? (t1 - entry) * qty : 0;
+  const loss = sl > 0 ? (entry - sl) * qty : 0;
+  const rr = loss > 0 ? (profit / loss).toFixed(2) : '—';
+  const fmt = n => '₹' + Math.abs(n).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  document.getElementById('cw-modal-cost').textContent = fmt(cost) + (isMargin ? ' (5x Margin)' : '');
+  document.getElementById('cw-modal-profit').textContent = profit > 0 ? fmt(profit) : '—';
+  document.getElementById('cw-modal-loss').textContent = loss > 0 ? fmt(loss) : '—';
+  document.getElementById('cw-modal-rr').textContent = rr !== '—' ? '1 : ' + rr : '—';
+};
+
+window.cwPlaceOrder = async function(autoTopup = false) {
+  const sym = document.getElementById('cw-modal-sym').textContent;
+  const qty = parseInt(document.getElementById('cw-modal-qty').value || 0);
+  const entry = parseFloat(document.getElementById('cw-modal-entry').value || 0);
+  const sl = parseFloat(document.getElementById('cw-modal-sl').value || 0);
+  const t1 = parseFloat(document.getElementById('cw-modal-t1').value || 0);
+  const t2 = parseFloat(document.getElementById('cw-modal-t2').value || 0);
+  const itype = document.getElementById('cw-modal-type').value || 'swing';
+  const isMargin = document.getElementById('cw-modal-margin-toggle')?.checked ? 1 : 0;
+  const errEl = document.getElementById('cw-modal-err');
+  const autoBtn = document.getElementById('cw-modal-auto-topup-btn');
+
+  if (!sym || qty < 1 || entry <= 0) {
+    errEl.textContent = 'Quantity and price required';
+    errEl.style.color = '#f23645';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('cw-modal-place-btn');
+  btn.disabled = true;
+  btn.textContent = 'PLACING…';
+  errEl.style.display = 'none';
+  if (autoBtn) autoBtn.style.display = 'none';
+
+  try {
+    const res = await api('portfolio_add', {
+      symbol: sym,
+      inv_type: itype,
+      entry_price: entry,
+      shares: qty,
+      stop_loss: sl,
+      target1: t1,
+      target2: t2,
+      use_margin: isMargin,
+      auto_topup: autoTopup ? 1 : 0,
+    });
+
+    if (res && res.ok) {
+      cwCloseOrder();
+      _cwOpenPos = { id: res.trade_id || res.id, symbol: sym, entry_price: entry, shares: qty, stop_loss: sl, target1: t1, target2: t2 };
+      cwDrawPositionLines();
+      const toast = document.createElement('div');
+      toast.textContent = (_cwOrderSide === 'BUY' ? '▲ BUY' : '▼ SELL') + ` ${qty}x ${sym} @ ₹${entry.toFixed(2)}` + (isMargin ? ' [MARGIN 5x]' : '');
+      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#089981;color:#fff;padding:12px 24px;border-radius:6px;font-size:14px;font-weight:600;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,0.2);';
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    } else {
+      errEl.textContent = (res && res.error) || 'Order failed';
+      errEl.style.color = '#f23645';
+      errEl.style.display = 'block';
+      if ((res.error || '').toLowerCase().includes('insufficient capital')) {
+        if (autoBtn) autoBtn.style.display = 'block';
+      }
+    }
+  } catch(e) {
+    errEl.textContent = 'Network error: ' + e.message;
+    errEl.style.color = '#f23645';
+    errEl.style.display = 'block';
+    if (e.message.toLowerCase().includes('insufficient capital')) {
+      if (autoBtn) autoBtn.style.display = 'block';
+    }
+  } finally {
+    btn.disabled = false;
+    btn.textContent = _cwOrderSide === 'BUY' ? 'PLACE BUY ORDER' : 'PLACE SELL ORDER';
+  }
+};
+window.cwCloseOrder = function() {
       document.getElementById('cw-order-modal').style.display = 'none';
     };
 
@@ -667,7 +1130,7 @@ function renderFundCombined(d) {
       if (!sym || !badge) { if(badge) badge.style.display = 'none'; return; }
 
       try {
-        const res = await fetch('/api/portfolio_get').then(r => r.json());
+        const res = await api('portfolio_get', {});
         if (!res || !res.ok) return;
         const pos = (res.trades || []).find(t => t.symbol === sym && t.status !== 'CLOSED');
         if (!pos) { badge.style.display = 'none'; _cwOpenPos = null; return; }
@@ -1013,6 +1476,14 @@ function renderFundCombined(d) {
             <div style="width:1px;height:24px;background:var(--tv-color-border);"></div>
 
             <!-- Indicators Button -->
+            <!-- Multi-Chart Layout Switcher (Bug 4) -->
+            <div style="display:flex;align-items:center;gap:2px;background:var(--tv-color-hover);border-radius:4px;padding:2px 4px;margin-right:8px;">
+              <button class="tv-btn active" id="cw-layout-1" onclick="cwSetLayout(1)" style="width:28px;height:28px;font-size:12px;font-weight:700;" title="Single Chart">⬛ 1</button>
+              <button class="tv-btn" id="cw-layout-2" onclick="cwSetLayout(2)" style="width:28px;height:28px;font-size:12px;font-weight:700;" title="2 Charts (Split)">❚❚ 2</button>
+              <button class="tv-btn" id="cw-layout-4" onclick="cwSetLayout(4)" style="width:28px;height:28px;font-size:12px;font-weight:700;" title="4 Charts (Grid)">⊞ 4</button>
+            </div>
+            <div style="width:1px;height:24px;background:var(--tv-color-border);margin-right:8px;"></div>
+
             <div onclick="tvShowIndicatorPopup()" style="padding:6px 12px;font-size:13px;font-weight:500;cursor:pointer;border-radius:4px;color:var(--tv-color-text-primary);display:flex;align-items:center;gap:6px;transition:background 0.1s;" onmouseover="this.style.background='var(--tv-color-hover)'" onmouseout="this.style.background='transparent'">
               <svg width="18" height="18" viewBox="0 0 24 24"><path d="M3 21h18v-2H3v2zM3 13h4v4H3v-4zm7-6h4v10h-4V7zm7 3h4v7h-4v-7z" fill="currentColor"/></svg>
               Indicators
@@ -1119,28 +1590,39 @@ function renderFundCombined(d) {
                 </div>
               </div>
 
-              <!-- Cost summary -->
-              <div style="background:#f0f3fa;border-radius:6px;padding:10px 14px;margin-bottom:16px;">
-                <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                  <span style="font-size:12px;color:#787b86;">Required capital</span>
-                  <span id="cw-modal-cost"   style="font-size:13px;font-weight:600;color:#131722;">₹0</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                  <span style="font-size:12px;color:#787b86;">Max profit (T1)</span>
-                  <span id="cw-modal-profit" style="font-size:13px;font-weight:600;color:#089981;">₹0</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
-                  <span style="font-size:12px;color:#787b86;">Max loss (SL)</span>
-                  <span id="cw-modal-loss"   style="font-size:13px;font-weight:600;color:#f23645;">₹0</span>
-                </div>
-                <div style="display:flex;justify-content:space-between;">
-                  <span style="font-size:12px;color:#787b86;">Risk : Reward</span>
-                  <span id="cw-modal-rr"     style="font-size:13px;font-weight:600;color:#131722;">—</span>
+              <!-- Margin & Available Cash (Bug 7b) -->
+            <div style="background:#f0f3fa;border-radius:6px;padding:10px 14px;margin-bottom:16px;">
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed #d0d4dc;">
+                <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;color:#2962ff;font-weight:600;">
+                  <input type="checkbox" id="cw-modal-margin-toggle" onchange="cwUpdateOrderCost()"> ⚡ Margin 5x Leverage (20% Capital)
+                </label>
+              </div>
+              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                <span style="font-size:12px;color:#787b86;">Available Cash</span>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span id="cw-modal-avail-cash" style="font-size:13px;font-weight:700;color:#131722;">₹0.00</span>
+                  <button type="button" onclick="cwAddQuickCapital(100000)" style="padding:2px 6px;font-size:11px;background:#e8f0fe;color:#2962ff;border:1px solid #b3d1ff;border-radius:3px;cursor:pointer;font-weight:600;" title="Add ₹1L capital">+ ₹1L</button>
                 </div>
               </div>
-
-              <!-- Place button -->
-              <button id="cw-modal-place-btn" onclick="cwPlaceOrder()"
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                <span style="font-size:12px;color:#787b86;">Required capital</span>
+                <span id="cw-modal-cost"   style="font-size:13px;font-weight:600;color:#131722;">₹0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                <span style="font-size:12px;color:#787b86;">Max profit (T1)</span>
+                <span id="cw-modal-profit" style="font-size:13px;font-weight:600;color:#089981;">₹0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;margin-bottom:5px;">
+                <span style="font-size:12px;color:#787b86;">Max loss (SL)</span>
+                <span id="cw-modal-loss"   style="font-size:13px;font-weight:600;color:#f23645;">₹0</span>
+              </div>
+              <div style="display:flex;justify-content:space-between;">
+                <span style="font-size:12px;color:#787b86;">Risk : Reward</span>
+                <span id="cw-modal-rr"     style="font-size:13px;font-weight:600;color:#131722;">—</span>
+              </div>
+            </div>
+            
+            id="cw-modal-place-btn" onclick="cwPlaceOrder()"
                 style="width:100%;padding:12px;border:none;border-radius:4px;
                 background:#089981;color:#fff;font-size:14px;font-weight:700;
                 cursor:pointer;letter-spacing:0.5px;">
@@ -1148,6 +1630,9 @@ function renderFundCombined(d) {
               </button>
               <div id="cw-modal-err" style="display:none;margin-top:8px;font-size:12px;
                 color:#f23645;text-align:center;"></div>
+            <button id="cw-modal-auto-topup-btn" type="button" style="display:none;margin-top:8px;width:100%;padding:9px;background:#e8f0fe;border:1px solid #2962ff;color:#2962ff;font-size:12px;font-weight:700;cursor:pointer;border-radius:4px;" onclick="cwPlaceOrder(true)">
+              ⚡ Top-Up Capital & Execute Order
+            </button>
 
             </div>
           </div>
@@ -1169,7 +1654,11 @@ function renderFundCombined(d) {
             <button onclick="tvResetView()" style="width:30px;height:30px;border:none;background:transparent;color:var(--tv-color-text-secondary);cursor:pointer;font-size:16px;border-radius:4px;" onmouseover="this.style.background='var(--tv-color-hover)'" onmouseout="this.style.background='transparent'">↺</button>
           </div>
           <!-- Canvas -->
-          <canvas id="price-canvas" style="display:block;cursor:crosshair;width:100%;flex:1;background:var(--tv-color-bg);"></canvas>
+          <!-- Multi-Chart Grid View (Bug 4) -->
+<div id="cw-multi-chart-grid" style="display:none;width:100%;flex:1;background:var(--tv-color-bg);overflow:hidden;">
+  <!-- Rendered dynamically by cwRenderMultiGrid() -->
+</div>
+<canvas id="price-canvas" style="display:block;cursor:crosshair;width:100%;flex:1;background:var(--tv-color-bg);"></canvas>
           <!-- Hidden state spans -->
           <span id="ind-sma" style="display:none;"></span><span id="ind-bb" style="display:none;"></span>
           <span id="ind-vol" style="display:none;"></span><span id="ind-rsi" style="display:none;"></span>
@@ -1241,9 +1730,9 @@ function renderFundCombined(d) {
               <span style="width:50px;text-align:right;">Chg</span>
               <span style="width:50px;text-align:right;">Chg%</span>
             </div>
-            <!-- INDICES Header (Static for now, dynamic inside tvRenderWatchlist) -->
+            <!-- All rows below come from the same per-account watchlist as Dashboard. -->
             <div style="padding:4px 16px;background:#f8f9fb;border-bottom:1px solid var(--tv-color-border);font-size:11px;color:var(--tv-color-text-secondary);display:flex;align-items:center;gap:6px;">
-               <svg width="8" height="5" viewBox="0 0 10 6" style="fill:currentColor;"><path d="M0 0h10L5 6z"/></svg> INDICES
+               <svg width="8" height="5" viewBox="0 0 10 6" style="fill:currentColor;"><path d="M0 0h10L5 6z"/></svg> SAVED SYMBOLS
             </div>
             <div id="tv-watchlist-list" style="flex:1;overflow-y:auto;min-height:100px;">
               <!-- Dynamic watchlist items populated by tvRenderWatchlist() -->
@@ -1301,12 +1790,51 @@ function renderFundCombined(d) {
             </div>
           </div>
           
-          <!-- ALERTS VIEW -->
-          <div id="tv-panel-alerts" class="tv-right-content-view" style="display:none;flex-direction:column;flex:1;min-height:0;background:var(--tv-color-bg);">
-            <div class="tv-right-panel-header"><span class="tv-right-panel-title">Alerts</span></div>
-            <div style="padding:40px 20px;text-align:center;color:var(--tv-color-text-secondary);font-size:13px;">
-              <svg viewBox="0 0 24 24" style="width:48px;height:48px;fill:none;stroke:currentColor;stroke-width:1;margin-bottom:12px;"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg><br>
-              No active alerts.
+          <!-- ALERTS VIEW (Interactive Price Alerts Manager - Bug 3) -->
+          <div id="tv-panel-alerts" class="tv-right-content-view" style="display:none;flex-direction:column;flex:1;min-height:0;background:var(--tv-color-bg);overflow:hidden;">
+            <div class="tv-right-panel-header" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--tv-color-border);">
+              <span class="tv-right-panel-title" style="font-size:15px;font-weight:700;color:var(--tv-color-text-primary);">Price Alerts</span>
+              <button onclick="cwLoadAlerts()" style="background:transparent;border:none;color:#2962ff;font-size:12px;cursor:pointer;font-weight:600;">Refresh ↻</button>
+            </div>
+            
+            <div style="padding:16px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:14px;">
+              <!-- Create Alert Form -->
+              <div style="background:#f8f9fb;border:1px solid var(--tv-color-border);border-radius:6px;padding:12px;">
+                <div style="font-size:12px;font-weight:700;color:var(--tv-color-text-primary);margin-bottom:10px;">CREATE ALERT</div>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                  <div>
+                    <label style="font-size:11px;color:var(--tv-color-text-secondary);display:block;margin-bottom:3px;">SYMBOL</label>
+                    <input type="text" id="cw-alert-sym" style="width:100%;border:1px solid var(--tv-color-border);border-radius:4px;padding:6px 10px;font-size:13px;font-weight:600;text-transform:uppercase;box-sizing:border-box;">
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+                    <div>
+                      <label style="font-size:11px;color:var(--tv-color-text-secondary);display:block;margin-bottom:3px;">CONDITION</label>
+                      <select id="cw-alert-cond" style="width:100%;border:1px solid var(--tv-color-border);border-radius:4px;padding:6px 8px;font-size:12px;background:#fff;box-sizing:border-box;">
+                        <option value="ABOVE">Price ≥ (Above)</option>
+                        <option value="BELOW">Price ≤ (Below)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size:11px;color:var(--tv-color-text-secondary);display:block;margin-bottom:3px;">TARGET ₹</label>
+                      <input type="number" step="0.05" id="cw-alert-thresh" style="width:100%;border:1px solid var(--tv-color-border);border-radius:4px;padding:6px 8px;font-size:13px;box-sizing:border-box;">
+                    </div>
+                  </div>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:var(--tv-color-text-secondary);">
+                    <input type="checkbox" id="cw-alert-notify" checked> Browser notification popup
+                  </label>
+                  <button onclick="cwSubmitAlert()" style="width:100%;padding:8px;background:#2962ff;color:#fff;border:none;border-radius:4px;font-size:12px;font-weight:600;cursor:pointer;margin-top:2px;">
+                    + Set Price Alert
+                  </button>
+                </div>
+              </div>
+
+              <!-- Active Alerts List -->
+              <div>
+                <div style="font-size:12px;font-weight:700;color:var(--tv-color-text-primary);margin-bottom:8px;">ACTIVE ALERTS</div>
+                <div id="cw-active-alerts-list" style="display:flex;flex-direction:column;gap:6px;">
+                  <div style="color:var(--tv-color-text-secondary);font-size:12px;text-align:center;padding:20px;">No alerts yet</div>
+                </div>
+              </div>
             </div>
           </div>
           
@@ -1885,71 +2413,116 @@ function renderFundCombined(d) {
       tvRedraw();
     };
 
-    // ── Watchlist Management ──
-    const defaultWatchlist = ['NIFTY', 'BANKNIFTY', 'CNXIT'];
-    window.tvGetWatchlist = function() {
-        try {
-            const stored = localStorage.getItem('tvWatchlist');
-            if (stored) return JSON.parse(stored);
-        } catch(e) {}
-        return defaultWatchlist;
-    };
-    window.tvSaveWatchlist = function(list) {
-        localStorage.setItem('tvWatchlist', JSON.stringify(list));
-    };
-    window.tvAddWatchlistSymbol = function() {
-        const sym = prompt("Enter symbol to add to Watchlist:");
-        if (sym && sym.trim()) {
-            const cleanSym = sym.trim().toUpperCase();
-            const list = tvGetWatchlist();
-            if (!list.includes(cleanSym)) {
-                list.push(cleanSym);
-                tvSaveWatchlist(list);
-                tvRenderWatchlist();
+    // ── Shared account watchlist ──
+    const _cwLegacyWatchlistKey = 'tvWatchlist';
+    const _cwWatchlistEmail = String(localStorage.getItem('user_email') || '').trim().toLowerCase();
+    const _cwWatchlistMigrationKey = 'tvWatchlistMigratedV1:' +
+        _cwWatchlistEmail;
+    let _cwWatchlistRequest = 0;
+    const _cwSymbolAliases = {NIFTY:'NIFTY50', CNXIT:'NIFTYIT'};
+    const _cwEscape = value => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+
+    async function _cwGetSharedWatchlist() {
+        let data = await api('watchlist_get', {});
+        if (!data || data.error) throw new Error(data?.error || 'Could not load your saved watchlist.');
+        // Do not consume browser-scoped legacy data while signed out. The
+        // server API is account-scoped, so migration needs a known account.
+        if (_cwWatchlistEmail && !localStorage.getItem(_cwWatchlistMigrationKey)) {
+            const legacyRaw = localStorage.getItem(_cwLegacyWatchlistKey);
+            if (legacyRaw) {
+                let legacy = [];
+                try { legacy = JSON.parse(legacyRaw); } catch (_) {}
+                if (!Array.isArray(legacy)) legacy = [];
+                const known = new Set((data.items || []).map(item => String(item.symbol || '').toUpperCase()));
+                let migrationOk = true;
+                for (const raw of legacy) {
+                    const entered = String(raw || '').trim().toUpperCase();
+                    const sym = _cwSymbolAliases[entered] || entered;
+                    if (!sym || known.has(sym)) continue;
+                    const added = await api('watchlist_add', {symbol:sym});
+                    if (added && added.ok) known.add(sym);
+                    else { migrationOk = false; break; }
+                }
+                // Keep the legacy copy if the account API rejected any add; a
+                // later authenticated render can retry without losing symbols.
+                if (migrationOk) localStorage.removeItem(_cwLegacyWatchlistKey);
+            }
+            const legacyStillPresent = !!localStorage.getItem(_cwLegacyWatchlistKey);
+            if (!legacyStillPresent) {
+                localStorage.setItem(_cwWatchlistMigrationKey, '1');
+                data = await api('watchlist_get', {});
+                if (!data || data.error) throw new Error(data?.error || 'Could not refresh your saved watchlist.');
             }
         }
+        return data.items || [];
+    }
+
+    window.tvGetWatchlist = async function() {
+        return (await _cwGetSharedWatchlist()).map(item => item.symbol);
     };
-    window.tvRemoveWatchlistSymbol = function(e, sym) {
-        e.stopPropagation();
-        let list = tvGetWatchlist();
-        list = list.filter(s => s !== sym);
-        tvSaveWatchlist(list);
-        tvRenderWatchlist();
+    window.tvSaveWatchlist = async function(list) {
+        const wanted = [...new Set((list || []).map(s => String(s || '').trim().toUpperCase()).filter(Boolean))];
+        const existing = await _cwGetSharedWatchlist();
+        const have = new Set(existing.map(item => String(item.symbol || '').toUpperCase()));
+        for (const sym of wanted) if (!have.has(sym)) await api('watchlist_add', {symbol:sym});
+        for (const item of existing) if (!wanted.includes(String(item.symbol || '').toUpperCase())) await api('watchlist_remove', {symbol:item.symbol});
+        return _cwGetSharedWatchlist();
+    };
+    window.tvAddWatchlistSymbol = async function() {
+        const entered = prompt('Enter symbol to add to Watchlist:');
+        if (!entered || !entered.trim()) return;
+        const raw = entered.trim().toUpperCase();
+        const symbol = _cwSymbolAliases[raw] || raw;
+        try {
+            const result = await api('watchlist_add', {symbol});
+            if (!result || !result.ok) throw new Error(result?.error || 'Could not add this symbol.');
+            await tvRenderWatchlist();
+        } catch (error) {
+            alert(error.message || 'Could not add this symbol.');
+        }
+    };
+    window.tvRemoveWatchlistSymbol = async function(e, sym) {
+        if (e) { e.stopPropagation(); e.preventDefault(); }
+        try {
+            const result = await api('watchlist_remove', {symbol:sym});
+            if (!result || !result.ok) throw new Error(result?.error || 'Could not remove this symbol.');
+            await tvRenderWatchlist();
+        } catch (error) {
+            alert(error.message || 'Could not remove this symbol.');
+        }
     };
     window.tvRenderWatchlist = async function() {
         const listEl = document.getElementById('tv-watchlist-list');
         if (!listEl) return;
-        const list = tvGetWatchlist();
-        
-        const today2 = new Date().toISOString().slice(0,10);
-        const reqs = list.map(sym => fetch('/api/price?symbol=' + sym + '&date=' + today2).then(r=>r.json()).catch(()=>null));
-        const resps = await Promise.all(reqs);
-        
-        let html = '';
-        list.forEach((sym, i) => {
-            const px = resps[i] || {};
-            const last = px.close || px.price || 0;
-            const chgVal = px.change_pct || 0;
-            const chgCol = chgVal >= 0 ? '#26a69a' : '#ef5350';
-            const chgAbs = (last * chgVal / 100).toFixed(2);
-            
-            // Generate icon
-            let iconHtml = `<span style="display:inline-block;width:16px;height:16px;border-radius:8px;background:#3a5a70;color:#fff;text-align:center;line-height:16px;font-size:0.5rem;margin-right:6px;vertical-align:text-top;">${sym.charAt(0)}</span>`;
-            if (sym === 'NIFTY') iconHtml = `<span style="display:inline-block;width:16px;height:16px;border-radius:8px;background:#3a5a70;color:#fff;text-align:center;line-height:16px;font-size:0.5rem;margin-right:6px;vertical-align:text-top;">50</span>`;
-            else if (sym === 'BANKNIFTY') iconHtml = `<span style="display:inline-block;width:16px;height:16px;border-radius:8px;background:#1a3a60;color:#fff;text-align:center;line-height:16px;font-size:0.5rem;margin-right:6px;vertical-align:text-top;font-family:sans-serif;">🏛</span>`;
-            else if (sym === 'CNXIT') iconHtml = `<span style="display:inline-block;width:16px;height:16px;border-radius:8px;background:#26a69a;color:#fff;text-align:center;line-height:16px;font-size:0.5rem;margin-right:6px;vertical-align:text-top;font-family:sans-serif;">T</span>`;
-
-            html += `
-              <div style="display:flex;padding:8px 16px;font-size:0.75rem;cursor:pointer;position:relative;" class="wl-item" onmouseover="this.style.background='rgba(255,255,255,0.03)';this.querySelector('.wl-del').style.display='block'" onmouseout="this.style.background='transparent';this.querySelector('.wl-del').style.display='none'" onclick="cwLoadSymbol('${sym}')">
-                <span class="wl-del" title="Remove" style="display:none;position:absolute;left:4px;color:#ef5350;font-size:0.9rem;line-height:16px;" onclick="tvRemoveWatchlistSymbol(event, '${sym}')">×</span>
-                <span style="flex:1;color:#c8e0ed;font-weight:700;">${iconHtml}${sym}</span>
-                <span style="width:60px;text-align:right;color:#c8e0ed;">${last ? last.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '—'}</span>
-                <span style="width:50px;text-align:right;color:${chgCol};">${(chgVal>=0?'+':'')}${last ? chgAbs : '—'}</span>
-                <span style="width:50px;text-align:right;color:${chgCol};">${(chgVal>=0?'+':'')}${chgVal.toFixed(2)}%</span>
-              </div>
-            `;
-        });
-        listEl.innerHTML = html;
+        const request = ++_cwWatchlistRequest;
+        listEl.innerHTML = '<div style="padding:12px 16px;color:var(--tv-color-text-secondary);font-size:12px;">Loading saved symbols…</div>';
+        try {
+            const items = await _cwGetSharedWatchlist();
+            if (request !== _cwWatchlistRequest) return;
+            if (!items.length) {
+                listEl.innerHTML = '<div style="padding:16px;color:var(--tv-color-text-secondary);font-size:12px;">Your shared watchlist is empty. Use + to add a symbol.</div>';
+                return;
+            }
+            const fmt = value => Number(value).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+            listEl.innerHTML = items.map(item => {
+                const sym = String(item.symbol || '').toUpperCase();
+                const last = item.price == null ? null : Number(item.price);
+                const pct = item.change_pct == null ? null : Number(item.change_pct);
+                const chg = last == null || pct == null || !Number.isFinite(last) || !Number.isFinite(pct) || Math.abs(100 + pct) < 1e-9
+                    ? null : last * pct / (100 + pct);
+                const color = pct == null ? 'var(--tv-color-text-secondary)' : pct >= 0 ? '#26a69a' : '#ef5350';
+                const safe = _cwEscape(sym);
+                return `<div style="display:flex;padding:8px 16px;font-size:12px;cursor:pointer;position:relative;" class="wl-item" onmouseover="this.style.background='rgba(255,255,255,0.03)';this.querySelector('.wl-del').style.display='block'" onmouseout="this.style.background='transparent';this.querySelector('.wl-del').style.display='none'" onclick="cwLoadSymbol('${safe}')">
+                    <span class="wl-del" title="Remove" style="display:none;position:absolute;left:4px;color:#ef5350;font-size:14px;line-height:16px;" onclick="tvRemoveWatchlistSymbol(event, '${safe}')">×</span>
+                    <span style="flex:1;color:#c8e0ed;font-weight:700;">${safe}</span>
+                    <span style="width:60px;text-align:right;color:#c8e0ed;">${last == null ? '—' : fmt(last)}</span>
+                    <span style="width:50px;text-align:right;color:${color};">${chg == null ? '—' : `${chg >= 0 ? '+' : ''}${fmt(chg)}`}</span>
+                    <span style="width:50px;text-align:right;color:${color};">${pct == null ? '—' : `${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%`}</span>
+                </div>`;
+            }).join('');
+        } catch (error) {
+            if (request === _cwWatchlistRequest) listEl.innerHTML = `<div style="padding:16px;color:#ef5350;font-size:12px;">${_cwEscape(error.message || 'Could not load your watchlist.')}</div>`;
+        }
     };
     
     // Initial render

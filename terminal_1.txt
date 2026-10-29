@@ -1,0 +1,1525 @@
+
+============================================================
+  GANN-ASTRO v3.9 -- NSE/BSE/MCX Trading Intelligence
+============================================================
+
+[OK] Python 3.14.6 found
+
+[SETUP] Clearing Python cache...
+[OK] Cache cleared
+
+[SETUP] Checking dependencies...
+[OK] Dependencies ready
+
+[SETUP] Checking for automated 9:00 PM IST cloud database update...
+  [CLOUD] Checking for cloud database update...
+  [CLOUD] No remote database found at cloud URL (HTTP 404). Using local DB.
+
+[OK] market_data_v2.db ready - your historical data will be loaded
+
+[SETUP] Launching automated daily updates in the background...
+        (A minimized window will open for the update and close when finished)
+[SETUP] Launching OI scraper in background (NSE option chain data)...
+
+[START] Launching GANN-ASTRO at http://localhost:5050
+        ML model will auto-train in background (~60-90s after start)
+        Press Ctrl+C to stop the server
+
+  [BOOT] Loading core modules...
+  [BOOT]   core/ephemeris.py ... OK
+  [BOOT]   core/aspects.py ... OK
+  [BOOT]   core/gann_math.py ... OK
+  [BOOT]   core/scheduler.py ... OK
+  [BOOT]   core/signal_engine.py ...   [INIT] Loading 518 instruments (v3.6)...
+  [INIT] 518 instruments: 12 indices | 501 equities | 5 commodities
+OK
+  [BOOT]   core/quant_engine.py ... OK
+  [BOOT] v3.9/v4.0 engines (unified_logic + deep_signal_engine + continuation_deep_engine) ... OK
+  [BOOT]   core/notifier.py ... OK
+  [BOOT]   core/fundamental_engine.py ... OK
+  [BOOT]   core/sentiment_db.py ... OK
+  [BOOT]   core/report_engine.py ... OK
+  [BOOT]   core/fetch_institutional.py ... OK
+  [BOOT]   core/market_feedback.py ... OK
+  [BOOT]   core/market_brain_local.py ... OK
+  [BOOT]   data/instruments.py ... OK
+  [BOOT] Core modules OK
+  [BOOT] Port: 5050
+  [BOOT] Initialising database... OK
+  [DB   ] Sentiment tables verified
+  [DB   ] Institutional tables verified
+  [DB   ] Market feedback columns verified
+  [ML  ] Auto-training Deep Signal Engine in background...
+  [LOAD] Importing page modules...
+  [LOAD]   pages/page_auth.py ... OK
+  [LOAD]   pages/page_onboarding.py ... OK
+  [LOAD]   pages/page_overview.py ... OK
+  [LOAD]   pages/page_dashboard.py ... OK
+  [LOAD]   pages/page_scanner.py ... OK
+  [LOAD]   pages/page_chart.py ... OK
+  [LOAD]   pages/page_simons.py ... OK
+  [LOAD]   pages/page_gann.py ... OK
+  [LOAD]   pages/page_natal.py ... OK
+  [LOAD]   pages/page_tools.py ... OK
+  [LOAD]   pages/page_advisor.py ... OK
+  [LOAD]   pages/page_sentiment.py ... OK
+  [LOAD]   pages/page_fundamentals.py ... OK
+  [LOAD]   pages/page_trading.py ... OK
+  [LOAD]   pages/page_research.py ... OK
+  [LOAD]   pages/page_risk.py ... OK
+  [LOAD]   pages/page_watchlist.py ... OK
+  [LOAD]   pages/page_analytics.py ... OK
+  [LOAD]   pages/page_admin.py ... OK
+  [LOAD] All page modules loaded OK
+  [LOAD] Building HTML (assembling all pages)...
+  [LOAD] HTML built OK (1,285,418 chars)
+
+========================================================
+  Vprofitables Intelligence System v3.9
+  Python  : 3.14.6
+  DB      : D:\VPROFITABLES\vprofitables\market_data_v2.db
+  Date    : 2026-10-13
+  Port    : 5050
+========================================================
+  [MAIN] Step 1/7: Seeding pivots...
+  [MAIN] Step 1/7: Pivots OK
+  [MAIN] Step 2/7: ATL reconcile...
+  [MKTF ] Calibrating label thresholds from actual excess returns...
+    STRONGLY BULLISH (90th pct): Default +2.00% vs Calibrated +4.54%
+    BULLISH (65th pct):          Default +0.50% vs Calibrated +1.05%
+    NEUTRAL (35th pct):          Default -0.50% vs Calibrated -1.20%
+    BEARISH (10th pct):          Default -2.00% vs Calibrated -4.47%
+  [MKTF ] Calibration saved to D:\VPROFITABLES\vprofitables\core\sentiment_thresholds.json
+  NSE / BSE / MCX — 518 Instruments
+========================================================
+
+  URL:   http://localhost:5050
+  Date:  2026-10-13
+
+  Modules loaded:
+    [OK] Ephemeris (VSOP87) + 11 planets
+    [OK] Aspect detection
+    [OK] Gann Math (Sq9, Angles, Time Cycles)
+    [OK] Signal Engine (Confluence scorer)
+    [OK] Quant Engine (Fourier/FFT, Regime, Backtest, S/R)
+    [OK] 518 instruments with natal charts
+  [MAIN] Step 3/7: Checking DB coverage...
+    [DB] Historical data: 2,086,925 rows across 2768 symbols
+  [MAIN] Step 3/7: DB OK
+  [MAIN] Step 4/7: Starting background init thread...
+  [BG 1/2] Pre-computing VSOP87 planet positions...
+  [MAIN] Step 4/7: Background thread started
+  [BG 1/2] Planets ready
+  [BG 2/2] Fetching live prices from Yahoo Finance...
+
+  Fetching current prices from yfinance...
+  [MAIN] Step 5/7: Creating HTTP server on port 5050...
+  [MAIN] Step 5/7: HTTP server bound to 0.0.0.0:5050 OK
+  [MAIN]           Local:   http://localhost:5050
+  [MAIN]           Network: http://<your-ip>:5050
+  [MAIN] Step 6/7: Opening browser...
+  [MAIN]           Dev mode — open manually: http://localhost:5050
+  [MAIN] Step 7/7: Server running — press Ctrl+C to stop
+  Press Ctrl+C to stop
+
+
+==================================================
+[DEEP SIGNAL ENGINE] Extracting Multi-Horizon Features...
+==================================================
+ERROR:yfinance:HTTP Error 404: {"quoteSummary":{"result":null,"error":{"code":"Not Found","description":"Quote not found for symbol: TATAMOTORS.NS"}}}
+ERROR:yfinance:$TATAMOTORS.NS: No data found, symbol may be delisted
+ERROR:yfinance:
+1 Failed download:
+ERROR:yfinance:['TATAMOTORS.NS']: No data found, symbol may be delisted
+  [DEBUG] do_GET: /
+  [PAGE ] UI served
+  [DEBUG] HTML length: 1,285,418 chars
+  [DEBUG] send_html: encoding OK, 1,318,654 bytes
+  [DEBUG] send_html: headers sent, writing body...
+  [DEBUG] send_html: body written OK
+  [DEBUG] do_GET: /api/notify_config_load?date=2026-10-13
+  [REQ  ] /api/notify_config_load
+  [DEBUG] do_GET: /api/all_symbols
+  [REQ  ] /api/all_symbols
+  [OK  ] /api/all_symbols  12ms
+  [OK  ] /api/notify_config_load  26ms
+  [DEBUG] do_GET: /api/ticker?date=2026-10-13
+  [REQ  ] /api/ticker
+  [DEBUG] do_GET: /api/onboarding/check
+  [REQ  ] /api/onboarding/check
+  [DEBUG] do_GET: /api/all_symbols
+  [REQ  ] /api/all_symbols
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [OK  ] /api/onboarding/check  87ms
+  [DEBUG] do_GET: /favicon.svg
+  [DEBUG] do_GET: /api/overview_data?date=2026-10-13
+  [REQ  ] /api/overview_data
+  [OK  ] /api/all_symbols  309ms
+  [DEBUG] do_GET: /api/all_symbols
+  [REQ  ] /api/all_symbols
+  [DEBUG] do_GET: /api/instrument_info?symbol=NIFTY50&date=2026-10-13
+  [OK  ] /api/all_symbols  34ms
+  [REQ  ] /api/instrument_info [NIFTY50]
+  [DEBUG] do_GET: /api/ml_status?date=2026-10-13
+  [REQ  ] /api/ml_status
+  [OK  ] /api/ml_status  15ms
+  [WAIT] /api/ticker  714ms
+  [DEBUG] do_GET: /api/ticker?date=2026-10-13
+  [REQ  ] /api/ticker
+  [WAIT] /api/ticker  501ms
+  [WAIT] /api/price [NIFTY50]  1320ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [OK  ] /api/price [NIFTY50]  1ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [OK  ] /api/price [NIFTY50]  1ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [OK  ] /api/price [NIFTY50]  1ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [OK  ] /api/price [NIFTY50]  0ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [OK  ] /api/price [NIFTY50]  1ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [OK  ] /api/price [NIFTY50]  9ms
+  [WAIT] /api/instrument_info [NIFTY50]  1393ms
+  [DEBUG] do_GET: /api/instrument_info?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/instrument_info [NIFTY50]
+  [DEBUG] do_GET: /api/pivots_for_symbol?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/pivots_for_symbol [NIFTY50]
+  [WAIT] /api/overview_data  1753ms
+  [DEBUG] do_GET: /api/risk_dashboard
+  [REQ  ] /api/risk_dashboard
+  [OK  ] /api/risk_dashboard  3ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  2ms
+  [OK  ] /api/instrument_info [NIFTY50]  241ms
+  [DEBUG] do_GET: /api/recommendations
+  [REQ  ] /api/recommendations
+  [ATL] NIFTY50: updated 2252.75 → 854.0 (1996-04-22) STATIC_VERIFIED
+  [WAIT] /api/pivots_for_symbol [NIFTY50]  1016ms
+  [DEBUG] do_GET: /api/pivots_for_symbol?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/pivots_for_symbol [NIFTY50]
+  [ATL] NIFTY50: updated 2252.75 → 854.0 (1996-04-22) STATIC_VERIFIED
+  [WAIT] /api/pivots_for_symbol [NIFTY50]  590ms
+  Indices fetched:  12/12
+  Equities fetched: 505/506
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  ✓  517 prices fetched  |  0 errors
+
+  Price changes since last run  (504 instruments):
+    ▲    NIFTY50           22,721.95  (+1.60%)  prev 22,447.95
+    ▲    BANKNIFTY         55,481.05  (+1.03%)  prev 55,131.55
+    ▲    NIFTYIT           29,830.10  (+5.22%)  prev 28,963.25
+    ▲    NIFTYPHARMA       26,075.00  (-0.01%)  prev 25,945.40
+    ▲    NIFTYAUTO         25,391.85  (+0.00%)  prev 25,129.75
+    ▲    INDIAVIX              14.12  (-7.41%)  prev 14.03
+    ▲    NIFTYFMCG         44,731.15  (+0.00%)  prev 44,653.35
+    ▲    NIFTYMETAL        12,088.25  (+0.00%)  prev 12,060.35
+    ▲    NIFTYENERGY       35,975.90  (+0.00%)  prev 35,940.30
+    ▲    NIFTYREALTY          829.95  (+0.00%)  prev 827.20
+    ▲    NIFTYINFRA         8,578.50  (+0.00%)  prev 8,565.10
+    ▲    NIFTYMIDCAP50     16,974.00  (+0.87%)  prev 16,942.30
+    ▲    HDFCBANK             714.00  (+0.95%)  prev 704.90
+    ▲    ICICIBANK          1,360.20  (+0.38%)  prev 1,340.00
+    ▲    SBIN                 957.00  (-0.22%)  prev 941.00
+    ▲    AXISBANK           1,268.40  (+0.74%)  prev 1,253.00
+    ▼    KOTAKBANK            439.00  (-0.45%)  prev 443.40
+    ▲    TCS                2,269.30  (+5.26%)  prev 2,176.30
+    ▲    INFY               1,062.10  (+3.78%)  prev 1,020.00
+    ▲    WIPRO                169.00  (+3.96%)  prev 165.00
+    ▲    HCLTECH            1,326.00  (+8.98%)  prev 1,223.00
+    ▲    TECHM              1,543.50  (+1.94%)  prev 1,491.20
+    ▲    RELIANCE           1,166.70  (-0.31%)  prev 1,158.90
+    ▲    ONGC                 222.65  (+0.62%)  prev 220.00
+    ▲    NTPC                 311.00  (-0.32%)  prev 310.00
+    ▲    POWERGRID            250.50  (+0.54%)  prev 249.00
+    ▲    COALINDIA            408.50  (-0.74%)  prev 404.80
+    ▲    HINDUNILVR         1,875.50  (+1.01%)  prev 1,820.70
+    ▲    ITC                  261.00  (-1.88%)  prev 257.90
+    ▲    SUNPHARMA          1,770.70  (+0.61%)  prev 1,760.00
+    ... and 474 more
+
+  [BG 2/2] Prices done -- system fully loaded
+  [DEBUG] do_GET: /api/advisor?amount=100000&type=swing&risk=balanced&diversify=3&sector=&date=2026-10-13
+  [REQ  ] /api/advisor
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [SLOW] /api/price [NIFTY50]  9350ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  938ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  927ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+[3d] XGB Acc: 0.77 | MLP Acc: 0.52
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /.well-known/appspecific/com.chrome.devtools.json
+Error logging sub-signal: database is locked
+[10d] XGB Acc: 0.58 | MLP Acc: 0.44
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  678ms
+Error logging sub-signal: database is locked
+[30d] XGB Acc: 0.52 | MLP Acc: 0.36
+  [ML  ] Training complete — accuracy: 0.0%  MAE: 0.0d
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  847ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/notify_config_load?date=2026-10-13
+  [REQ  ] /api/notify_config_load
+  [OK  ] /api/notify_config_load  30ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/all_symbols
+  [REQ  ] /api/all_symbols
+  [OK  ] /api/all_symbols  4ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  7ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  11ms
+  [OK  ] /api/price_history [ADANIENT]  11ms
+  [OK  ] /api/price_history [TCS]  11ms
+  [OK  ] /api/price_history [RELIANCE]  9ms
+  [DEBUG] do_GET: /api/overview_data?date=2026-10-13
+  [REQ  ] /api/overview_data
+  [OK  ] /api/overview_data  176ms
+  [DEBUG] do_GET: /api/risk_dashboard
+  [REQ  ] /api/risk_dashboard
+  [OK  ] /api/risk_dashboard  10ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  7ms
+  [DEBUG] do_GET: /api/recommendations
+  [REQ  ] /api/recommendations
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  24ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [ADANIENT]  18ms
+  [OK  ] /api/price_history [BAJAJ-AUTO]  22ms
+  [OK  ] /api/price_history [TCS]  17ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  7ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  1251ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/quant?symbol=NIFTY50&price=22721.95&date=2026-10-13
+  [REQ  ] /api/quant [NIFTY50]
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [CHART] Extended to 1200 bars from DB for NIFTY50
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  9ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [ADANIENT]  6ms
+  [OK  ] /api/price_history [BAJAJ-AUTO]  11ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [TCS]  8ms
+  [OK  ] /api/price_history [RELIANCE]  8ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [CACHE] Saved quant result for NIFTY50 to DB
+  [SLOW] /api/quant [NIFTY50]  33305ms
+  [DEBUG] do_GET: /api/portfolio_get?symbol=NIFTY50
+  [REQ  ] /api/portfolio_get [NIFTY50]
+  [OK  ] /api/portfolio_get [NIFTY50]  244ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  9ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  12ms
+  [OK  ] /api/price_history [ADANIENT]  13ms
+  [OK  ] /api/price_history [TCS]  13ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  9ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [WAIT] /api/price [NIFTY50]  1952ms
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  10ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [TCS]  11ms
+  [OK  ] /api/price_history [BAJAJ-AUTO]  18ms
+  [OK  ] /api/price_history [ADANIENT]  17ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  13ms
+  [DEBUG] do_GET: /api/scanner?date=2026-10-13
+  [REQ  ] /api/scanner
+  [SCAN ] Running scan 2026-10-13...
+  [DONE ] Scanner: 518 results
+  [OK  ] /api/scanner  70ms
+  [DEBUG] do_GET: /api/overview_data?date=2026-10-13
+  [REQ  ] /api/overview_data
+  [OK  ] /api/overview_data  124ms
+  [DEBUG] do_GET: /api/risk_dashboard
+  [REQ  ] /api/risk_dashboard
+  [OK  ] /api/risk_dashboard  12ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  10ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/recommendations
+  [REQ  ] /api/recommendations
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  8ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  11ms
+  [OK  ] /api/price_history [ADANIENT]  10ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [TCS]  8ms
+  [OK  ] /api/price_history [RELIANCE]  10ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  687ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [SLOW] /api/watchlist_get  2665ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  6ms
+  [OK  ] /api/price_history [ADANIENT]  7ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [TCS]  4ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  10ms
+  [DEBUG] do_GET: /api/dashboard?date=2026-10-13
+  [REQ  ] /api/dashboard
+  [VSOP ] Computing planets for 2026-10-13...
+  [OK  ] /api/dashboard  13ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/quant?symbol=NIACL&price=22721.95&date=2026-10-13
+  [REQ  ] /api/quant [NIACL]
+  [CHART] Extended to 1200 bars from DB for NIACL
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/history_status
+  [REQ  ] /api/history_status
+  [SLOW] /api/history_status  2823ms
+  [DEBUG] do_GET: /api/quant?symbol=NIFTY50&price=22721.95&signal_type=fourier&forward_days=10&date=2026-10-13
+  [REQ  ] /api/quant [NIFTY50]
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [CACHE] Saved quant result for NIACL to DB
+  [SLOW] /api/quant [NIACL]  9928ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  31ms
+  [SLOW] /api/quant [NIFTY50]  3353ms
+  [DEBUG] do_GET: /api/price?symbol=HDFCBANK&date=2026-10-13
+  [REQ  ] /api/price [HDFCBANK]
+  [DEBUG] do_GET: /api/portfolio_get?symbol=NIACL
+  [REQ  ] /api/portfolio_get [NIACL]
+  [OK  ] /api/portfolio_get [NIACL]  16ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  12ms
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [ADANIENT]  7ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [TCS]  6ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  15ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [HDFCBANK]  670ms
+  [WAIT] /api/price [NIFTY50]  678ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  9ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  18ms
+  [OK  ] /api/price_history [ADANIENT]  14ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  30ms
+  [OK  ] /api/price_history [TCS]  37ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/download_trigger?symbol=NIFTY50
+  [REQ  ] /api/download_trigger [NIFTY50]
+  [DL] NIFTY50 error: cannot import name 'save_ohlcv_rows' from 'download_history' (D:\VPROFITABLES\vprofitables\download_history.py)
+  [OK  ] /api/download_trigger [NIFTY50]  2ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  188ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  10ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [ADANIENT]  30ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [TCS]  30ms
+  [OK  ] /api/price_history [RELIANCE]  13ms
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+Error logging sub-signal: database is locked
+  [WAIT] /api/price [NIFTY50]  613ms
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/all_symbols
+  [REQ  ] /api/all_symbols
+  [OK  ] /api/all_symbols  2ms
+  [DEBUG] do_GET: /api/fundamentals?symbol=ABREL&date=2026-10-13
+  [REQ  ] /api/fundamentals [ABREL]
+  [OK  ] /api/fundamentals [ABREL]  94ms
+  [DEBUG] do_GET: /api/institutional?symbol=ABREL&days=730&date=2026-10-13
+  [REQ  ] /api/institutional [ABREL]
+  [OK  ] /api/institutional [ABREL]  492ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  10ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  12ms
+  [OK  ] /api/price_history [ADANIENT]  11ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [TCS]  8ms
+  [OK  ] /api/price_history [RELIANCE]  10ms
+  [DEBUG] do_GET: /api/advisor?symbols=GROWW&diversify=1&type=long&risk=balanced&amount=1000000&date=2026-10-13
+  [REQ  ] /api/advisor
+  [DEBUG] do_GET: /api/master_report?symbol=GROWW&date=2026-10-13&inv_type=long
+  [REQ  ] /api/master_report [GROWW]
+  [REPORT] GROWW @ ₹193.81 on 2026-10-13
+  [REPORT] quant OK
+  [REPORT] chart extended: 234 bars
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [REPORT] gann OK  score=23.0
+  [REPORT] natal OK  bull=4 bear=11
+  [REPORT] fund OK
+  [REPORT] sentiment OK  score=0.00
+  [REPORT] report_engine ready
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [REPORT] done  bias=NEUTRAL
+  [SLOW] /api/master_report [GROWW]  24590ms
+  [DEBUG] do_GET: /api/shareholding?symbol=GROWW
+  [REQ  ] /api/shareholding [GROWW]
+  [OK  ] /api/shareholding [GROWW]  29ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [SLOW] /api/watchlist_get  3661ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [SLOW] /api/advisor  28863ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  10ms
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [ADANIENT]  11ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [TCS]  11ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  10ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  15ms
+  [WAIT] /api/price [NIFTY50]  786ms
+  [LLM] Ollama ready — using model: gemma4:latest
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  12ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  19ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/llm_extract [GROWW]
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  21ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [OK  ] /api/llm_extract [GROWW]  63ms
+  [OK  ] /api/price_history [BAJAJ-AUTO]  12ms
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [ADANIENT]  99ms
+  [OK  ] /api/price_history [TCS]  94ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  17ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  13ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  14ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  23ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  12ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  43ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  9ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  15ms
+  [OK  ] /api/price_history [ADANIENT]  13ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [TCS]
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  15ms
+  [OK  ] /api/price_history [TCS]  21ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  10ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  1252ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  42ms
+  [SLOW] /api/recommendations  721921ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  20ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  12ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  22ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  13ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [WAIT] /api/watchlist_get  539ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [ADANIENT]  6ms
+  [OK  ] /api/price_history [BAJAJ-AUTO]  8ms
+  [OK  ] /api/price_history [TCS]  10ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  6ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  12ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  22ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  28ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  11ms
+  [LLM] GROWW: extracted via Ollama (gemma4:latest)
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  14ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  10ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  11ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  12ms
+  [OK  ] /api/price_history [ADANIENT]  10ms
+  [OK  ] /api/price_history [TCS]  16ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  11ms
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  11ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  533ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  22ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  12ms
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  20ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  16ms
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  18ms
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  12ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [OK  ] /api/price_history [BAJAJ-AUTO]  24ms
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [TCS]  24ms
+  [OK  ] /api/price_history [ADANIENT]  33ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [RELIANCE]  13ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  27ms
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  13ms
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Background extract done: GROWW
+  [LLM] Background extract done: GROWW
+  [DEBUG] do_GET: /api/llm_extract?symbol=GROWW&date=2026-10-13
+  [REQ  ] /api/llm_extract [GROWW]
+  [OK  ] /api/llm_extract [GROWW]  48ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [SLOW] /api/advisor  787760ms
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [LLM] Background extract done: GROWW
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Background extract done: GROWW
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Background extract done: GROWW
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  190ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [OK  ] /api/price_history [BAJAJ-AUTO]  18ms
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [ADANIENT]  18ms
+  [OK  ] /api/price_history [TCS]  19ms
+  [OK  ] /api/price_history [RELIANCE]  19ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [WAIT] /api/price [NIFTY50]  652ms
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+  [LLM] Background extract done: GROWW
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Background extract done: GROWW
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  5ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  9ms
+  [OK  ] /api/price_history [ADANIENT]  10ms
+  [OK  ] /api/price_history [TCS]  10ms
+  [OK  ] /api/price_history [RELIANCE]  10ms
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [LLM] Background extract done: GROWW
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+Error logging sub-signal: database is locked
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Background extract done: GROWW
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  153ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [OK  ] /api/price_history [BAJAJ-AUTO]  14ms
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [ADANIENT]  10ms
+  [OK  ] /api/price_history [TCS]  10ms
+  [OK  ] /api/price_history [RELIANCE]  19ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [WAIT] /api/price [NIFTY50]  914ms
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [LLM] Background extract done: GROWW
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/advisor?symbols=GODFRYPHLP&diversify=1&type=long&risk=balanced&amount=1000000&date=2026-10-13
+  [REQ  ] /api/advisor
+  [DEBUG] do_GET: /api/master_report?symbol=GODFRYPHLP&date=2026-10-13&inv_type=long
+  [REQ  ] /api/master_report [GODFRYPHLP]
+  [DEBUG] do_GET: /api/shareholding?symbol=GODFRYPHLP
+  [REQ  ] /api/shareholding [GODFRYPHLP]
+  [OK  ] /api/shareholding [GODFRYPHLP]  9ms
+  [REPORT] GODFRYPHLP @ ₹1850.0 on 2026-10-13
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  11ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  8ms
+  [OK  ] /api/price_history [ADANIENT]  10ms
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [TCS]  11ms
+  [OK  ] /api/price_history [RELIANCE]  7ms
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+  [LLM] Ollama extract error: timed out
+  [LLM] GROWW: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [LLM] Cache save error [GROWW]: database is locked
+  [LLM] Background extract done: GROWW
+Error logging sub-signal: database is locked
+  [REPORT] quant OK
+  [REPORT] chart extended: 6680 bars
+  [LLM] Background extract done: GROWW
+  [LLM] Background extract done: GROWW
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [SLOW] /api/advisor  30400ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [REPORT] gann OK  score=23.0
+  [REPORT] natal OK  bull=4 bear=11
+  [REPORT] fund OK
+  [REPORT] sentiment OK  score=0.00
+  [REPORT] report_engine ready
+  [REPORT] done  bias=BEARISH
+  [SLOW] /api/master_report [GODFRYPHLP]  38401ms
+  [OK  ] /api/watchlist_get  332ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  18ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  15ms
+  [OK  ] /api/price_history [ADANIENT]  16ms
+  [OK  ] /api/price_history [RELIANCE]  12ms
+  [OK  ] /api/price_history [TCS]  15ms
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  672ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  40ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  13ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  14ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  18ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  15ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  10ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  8ms
+  [OK  ] /api/price_history [ADANIENT]  13ms
+  [OK  ] /api/price_history [TCS]  15ms
+  [OK  ] /api/price_history [RELIANCE]  17ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  13ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  15ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  10ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  28ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  16ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  25ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  7ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  15ms
+  [OK  ] /api/price_history [ADANIENT]  16ms
+  [OK  ] /api/price_history [TCS]  14ms
+  [OK  ] /api/price_history [RELIANCE]  15ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  101ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  843ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  13ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  12ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [LLM] GODFRYPHLP: extracted via Ollama (gemma4:latest)
+  [LLM] Background extract done: GODFRYPHLP
+  [DEBUG] do_GET: /api/llm_extract?symbol=GODFRYPHLP&date=2026-10-13
+  [REQ  ] /api/llm_extract [GODFRYPHLP]
+  [OK  ] /api/llm_extract [GODFRYPHLP]  44ms
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  9ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  9ms
+  [OK  ] /api/price_history [TCS]  11ms
+  [OK  ] /api/price_history [ADANIENT]  14ms
+  [OK  ] /api/price_history [RELIANCE]  12ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  47ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  9ms
+  [OK  ] /api/price_history [ADANIENT]  15ms
+  [OK  ] /api/price_history [TCS]  15ms
+  [OK  ] /api/price_history [RELIANCE]  15ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  1215ms
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [LLM] Background extract done: GODFRYPHLP
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [LLM] Cache save error [GODFRYPHLP]: database is locked
+  [LLM] Background extract done: GODFRYPHLP
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [LLM] Background extract done: GODFRYPHLP
+  [LLM] Background extract done: GODFRYPHLP
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  5ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  13ms
+  [OK  ] /api/price_history [ADANIENT]  11ms
+  [OK  ] /api/price_history [TCS]  10ms
+  [OK  ] /api/price_history [RELIANCE]  8ms
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [LLM] Background extract done: GODFRYPHLP
+Error logging sub-signal: database is locked
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [LLM] Cache save error [GODFRYPHLP]: database is locked
+  [LLM] Background extract done: GODFRYPHLP
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [LLM] Cache save error [GODFRYPHLP]: database is locked
+  [LLM] Background extract done: GODFRYPHLP
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [LLM] Background extract done: GODFRYPHLP
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [LLM] Cache save error [GODFRYPHLP]: database is locked
+  [LLM] Background extract done: GODFRYPHLP
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [LLM] Background extract done: GODFRYPHLP
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  8ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  13ms
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [ADANIENT]  15ms
+  [OK  ] /api/price_history [TCS]  14ms
+  [OK  ] /api/price_history [RELIANCE]  17ms
+Error logging sub-signal: database is locked
+  [LLM] Background extract done: GODFRYPHLP
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  652ms
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+Error logging sub-signal: database is locked
+  [LLM] Background extract done: GODFRYPHLP
+  [LLM] Background extract done: GODFRYPHLP
+  [LLM] Ollama extract error: timed out
+  [LLM] GODFRYPHLP: extracted via rules fallback
+  [LLM] Background extract done: GODFRYPHLP
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  152ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  11ms
+  [OK  ] /api/price_history [RELIANCE]  7ms
+  [OK  ] /api/price_history [ADANIENT]  23ms
+  [OK  ] /api/price_history [TCS]  19ms
+Error logging sub-signal: database is locked
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [SLOW] /api/recommendations  845642ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  8ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  14ms
+  [OK  ] /api/price_history [ADANIENT]  11ms
+  [OK  ] /api/price_history [RELIANCE]  11ms
+  [OK  ] /api/price_history [TCS]  14ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  724ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  8ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  10ms
+  [OK  ] /api/price_history [ADANIENT]  9ms
+  [OK  ] /api/price_history [TCS]  17ms
+  [OK  ] /api/price_history [RELIANCE]  14ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [SLOW] /api/recommendations  764881ms
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  165ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  11ms
+  [OK  ] /api/price_history [TCS]  13ms
+  [OK  ] /api/price_history [ADANIENT]  14ms
+  [OK  ] /api/price_history [RELIANCE]  13ms
+  [DEBUG] do_GET: /api/price?symbol=NIFTY50&date=2026-10-13
+  [REQ  ] /api/price [NIFTY50]
+  [WAIT] /api/price [NIFTY50]  678ms
+  [DEBUG] do_GET: /api/advisor?symbols=FORTIS&diversify=1&type=long&risk=balanced&amount=1000000&date=2026-10-13
+  [REQ  ] /api/advisor
+  [DEBUG] do_GET: /api/master_report?symbol=FORTIS&date=2026-10-13&inv_type=long
+  [REQ  ] /api/master_report [FORTIS]
+  [DEBUG] do_GET: /api/shareholding?symbol=FORTIS
+  [REQ  ] /api/shareholding [FORTIS]
+  [OK  ] /api/shareholding [FORTIS]  32ms
+  [REPORT] FORTIS @ ₹756.4 on 2026-10-13
+  [REPORT] quant OK
+  [REPORT] chart extended: 4796 bars
+Error logging sub-signal: database is locked
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  9ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [REQ  ] /api/price_history [ADANIENT]
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7
+  [REQ  ] /api/price_history [RELIANCE]
+  [OK  ] /api/price_history [BAJAJ-AUTO]  15ms
+  [OK  ] /api/price_history [ADANIENT]  14ms
+  [OK  ] /api/price_history [RELIANCE]  10ms
+  [OK  ] /api/price_history [TCS]  15ms
+D:\VPROFITABLES\vprofitables\core\continuation_deep_engine.py:121: RuntimeWarning: invalid value encountered in divide
+  dx = np.where(dx_denom > 0, np.abs(pdi - ndi) / dx_denom * 100.0, 0.0)
+  [SLOW] /api/advisor  14671ms
+Error logging sub-signal: database is locked
+Error logging sub-signal: database is locked
+  [REPORT] gann OK  score=21.0
+  [REPORT] natal OK  bull=4 bear=11
+  [REPORT] fund OK
+  [REPORT] sentiment OK  score=0.00
+  [REPORT] report_engine ready
+  [REPORT] done  bias=BEARISH
+  [SLOW] /api/master_report [FORTIS]  22765ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=FORTIS&date=2026-10-13
+  [REQ  ] /api/llm_extract [FORTIS]
+  [OK  ] /api/llm_extract [FORTIS]  16ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=FORTIS&date=2026-10-13
+  [REQ  ] /api/llm_extract [FORTIS]
+  [OK  ] /api/llm_extract [FORTIS]  42ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=FORTIS&date=2026-10-13
+  [REQ  ] /api/llm_extract [FORTIS]
+  [OK  ] /api/llm_extract [FORTIS]  32ms
+  [DEBUG] do_GET: /api/llm_extract?symbol=FORTIS&date=2026-10-13
+  [REQ  ] /api/llm_extract [FORTIS]
+  [OK  ] /api/llm_extract [FORTIS]  8ms
+  [DEBUG] do_GET: /api/advisor?symbols=ENRIN&diversify=1&type=long&risk=balanced&amount=1000000&date=2026-10-13
+  [REQ  ] /api/advisor
+  [DEBUG] do_GET: /api/master_report?symbol=ENRIN&date=2026-10-13&inv_type=long
+  [REQ  ] /api/master_report [ENRIN]
+  [DEBUG] do_GET: /api/shareholding?symbol=ENRIN
+  [REQ  ] /api/shareholding [ENRIN]
+  [REPORT] ENRIN @ ₹3123.3 on 2026-10-13
+  [OK  ] /api/shareholding [ENRIN]  9ms
+  [REPORT] quant OK
+  [REPORT] chart extended: 331 bars
+  [DEBUG] do_GET: /api/watchlist_get
+  [REQ  ] /api/watchlist_get
+  [OK  ] /api/watchlist_get  7ms
+  [DEBUG] do_GET: /api/price_history?symbol=BAJAJ-AUTO&days=7
+  [REQ  ] /api/price_history [BAJAJ-AUTO]
+  [DEBUG] do_GET: /api/price_history?symbol=ADANIENT&days=7
+  [DEBUG] do_GET: /api/price_history?symbol=TCS&days=7
+  [REQ  ] /api/price_history [TCS]
+  [DEBUG] do_GET: /api/price_history?symbol=RELIANCE&days=7

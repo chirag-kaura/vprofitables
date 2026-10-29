@@ -38,6 +38,7 @@ from typing import Optional, Tuple, List
 
 import requests
 import pandas as pd
+import numpy as np
 
 # ─── Paths ─────────────────────────────────────────────────────────────────────
 BASE_DIR      = os.path.dirname(os.path.abspath(__file__))
@@ -115,8 +116,9 @@ def ensure_tables(conn: sqlite3.Connection) -> None:
             bid             REAL,
             ask             REAL,
             delta           REAL,
+            session         TEXT    DEFAULT 'EOD',
             fetched_at      TEXT    DEFAULT (datetime('now','localtime')),
-            UNIQUE(symbol, trade_date, expiry_date, strike, option_type)
+            UNIQUE(symbol, trade_date, expiry_date, strike, option_type, session)
         );
         CREATE INDEX IF NOT EXISTS idx_oc_sym_date
             ON option_chain_data(symbol, trade_date);
@@ -127,17 +129,22 @@ def ensure_tables(conn: sqlite3.Connection) -> None:
             symbol          TEXT    NOT NULL,
             trade_date      TEXT    NOT NULL,
             expiry_date     TEXT    NOT NULL,
+            session         TEXT    DEFAULT 'EOD',
             total_ce_oi     INTEGER,
             total_pe_oi     INTEGER,
             pcr             REAL,
             max_pain        REAL,
             atm_strike      REAL,
             spot_price      REAL,
+            local_pcr       REAL,
+            iv_skew         REAL,
+            atm_vol_oi_ratio REAL,
             fetched_at      TEXT    DEFAULT (datetime('now','localtime')),
-            PRIMARY KEY (symbol, trade_date, expiry_date)
+            PRIMARY KEY (symbol, trade_date, expiry_date, session)
         );
         CREATE INDEX IF NOT EXISTS idx_pcr_sym
             ON pcr_summary(symbol, trade_date DESC);
+
 
         CREATE TABLE IF NOT EXISTS bhavcopy_log (
             trade_date  TEXT PRIMARY KEY,
@@ -147,6 +154,90 @@ def ensure_tables(conn: sqlite3.Connection) -> None:
             fetched_at  TEXT       DEFAULT (datetime('now','localtime'))
         );
     """)
+
+    # Schema Migrations
+    for table, col, col_type in [
+        ('pcr_summary', 'local_pcr', 'REAL'),
+        ('pcr_summary', 'session', "TEXT DEFAULT 'EOD'"),
+        ('pcr_summary', 'iv_skew', 'REAL'),
+        ('pcr_summary', 'atm_vol_oi_ratio', 'REAL'),
+        ('option_chain_data', 'session', "TEXT DEFAULT 'EOD'"),
+    ]:
+        try:
+            conn.execute(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}")
+        except sqlite3.OperationalError:
+            pass
+
+    # Check if primary key of pcr_summary includes session, if not recreate
+    # We can just attempt to recreate the table by renaming it, creating new, and copying data if needed.
+    # To keep it simple, we'll assume SQLite will just use the new one if we drop it, but we can't drop data.
+    # It's better to explicitly do the migration:
+    migrated = False
+    try:
+        # Check if index includes session
+        info = conn.execute("PRAGMA table_info(pcr_summary)").fetchall()
+        pk_cols = [r[1] for r in info if r[5] > 0]
+        if 'session' not in pk_cols:
+            conn.execute("ALTER TABLE pcr_summary RENAME TO pcr_summary_old")
+            conn.execute("""
+                CREATE TABLE pcr_summary (
+                    symbol          TEXT    NOT NULL,
+                    trade_date      TEXT    NOT NULL,
+                    expiry_date     TEXT    NOT NULL,
+                    session         TEXT    DEFAULT 'EOD',
+                    total_ce_oi     INTEGER,
+                    total_pe_oi     INTEGER,
+                    pcr             REAL,
+                    max_pain        REAL,
+                    atm_strike      REAL,
+                    spot_price      REAL,
+                    local_pcr       REAL,
+                    iv_skew         REAL,
+                    atm_vol_oi_ratio REAL,
+                    fetched_at      TEXT    DEFAULT (datetime('now','localtime')),
+                    PRIMARY KEY (symbol, trade_date, expiry_date, session)
+                )
+            """)
+            conn.execute("""
+                INSERT INTO pcr_summary (symbol, trade_date, expiry_date, total_ce_oi, total_pe_oi, pcr, max_pain, atm_strike, spot_price, local_pcr, session, fetched_at)
+                SELECT symbol, trade_date, expiry_date, total_ce_oi, total_pe_oi, pcr, max_pain, atm_strike, spot_price, local_pcr, session, fetched_at
+                FROM pcr_summary_old
+            """)
+            conn.execute("DROP TABLE pcr_summary_old")
+            
+            # Same for option_chain_data
+            conn.execute("ALTER TABLE option_chain_data RENAME TO option_chain_data_old")
+            conn.execute("""
+                CREATE TABLE option_chain_data (
+                    id              INTEGER PRIMARY KEY AUTOINCREMENT,
+                    symbol          TEXT    NOT NULL,
+                    trade_date      TEXT    NOT NULL,
+                    expiry_date     TEXT    NOT NULL,
+                    strike          REAL    NOT NULL,
+                    option_type     TEXT    NOT NULL,
+                    oi              INTEGER,
+                    change_in_oi    INTEGER,
+                    volume          INTEGER,
+                    iv              REAL,
+                    ltp             REAL,
+                    bid             REAL,
+                    ask             REAL,
+                    delta           REAL,
+                    session         TEXT    DEFAULT 'EOD',
+                    fetched_at      TEXT    DEFAULT (datetime('now','localtime')),
+                    UNIQUE(symbol, trade_date, expiry_date, strike, option_type, session)
+                )
+            """)
+            conn.execute("""
+                INSERT INTO option_chain_data (id, symbol, trade_date, expiry_date, strike, option_type, oi, change_in_oi, volume, iv, ltp, bid, ask, delta, session, fetched_at)
+                SELECT id, symbol, trade_date, expiry_date, strike, option_type, oi, change_in_oi, volume, iv, ltp, bid, ask, delta, session, fetched_at
+                FROM option_chain_data_old
+            """)
+            conn.execute("DROP TABLE option_chain_data_old")
+            migrated = True
+    except Exception as e:
+        pass
+
     conn.commit()
 
 
@@ -416,7 +507,7 @@ def normalise(df: pd.DataFrame, trade_date: date) -> pd.DataFrame:
     # Convert expiry_date to YYYY-MM-DD
     if "expiry_date" in df.columns:
         df["expiry_date"] = pd.to_datetime(
-            df["expiry_date"], dayfirst=True, errors="coerce"
+            df["expiry_date"], format="mixed", dayfirst=True, errors="coerce"
         ).dt.strftime("%Y-%m-%d")
 
     # Coerce numeric
@@ -435,9 +526,9 @@ def normalise(df: pd.DataFrame, trade_date: date) -> pd.DataFrame:
 # COMPUTE PCR + MAX PAIN
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def compute_pcr_maxpain(df: pd.DataFrame, symbol: str,
+def compute_pcr_maxpain(conn: sqlite3.Connection, df: pd.DataFrame, symbol: str,
                         trade_date: str, expiry: str):
-    """Compute PCR and max-pain for a symbol+expiry from option rows."""
+    """Compute PCR, max-pain, and local PCR for a symbol+expiry from option rows."""
     sub = df[
         (df["symbol"] == symbol) &
         (df["expiry_date"] == expiry) &
@@ -446,11 +537,27 @@ def compute_pcr_maxpain(df: pd.DataFrame, symbol: str,
     if sub.empty:
         return None
 
+    # Fetch Spot Price from daily_prices
+    spot_price = 0.0
+    try:
+        sp_row = conn.execute("SELECT close FROM daily_prices WHERE symbol=? AND trade_date=?", (symbol, trade_date)).fetchone()
+        if sp_row and sp_row[0]:
+            spot_price = float(sp_row[0])
+    except Exception:
+        pass
+
     ce = sub[sub["option_type"] == "CE"]
     pe = sub[sub["option_type"] == "PE"]
     ce_oi = int(ce["oi"].sum())
     pe_oi = int(pe["oi"].sum())
     pcr   = round(pe_oi / ce_oi, 4) if ce_oi > 0 else 0.0
+
+    # Local PCR (+/- 5% of Spot Price)
+    local_pcr = 0.0
+    if spot_price > 0:
+        local_ce_oi = int(ce[(ce["strike"] >= spot_price * 0.95) & (ce["strike"] <= spot_price * 1.05)]["oi"].sum())
+        local_pe_oi = int(pe[(pe["strike"] >= spot_price * 0.95) & (pe["strike"] <= spot_price * 1.05)]["oi"].sum())
+        local_pcr = round(local_pe_oi / local_ce_oi, 4) if local_ce_oi > 0 else 0.0
 
     # Max pain
     strikes = sorted(sub["strike"].unique())
@@ -466,6 +573,33 @@ def compute_pcr_maxpain(df: pd.DataFrame, symbol: str,
             min_pain = pain
             max_pain = s
 
+    iv_skew = 0.0
+    atm_vol_oi_ratio = 0.0
+    atm_strike = round(spot_price, 2) if spot_price > 0 else 0.0
+
+    if spot_price > 0 and strikes:
+        # ATM Vol/OI Ratio
+        atm_s = min(strikes, key=lambda k: abs(k - spot_price))
+        atm_ce = ce[ce["strike"] == atm_s]
+        atm_pe = pe[pe["strike"] == atm_s]
+        atm_vol = atm_ce["volume"].sum() + atm_pe["volume"].sum() if "volume" in sub.columns else 0
+        atm_oi = atm_ce["oi"].sum() + atm_pe["oi"].sum()
+        if atm_oi > 0:
+            atm_vol_oi_ratio = float(atm_vol) / float(atm_oi)
+        
+        # IV Skew
+        if "iv" in sub.columns:
+            put_target = spot_price * 0.95
+            call_target = spot_price * 1.05
+            put_s = min(strikes, key=lambda k: abs(k - put_target))
+            call_s = min(strikes, key=lambda k: abs(k - call_target))
+            
+            p_ivs = pe[pe["strike"] == put_s]["iv"].values
+            c_ivs = ce[ce["strike"] == call_s]["iv"].values
+            p_iv = float(p_ivs[0]) if len(p_ivs) > 0 and pd.notnull(p_ivs[0]) else 0.0
+            c_iv = float(c_ivs[0]) if len(c_ivs) > 0 and pd.notnull(c_ivs[0]) else 0.0
+            iv_skew = p_iv - c_iv
+
     return {
         "symbol":      symbol,
         "trade_date":  trade_date,
@@ -474,8 +608,11 @@ def compute_pcr_maxpain(df: pd.DataFrame, symbol: str,
         "total_pe_oi": pe_oi,
         "pcr":         pcr,
         "max_pain":    max_pain,
-        "atm_strike":  0.0,   # no spot price in bhavcopy
-        "spot_price":  0.0,
+        "atm_strike":  atm_strike,
+        "spot_price":  spot_price,
+        "local_pcr":   local_pcr,
+        "iv_skew":     iv_skew,
+        "atm_vol_oi_ratio": atm_vol_oi_ratio,
     }
 
 
@@ -500,8 +637,28 @@ def save_to_db(conn: sqlite3.Connection, df: pd.DataFrame,
 
     rows_saved = 0
     if not opt_df.empty:
+        # Filter out deep OTM strikes: keep ATM +/- 5 strikes and max OI walls
+        keep_indices = []
+        for (sym, exp), grp in opt_df.groupby(["symbol", "expiry_date"]):
+            strikes = np.sort(grp["strike"].unique())
+            if len(strikes) <= 15:
+                keep_indices.extend(grp.index.tolist())
+                continue
+            pe_strikes = grp[grp["option_type"] == "PE"]
+            ce_strikes = grp[grp["option_type"] == "CE"]
+            pe_wall = pe_strikes.sort_values("oi", ascending=False)["strike"].iloc[0] if not pe_strikes.empty else strikes[0]
+            ce_wall = ce_strikes.sort_values("oi", ascending=False)["strike"].iloc[0] if not ce_strikes.empty else strikes[-1]
+            med_strike = np.median(strikes)
+            atm_idx = np.argmin(np.abs(strikes - med_strike))
+            retained_strikes = set(strikes[max(0, atm_idx - 5) : min(len(strikes), atm_idx + 6)])
+            retained_strikes.add(pe_wall)
+            retained_strikes.add(ce_wall)
+            matched = grp[grp["strike"].isin(retained_strikes)]
+            keep_indices.extend(matched.index.tolist())
+
+        opt_df_to_save = opt_df.loc[keep_indices]
         records = []
-        for _, r in opt_df.iterrows():
+        for _, r in opt_df_to_save.iterrows():
             records.append((
                 str(r["symbol"]), str(r["trade_date"]), str(r["expiry_date"]),
                 float(r.get("strike", 0)), str(r["option_type"]),
@@ -513,9 +670,9 @@ def save_to_db(conn: sqlite3.Connection, df: pd.DataFrame,
         conn.executemany("""
             INSERT INTO option_chain_data
                 (symbol, trade_date, expiry_date, strike, option_type,
-                 oi, change_in_oi, volume, iv, ltp, bid, ask)
-            VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?)
-            ON CONFLICT(symbol, trade_date, expiry_date, strike, option_type)
+                 oi, change_in_oi, volume, iv, ltp, bid, ask, session)
+            VALUES (?,?,?,?,?, ?,?,?,?,?, ?,?, 'EOD')
+            ON CONFLICT(symbol, trade_date, expiry_date, strike, option_type, session)
             DO UPDATE SET
                 oi           = excluded.oi,
                 change_in_oi = excluded.change_in_oi,
@@ -531,24 +688,30 @@ def save_to_db(conn: sqlite3.Connection, df: pd.DataFrame,
         near_exp = expiries[0] if expiries else None
         if not near_exp:
             continue
-        pcr_row = compute_pcr_maxpain(opt_df, symbol, trade_date, near_exp)
+        pcr_row = compute_pcr_maxpain(conn, opt_df, symbol, trade_date, near_exp)
         if pcr_row:
             conn.execute("""
                 INSERT INTO pcr_summary
                     (symbol, trade_date, expiry_date, total_ce_oi, total_pe_oi,
-                     pcr, max_pain, atm_strike, spot_price)
-                VALUES (?,?,?,?,?,?,?,?,?)
-                ON CONFLICT(symbol, trade_date, expiry_date)
+                     pcr, max_pain, atm_strike, spot_price, local_pcr, iv_skew, atm_vol_oi_ratio, session)
+                VALUES (?,?,?,?,?,?,?,?,?,?,?,?, 'EOD')
+                ON CONFLICT(symbol, trade_date, expiry_date, session)
                 DO UPDATE SET
                     total_ce_oi = excluded.total_ce_oi,
                     total_pe_oi = excluded.total_pe_oi,
                     pcr         = excluded.pcr,
                     max_pain    = excluded.max_pain,
+                    local_pcr   = excluded.local_pcr,
+                    iv_skew     = excluded.iv_skew,
+                    atm_vol_oi_ratio = excluded.atm_vol_oi_ratio,
                     fetched_at  = datetime('now','localtime')
             """, (
                 pcr_row["symbol"], pcr_row["trade_date"], pcr_row["expiry_date"],
                 pcr_row["total_ce_oi"], pcr_row["total_pe_oi"], pcr_row["pcr"],
                 pcr_row["max_pain"], pcr_row["atm_strike"], pcr_row["spot_price"],
+                pcr_row.get("local_pcr", 0.0),
+                pcr_row.get("iv_skew", 0.0),
+                pcr_row.get("atm_vol_oi_ratio", 0.0)
             ))
 
     conn.commit()

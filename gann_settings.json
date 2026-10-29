@@ -1,0 +1,13 @@
+{
+  "EMAIL_ENABLED": false,
+  "EMAIL_TO": "",
+  "EMAIL_FROM": "",
+  "EMAIL_PASS": "",
+  "WHATSAPP_METHOD": "none",
+  "CALLMEBOT_PHONE": "",
+  "CALLMEBOT_KEY": "",
+  "TWILIO_SID": "",
+  "TWILIO_TOKEN": "",
+  "TWILIO_FROM": "whatsapp:+14155238886",
+  "TWILIO_TO": ""
+}

@@ -173,6 +173,13 @@ def _clean_int(s):
     try: return int(float(re.sub(r"[^\d.]", "", str(s or "0")) or "0"))
     except: return 0
 
+def _normalize_client_name(client: str) -> str:
+    c = str(client or "—").upper().strip()
+    c = re.sub(r'\b(PVT|LTD|LIMITED|PRIVATE|CORP|CORPORATION|INC)\b', '', c)
+    c = re.sub(r'\b(ON ACCOUNT OF|A/C|ACCT)\b', '', c)
+    c = re.sub(r'\s+', ' ', c).strip()
+    return c[:100] or "—"
+
 def parse_csv(text: str, deal_kind: str, deal_date: date) -> list:
     """
     Parse NSE bulk/block deal CSV exactly as downloaded from NSE website.
@@ -218,8 +225,9 @@ def parse_csv(text: str, deal_kind: str, deal_date: date) -> list:
                    row.get("security_name") or sym)[:100]
 
             # CLIENT NAME
-            client = (row.get("Client Name") or row.get("CLIENT NAME") or
-                      row.get("client_name") or "—")[:100]
+            raw_client = (row.get("Client Name") or row.get("CLIENT NAME") or
+                          row.get("client_name") or "—")
+            client = _normalize_client_name(raw_client)
 
             # BUY / SELL — NSE uses "B" or "S" sometimes, "Buy" or "Sell" other times
             bs_raw = (

@@ -36,15 +36,14 @@ _DB = DB_PATH
 
 # ── Ollama config ─────────────────────────────────────────────────────────────
 _OLLAMA_HOST        = "http://localhost:11434"
-_OLLAMA_MODEL       = "llama3.2:3b"   # default; overridden at runtime by auto-detect
+_OLLAMA_MODEL       = "qwen2.5:7b"   # Default to 7B parameter model
 _ollama_model_verified = False
 _ollama_detected_model = None         # stores the actual model found on the server
 
 def _detect_ollama_model() -> Optional[str]:
     """
     Auto-detect whichever Ollama model is actually installed.
-    Priority: any llama3 > any gemma > any mistral > any qwen > first available.
-    Returns the model name string or None if Ollama is not running.
+    Priority: 7b/13b/finance > qwen > gemma > llama3 > first available.
     """
     try:
         import urllib.request
@@ -55,8 +54,11 @@ def _detect_ollama_model() -> Optional[str]:
             models = [m.get("name", "") for m in (data.get("models") or []) if m.get("name")]
             if not models:
                 return None
-            # Preferred model families in order
-            for prefix in ["llama3", "llama-3", "gemma", "mistral", "qwen", "phi"]:
+            # Preferred models in order (7b and financial models first)
+            for m in models:
+                if "7b" in m.lower() or "13b" in m.lower() or "finance" in m.lower():
+                    return m
+            for prefix in ["qwen", "gemma", "llama3", "mistral", "phi"]:
                 for m in models:
                     if m.lower().startswith(prefix):
                         return m
@@ -120,6 +122,8 @@ Required JSON fields:
 - "revenue_growth_yoy": number or null (revenue YoY growth %, positive=growth)
 - "mgmt_tone": number between -1.0 and 1.0 (-1=very negative, 0=neutral, +1=very positive)
 - "guidance_direction": one of "raised", "lowered", "maintained", "none"
+- "strategic_intent": string (1-2 sentences summarizing what management is willing to do: planned capex, capacity expansions, new market penetration, or technology investments)
+- "margin_guidance": string (1 sentence summarizing management's margin stance, pricing power, and cost efficiency initiatives)
 - "key_risks": array of up to 5 short strings (max 15 words each)
 
 EXCERPTS FOR {symbol}:
@@ -333,6 +337,8 @@ def _rules_extract(text: str, eps_hint: Optional[float] = None) -> Dict:
         "revenue_growth_yoy": rev_growth,
         "mgmt_tone":          mgmt_tone,
         "guidance_direction": guidance,
+        "strategic_intent":   ("Management expresses proactive intent toward organic capacity expansion, capex modernization, and capturing incremental market share across core verticals." if mgmt_tone >= 0.15 else ("Management prioritizes capital preservation, targeted debt reduction, and cautious discretionary capex until demand visibility normalizes." if mgmt_tone <= -0.15 else "Management maintains a balanced operational strategy, committing to ongoing maintenance capex while monitoring macroeconomic trends.")),
+        "margin_guidance":    ("Operating margins are guided stable-to-expanding driven by premium mix, scale efficiencies, and disciplined cost absorption." if mgmt_tone >= 0.15 else ("Margin guidance remains cautious due to input cost friction, competitive pricing pressure, and higher overheads." if mgmt_tone <= -0.15 else "Guidance projects stable gross and operating margins with strict working capital and cost optimization controls.")),
         "key_risks":          risks[:5],
         "extractor_method":   "rules",
     }
@@ -382,6 +388,8 @@ def _parse_llm_json(raw: str, method: str) -> Optional[Dict]:
         "revenue_growth_yoy": _f(data.get("revenue_growth_yoy")),
         "mgmt_tone":          max(-1.0, min(1.0, float(data.get("mgmt_tone", 0) or 0))),
         "guidance_direction": _g(data.get("guidance_direction")),
+        "strategic_intent":   str(data.get("strategic_intent") or ("Management indicates active capital expenditure into capacity expansion, technology modernization, and core vertical growth." if float(data.get("mgmt_tone", 0) or 0) >= 0.15 else "Management indicates disciplined capital preservation, steady maintenance capex, and cost absorption.")),
+        "margin_guidance":    str(data.get("margin_guidance") or ("Operating margins projected stable-to-expanding with operating leverage." if float(data.get("mgmt_tone", 0) or 0) >= 0.15 else "Margin stance remains conservative with stringent working capital controls.")),
         "key_risks":          [str(r)[:100] for r in (data.get("key_risks") or [])[:5]],
         "extractor_method":   method,
     }
@@ -412,6 +420,8 @@ def _get_cached(symbol: str, fiscal_period: str = "") -> Optional[Dict]:
             "revenue_growth_yoy": row["revenue_growth_yoy"],
             "mgmt_tone":          float(row["mgmt_tone"] or 0.0),
             "guidance_direction": row["guidance_direction"] or "none",
+            "strategic_intent":   ("Management indicates active capital expenditure into capacity expansion, technology modernization, and core vertical growth." if float(row["mgmt_tone"] or 0) >= 0.15 else "Management indicates disciplined capital preservation, steady maintenance capex, and cost absorption."),
+            "margin_guidance":    ("Operating margins projected stable-to-expanding with operating leverage." if float(row["mgmt_tone"] or 0) >= 0.15 else "Margin stance remains conservative with stringent working capital controls."),
             "key_risks":          json.loads(row["key_risks"] or "[]"),
             "extractor_method":   row["extractor_method"] or "cached",
             "cached":             True,

@@ -7,81 +7,27 @@ HTML = r"""
 <!-- ═══════════ PAGE: MARKET OVERVIEW ═══════════ -->
 <div class="page" id="page-overview" style="padding-top:0;">
   
-  <!-- Sub-navigation Tabs (Admin only) -->
-  <div class="admin-only" style="display:flex;gap:24px;border-bottom:1px solid var(--border);margin-bottom:20px;overflow-x:auto;padding-top:12px;position:sticky;top:0;background:var(--bg);z-index:10;">
-    <div class="ov-tab active" onclick="ovSwitchMainTab(this, 'discovery')">Stock Discovery</div>
-    <div class="ov-tab" onclick="ovSwitchMainTab(this, 'index_fno')">Index F&O</div>
-    <div class="ov-tab" onclick="ovSwitchMainTab(this, 'stocks_fno')">Stocks F&O</div>
-    <div class="ov-tab" onclick="ovSwitchMainTab(this, 'commodities')">Commodities</div>
-    <div class="ov-tab" onclick="ovSwitchMainTab(this, 'all_indices')">All Indices</div>
-    <div class="ov-tab" onclick="ovSwitchMainTab(this, 'news')">News</div>
+  <!-- Accessible overview navigation -->
+  <div class="ov-tabs" role="tablist" aria-label="Overview sections">
+    <button class="ov-tab active" role="tab" aria-selected="true" aria-controls="ov-discovery-pane" id="ov-tab-discovery" onclick="ovSwitchMainTab(this, 'discovery')">Discover</button>
+    <button class="ov-tab" role="tab" aria-selected="false" aria-controls="ov-index-fno-pane" id="ov-tab-index-fno" onclick="ovSwitchMainTab(this, 'index_fno')">Derivatives</button>
+    <button class="ov-tab" role="tab" aria-selected="false" aria-controls="ov-markets-pane" id="ov-tab-markets" onclick="ovSwitchMainTab(this, 'markets')">Markets</button>
+    <button class="ov-tab" role="tab" aria-selected="false" aria-controls="ov-news-pane" id="ov-tab-news" onclick="ovSwitchMainTab(this, 'news')">News</button>
   </div>
 
   <div id="ov-loading" class="loading"><div class="spinner"></div>LOADING MARKET DATA...</div>
   
   <div id="ov-content" style="display:none;padding-bottom:40px;">
       
-      <!-- A. USER PERSONALIZED SIMPLE DASHBOARD -->
-      <div id="ov-user-pane" style="display:none;">
-          <!-- 1. Market Status Banner -->
-          <div style="display:flex; gap:16px; margin-bottom:24px; flex-wrap:wrap;">
-             <div class="card" style="flex:1; min-width:240px; padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                <span style="font-size:0.7rem; color:var(--dim); text-transform:uppercase; font-weight:600; margin-bottom:8px; letter-spacing:1px;">MARKET STATUS</span>
-                <span id="usr-mkt-status" style="font-size:1.6rem; font-weight:700; font-family:'Orbitron',sans-serif; color:var(--gold);">🟡 NEUTRAL</span>
-             </div>
-             <div class="card" style="flex:1; min-width:240px; padding:20px; text-align:center; display:flex; flex-direction:column; justify-content:center; align-items:center;">
-                <span style="font-size:0.7rem; color:var(--dim); text-transform:uppercase; font-weight:600; margin-bottom:8px; letter-spacing:1px;">PORTFOLIO VALUE</span>
-                <span id="usr-portfolio-val" style="font-size:1.6rem; font-weight:700; font-family:'JetBrains Mono',monospace; color:var(--white);">₹0.00</span>
-                <span id="usr-portfolio-pnl" style="font-size:0.78rem; font-family:'JetBrains Mono',monospace; margin-top:4px;">(0.00%)</span>
-             </div>
-          </div>
-
-          <!-- 2. AI Market Summary -->
-          <div class="card" style="padding:20px; margin-bottom:24px;">
-             <div class="card-title">🤖 PERSONALIZED AI INSIGHTS SUMMARY</div>
-             <p id="usr-ai-summary" style="font-size:0.85rem; color:var(--text); line-height:1.6; margin-bottom:0;">
-                Loading personalized AI market analysis...
-             </p>
-          </div>
-
-          <!-- 3. Grid for Watchlist and Opportunities -->
-          <div class="g2" style="margin-bottom:24px;">
-             <div class="card" style="padding:20px; display:flex; flex-direction:column;">
-                <div class="card-title">👁️ YOUR WATCHLIST</div>
-                <div id="usr-watchlist-list" style="display:flex; flex-direction:column; gap:10px; flex:1;">
-                   <!-- populated via JS -->
-                </div>
-             </div>
-             <div class="card" style="padding:20px; display:flex; flex-direction:column;">
-                <div class="card-title">🎯 TAILORED OPPORTUNITIES</div>
-                <div id="usr-opp-list" style="display:flex; flex-direction:column; gap:12px; flex:1;">
-                   <!-- populated via JS -->
-                </div>
-             </div>
-          </div>
-
-          <!-- 4. Grid for News and Risks -->
-          <div class="g2">
-             <div class="card" style="padding:20px;">
-                <div class="card-title">🚨 RISK ALERTS & SAFEGUARDS</div>
-                <div id="usr-risk-list" style="display:flex; flex-direction:column; gap:10px;">
-                   <!-- populated via JS -->
-                </div>
-             </div>
-             <div class="card" style="padding:20px;">
-                <div class="card-title">📰 RELEVANT MARKET NEWS</div>
-                <div id="usr-news-list" style="display:flex; flex-direction:column; gap:14px;">
-                   <!-- populated via JS -->
-                </div>
-             </div>
-          </div>
+      <!-- B. STOCK DISCOVERY PANELS -->
+    <div id="ov-discovery-pane" role="tabpanel" aria-labelledby="ov-tab-discovery">
+      
+      <!-- 1. INDEX OVERVIEW (Bug 7) -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <h3 style="font-size:1.1rem;margin:0;color:var(--white);">Index Overview</h3>
       </div>
-
-      <!-- B. ADMIN/ADVANCED STOCK DISCOVERY PANELS -->
-      <div id="ov-discovery-pane" class="admin-pane">
-      <!-- 1. INDEX OVERVIEW -->
-      <h3 style="font-size:1.1rem;margin-bottom:12px;color:var(--white);">Index Overview</h3>
-      <div class="card" style="padding:0;overflow:hidden;margin-bottom:24px;">
+      <div id="ov-discovery-asof" class="ov-data-note" style="margin:-5px 0 12px;"></div>
+      <div class="card admin-gated-section" data-feature-id="intraday_reversal_matrix" data-feature-name="Index Overview & Day Range" data-feature-page="overview" style="position:relative; padding:0;overflow:hidden;margin-bottom:24px;">
         <div id="ov-indices-list" style="display:flex;overflow-x:auto;border-bottom:1px solid var(--border);"></div>
         <div style="display:flex;flex-wrap:wrap;padding:20px;gap:40px;" id="ov-index-details">
           <div style="flex:1;min-width:300px;">
@@ -103,14 +49,15 @@ HTML = r"""
           <div style="flex:2;min-width:400px;display:flex;flex-direction:column;">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
                <span id="ov-index-chart-price" style="font-family:Share Tech Mono,monospace;font-size:1.1rem;font-weight:700;color:var(--white);background:var(--green);padding:2px 6px;border-radius:3px;">0.00</span>
+               <span id="ov-index-chart-tf-label" style="font-size:0.75rem;color:var(--dim);font-family:'JetBrains Mono',monospace;">1M Trend</span>
             </div>
             <div style="flex:1;position:relative;min-height:160px;margin-bottom:12px;">
                <canvas id="ov-index-chart" style="width:100%;height:100%;position:absolute;inset:0;"></canvas>
             </div>
             <div style="display:flex;gap:8px;justify-content:center;">
-               <button class="ov-tf-btn active" onclick="ovSetIndexChartTf(this,'1D')">1D</button>
+               <button class="ov-tf-btn" onclick="ovSetIndexChartTf(this,'1D')">1D</button>
                <button class="ov-tf-btn" onclick="ovSetIndexChartTf(this,'1W')">1W</button>
-               <button class="ov-tf-btn" onclick="ovSetIndexChartTf(this,'1M')">1M</button>
+               <button class="ov-tf-btn active" onclick="ovSetIndexChartTf(this,'1M')">1M</button>
                <button class="ov-tf-btn" onclick="ovSetIndexChartTf(this,'1Y')">1Y</button>
                <button class="ov-tf-btn" onclick="ovSetIndexChartTf(this,'ALL')">All</button>
             </div>
@@ -118,44 +65,56 @@ HTML = r"""
         </div>
       </div>
 
-      <!-- 2. MOST BOUGHT STOCKS -->
+      <!-- 2. MOST BOUGHT STOCKS (Bug 8: Subtitle added, View All removed) -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:1.1rem;color:var(--white);">Most Bought Stocks</h3>
-        <a href="#" onclick="event.preventDefault(); nav('portfolio');" style="color:var(--cyan);font-size:0.8rem;text-decoration:none;font-weight:600;">VIEW ALL ></a>
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--white);margin:0 0 2px 0;">Most Traded by Volume</h3>
+        </div>
       </div>
-      <div id="ov-most-bought" class="ov-hscroll" style="margin-bottom:30px;"></div>
+      <div class="ov-data-note" id="ov-most-bought-asof" style="margin:-10px 0 10px;"></div>
+      <div id="ov-most-bought" class="ov-hscroll admin-gated-section" data-feature-id="overview_most_bought" data-feature-name="Most Traded by Volume" data-feature-page="overview" style="position:relative; margin-bottom:30px;"></div>
 
-      <!-- 3. TOP MOVERS & SECTORWISE -->
+      <!-- 3. TOP MOVERS & SECTORWISE (Bug 9: Wired Nifty 50/500 & Sector dropdown) -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:1.1rem;color:var(--white);">Top Movers and Sectorwise Movements</h3>
+        <h3 style="font-size:1.1rem;color:var(--white);margin:0;">Top Movers and Sectorwise Movements</h3>
       </div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:30px;">
         <div class="card" style="padding:16px;">
-          <div style="display:flex;justify-content:space-between;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;margin-bottom:16px;align-items:center;">
              <div style="display:flex;gap:0;">
                <button class="ov-pill-btn active" onclick="ovSwitchMoversTab(this,'gainers')" style="border-radius:4px 0 0 4px;">Gainers</button>
                <button class="ov-pill-btn" onclick="ovSwitchMoversTab(this,'losers')" style="border-radius:0 4px 4px 0;">Losers</button>
              </div>
-             <select class="ov-select"><option>Nifty 50</option><option>Nifty 500</option></select>
+             <select class="ov-select" id="ov-movers-universe" onchange="ovFilterMoversUniverse(this.value)">
+               <option value="nifty500">All tracked equities</option>
+               <option value="nifty50">Nifty 50 (configured list)</option>
+             </select>
           </div>
           <div class="ov-table-hdr" style="display:grid;grid-template-columns:1.5fr 1fr 1fr;padding-bottom:8px;border-bottom:1px solid var(--border);color:var(--dim);font-size:0.75rem;">
             <div>Stock</div><div style="text-align:right;">LTP ↕</div><div style="text-align:right;">%Chng ↕</div>
           </div>
           <div id="ov-movers-list" style="max-height:300px;overflow-y:auto;"></div>
         </div>
-        <div class="card" style="padding:16px;">
-          <div style="display:flex;gap:8px;margin-bottom:16px;overflow-x:auto;" id="ov-sector-tabs"></div>
+        
+        <div class="card admin-gated-section" data-feature-id="overview_sector_movements" data-feature-name="Sectorwise Movements Heatmap" data-feature-page="overview" style="position:relative; padding:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;gap:8px;">
+            <span style="font-size:0.8rem;color:var(--dim);font-weight:600;">Sector Filter:</span>
+            <select class="ov-select" id="ov-sector-select" onchange="ovSelectSectorDropdown(this.value)" style="flex:1;max-width:240px;font-weight:600;">
+              <!-- Populated via JS -->
+            </select>
+          </div>
           <div class="ov-table-hdr" style="display:grid;grid-template-columns:1.5fr 1fr 1fr;padding-bottom:8px;border-bottom:1px solid var(--border);color:var(--dim);font-size:0.75rem;">
             <div>Stock</div><div style="text-align:right;">LTP ↕</div><div style="text-align:right;">%Chng ↕</div>
           </div>
-          <div id="ov-sector-list" style="max-height:300px;overflow-y:auto;"></div>
+          <div id="ov-sector-list" style="max-height:280px;overflow-y:auto;"></div>
         </div>
       </div>
 
-      <!-- 4. TOP PERFORMERS -->
+      <!-- 4. TOP PERFORMERS (Bug 10: Equities-only, Cap dropdown wired, View All removed) -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:1.1rem;color:var(--white);">Top Performers</h3>
-        <a href="#" onclick="event.preventDefault(); nav('portfolio');" style="color:var(--cyan);font-size:0.8rem;text-decoration:none;font-weight:600;">VIEW ALL ></a>
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--white);margin:0 0 2px 0;">Top Performers</h3>
+        </div>
       </div>
       <div class="card" style="padding:16px;margin-bottom:30px;">
          <div style="display:flex;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
@@ -165,37 +124,38 @@ HTML = r"""
                <button class="ov-pill-btn" onclick="ovLoadPerformers(this,'1Y')" style="border-radius:0;">1 Year</button>
                <button class="ov-pill-btn" onclick="ovLoadPerformers(this,'5Y')" style="border-radius:0 4px 4px 0;">5 Year</button>
             </div>
-            <select class="ov-select"><option>Large Cap</option><option>Mid Cap</option><option>Small Cap</option></select>
+            <select class="ov-select" id="ov-perf-cap" onchange="ovFilterPerfCap(this.value)">
+              <option value="all">All Equities</option>
+              <option value="nifty50">Nifty 50</option>
+            </select>
          </div>
          <div id="ov-performers-list" class="ov-hscroll"></div>
       </div>
 
-      <!-- 5. TECHNICAL SCREENERS -->
+      <!-- 5. TECHNICAL SCREENERS (Bug 11: RSI renamed, Bullish/Bearish badges, dropdowns & View All removed) -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:1.1rem;color:var(--white);">Technical Screeners</h3>
-        <a href="#" onclick="event.preventDefault(); nav('portfolio');" style="color:var(--cyan);font-size:0.8rem;text-decoration:none;font-weight:600;">VIEW ALL ></a>
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--white);margin:0 0 2px 0;">Technical Screeners</h3>
+        </div>
       </div>
       <div class="card" style="padding:16px;margin-bottom:30px;">
          <div style="display:flex;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:12px;">
-            <div style="display:flex;gap:8px;">
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
                <button class="ov-tab-btn" onclick="ovLoadScreeners(this,'pivot')">Simple Pivot</button>
-               <button class="ov-tab-btn active" onclick="ovLoadScreeners(this,'rsi')">RSI List</button>
+               <button class="ov-tab-btn active" onclick="ovLoadScreeners(this,'rsi')">RSI</button>
                <button class="ov-tab-btn" onclick="ovLoadScreeners(this,'macd')">MACD</button>
                <button class="ov-tab-btn" onclick="ovLoadScreeners(this,'sma')">SMA</button>
                <button class="ov-tab-btn" onclick="ovLoadScreeners(this,'ema')">EMA</button>
-            </div>
-            <div style="display:flex;gap:8px;">
-               <select class="ov-select"><option>Nifty 500</option></select>
-               <select class="ov-select" id="ov-screener-filter"><option>Bullish RSI</option><option>Bearish RSI</option></select>
             </div>
          </div>
          <div id="ov-screeners-list" class="ov-hscroll"></div>
       </div>
 
-      <!-- 6. TRADING SIGNALS -->
+      <!-- 6. TRADING SIGNALS (Bug 12: Trigger logics clarified, View All removed) -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:1.1rem;color:var(--white);">Trading Signals</h3>
-        <a href="#" onclick="event.preventDefault(); nav('portfolio');" style="color:var(--cyan);font-size:0.8rem;text-decoration:none;font-weight:600;">VIEW ALL ></a>
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--white);margin:0 0 2px 0;">Trading Signals</h3>
+        </div>
       </div>
       <div class="card" style="padding:16px;margin-bottom:30px;">
          <div style="display:flex;gap:8px;margin-bottom:16px;">
@@ -206,60 +166,85 @@ HTML = r"""
          <div id="ov-signals-list" class="ov-hscroll"></div>
       </div>
 
-      <!-- 7. RESEARCH RECOMMENDATIONS -->
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:1.1rem;color:var(--white);">Research Recommendations</h3>
-        <a href="#" onclick="event.preventDefault(); nav('trading');" style="color:var(--cyan);font-size:0.8rem;text-decoration:none;font-weight:600;">VIEW ALL TRADING IDEAS ></a>
+      <!-- 7. RESEARCH RECOMMENDATIONS (Bug 13: Horizon dropdown added) -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--white);margin:0 0 2px 0;">Research Recommendations</h3>
+        </div>
+        <div style="display:flex;gap:12px;align-items:center;">
+          <select class="ov-select" id="ov-research-horizon" onchange="ovFilterResearchHorizon(this.value)">
+            <option value="all">All Horizons</option>
+            <option value="swing">Swing (3-15 Days)</option>
+            <option value="short">Short-Term (1-3 Months)</option>
+            <option value="long">Long-Term / Positional (6-12 Mo)</option>
+            <option value="intraday">Intraday</option>
+          </select>
+          <a href="#" onclick="event.preventDefault(); nav('trade_simulation');" style="color:var(--cyan);font-size:0.8rem;text-decoration:none;font-weight:600;">TRADE SIMULATION ›</a>
+        </div>
       </div>
       <div id="ov-research-list" class="ov-hscroll" style="margin-bottom:30px;"></div>
 
-      <!-- 8. POCKET FRIENDLY STOCKS -->
+      <!-- 8. POCKET FRIENDLY STOCKS (Bug 14: Non-overlapping brackets, View All removed) -->
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-        <h3 style="font-size:1.1rem;color:var(--white);">Pocket Friendly Stocks</h3>
-        <a href="#" onclick="event.preventDefault(); nav('portfolio');" style="color:var(--cyan);font-size:0.8rem;text-decoration:none;font-weight:600;">VIEW ALL ></a>
+        <div>
+          <h3 style="font-size:1.1rem;color:var(--white);margin:0 0 2px 0;">Pocket Friendly Stocks</h3>
+        </div>
       </div>
       <div class="card" style="padding:16px;margin-bottom:30px;">
          <div style="display:flex;gap:0;margin-bottom:16px;">
-             <button class="ov-pill-btn active" onclick="ovLoadPocket(this,50)" style="border-radius:4px 0 0 4px;">< ₹50</button>
-             <button class="ov-pill-btn" onclick="ovLoadPocket(this,100)" style="border-radius:0;">< ₹100</button>
-             <button class="ov-pill-btn" onclick="ovLoadPocket(this,200)" style="border-radius:0 4px 4px 0;">< ₹200</button>
+             <button class="ov-pill-btn active" onclick="ovLoadPocket(this, 0, 50)" style="border-radius:4px 0 0 4px;">₹0 – ₹50</button>
+             <button class="ov-pill-btn" onclick="ovLoadPocket(this, 50, 100)" style="border-radius:0;">₹50 – ₹100</button>
+             <button class="ov-pill-btn" onclick="ovLoadPocket(this, 100, 200)" style="border-radius:0;">₹100 – ₹200</button>
+             <button class="ov-pill-btn" onclick="ovLoadPocket(this, 200, 500)" style="border-radius:0 4px 4px 0;">₹200 – ₹500</button>
          </div>
          <div id="ov-pocket-list" class="ov-hscroll"></div>
       </div>
     </div>
 
-    <!-- C. OTHER PANELS (Admin only) -->
-    <div id="ov-index-fno-pane" class="admin-pane" style="display:none;">
-       <h3 style="font-size:1.1rem;margin-bottom:12px;color:var(--white);">Index Derivatives</h3>
-       <div id="ov-index-fno-list" class="ov-hscroll" style="margin-bottom:24px;"></div>
+    <!-- C. OTHER PANELS -->
+    <div id="ov-index-fno-pane" role="tabpanel" aria-labelledby="ov-tab-index-fno" style="display:none;">
+       <div class="ov-section-heading"><div><span class="ov-overline">OPTIONS MARKET</span><h2>Options chain</h2></div></div>
+       <div class="ov-chain-controls card">
+         <label>Underlying<input class="ov-select" id="ov-chain-symbol" type="search" list="ov-chain-symbol-list" placeholder="Search symbol or company" autocomplete="off" onchange="ovLoadDerivativeChain()"><datalist id="ov-chain-symbol-list"></datalist></label>
+         <label>Expiry<select class="ov-select" id="ov-chain-expiry" onchange="ovLoadDerivativeChain()"><option value="">Select underlying</option></select></label>
+         <label>Session<select class="ov-select" id="ov-chain-session" onchange="ovLoadDerivativeChain()"><option value="">Latest available</option></select></label>
+       </div>
+       <div id="ov-chain-status" class="ov-data-note" style="margin:6px 0 10px;"></div>
+       <div id="ov-chain-summary" class="ov-chain-summary"></div>
+       <div id="ov-chain-table-wrap" class="card ov-chain-table-wrap"></div>
+       <div class="ov-data-note ov-chain-guide"><strong>How to read it:</strong> Open interest (OI) is outstanding contracts; Δ OI is the change recorded by this feed; volume is contracts traded in the captured session. Compare call and put changes with the underlying price and prior snapshots. These values describe positioning and activity, not a standalone bullish or bearish forecast.</div>
+    </div>
+    <div id="ov-markets-pane" role="tabpanel" aria-labelledby="ov-tab-markets" style="display:none;">
+       <div class="ov-section-heading"><div><span class="ov-overline">MARKET BOARD</span><h2>Indices &amp; commodities</h2></div><span class="ov-data-note" id="ov-markets-asof"></span></div>
+       <div class="ov-market-subtabs"><button class="ov-pill-btn active" onclick="ovSwitchMarketType(this,'indices')">Indices</button><button class="ov-pill-btn" onclick="ovSwitchMarketType(this,'commodities')">Commodities</button></div>
+       <div id="ov-markets-list" class="ov-markets-grid"></div>
     </div>
     
-    <div id="ov-stocks-fno-pane" class="admin-pane" style="display:none;">
-       <h3 style="font-size:1.1rem;margin-bottom:12px;color:var(--white);">Active Derivatives Stocks</h3>
-       <div id="ov-stocks-fno-list" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:16px;"></div>
-    </div>
-    
-    <div id="ov-commodities-pane" class="admin-pane" style="display:none;">
-       <h3 style="font-size:1.1rem;margin-bottom:12px;color:var(--white);">Commodities Market Overview</h3>
-       <div id="ov-commodities-list" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:16px;"></div>
-    </div>
-    
-    <div id="ov-all-indices-pane" class="admin-pane" style="display:none;">
-       <h3 style="font-size:1.1rem;margin-bottom:12px;color:var(--white);">All Indices</h3>
-       <div id="ov-all-indices-list" style="display:grid;grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));gap:16px;"></div>
-    </div>
-    
-    <div id="ov-news-pane" class="admin-pane" style="display:none;">
-       <h3 style="font-size:1.1rem;margin-bottom:12px;color:var(--white);">Live Market News Sentiment Feed</h3>
+    <div id="ov-news-pane" role="tabpanel" aria-labelledby="ov-tab-news" style="display:none;">
+       <h3 style="font-size:1.1rem;margin-bottom:12px;color:var(--white);">Market News and Sentiment</h3>
        <div id="ov-news-list" style="display:flex;flex-direction:column;gap:16px;"></div>
     </div>
   </div> <!-- closes ov-content -->
 </div> <!-- closes page-overview -->
 
 <style>
-.ov-tab { font-family:'Inter',sans-serif; font-size:0.9rem; color:var(--dim); cursor:pointer; padding-bottom:8px; border-bottom:2px solid transparent; white-space:nowrap; transition:all 0.2s; }
-.ov-tab:hover { color:var(--text); }
-.ov-tab.active { color:var(--cyan); border-bottom-color:var(--cyan); font-weight:600; }
+.ov-tabs{display:flex;gap:6px;border-bottom:1px solid var(--border);margin:12px 0 14px;overflow-x:auto;position:sticky;top:0;background:var(--bg);z-index:10;padding:4px 0}
+.ov-tab{font:600 .82rem Inter,sans-serif;color:var(--dim);background:transparent;border:0;border-bottom:2px solid transparent;padding:11px 14px;white-space:nowrap;cursor:pointer}
+.ov-tab:hover,.ov-tab:focus-visible{color:var(--text)}.ov-tab:focus-visible{outline:2px solid var(--cyan);outline-offset:2px}.ov-tab.active{color:var(--cyan);border-bottom-color:var(--cyan)}
+.ov-overline{font-size:.62rem;letter-spacing:.1em;font-weight:700;color:var(--dim)}
+.ov-hero-grid,.ov-content-grid{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(280px,1fr);gap:16px;margin-bottom:16px}
+.ov-summary-card,.ov-content-card,.ov-action-card,.ov-news-card,.ov-insight-card{padding:18px}
+.ov-section-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:15px}.ov-section-heading h2{font-size:1rem;margin:4px 0 0;color:var(--white)}
+.ov-metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}.ov-metric-grid>div{display:flex;flex-direction:column;gap:5px}.ov-metric-grid span{font-size:.7rem;color:var(--dim)}.ov-metric-grid strong{font:700 1.1rem 'JetBrains Mono',monospace;color:var(--white)}
+.ov-data-note{font-size:.68rem;color:var(--dim);line-height:1.5}.ov-market-score{font-size:1.25rem;font-weight:700;color:var(--white);margin:14px 0 6px}.ov-market-bar{height:5px;background:linear-gradient(90deg,var(--red),var(--gold),var(--green));border-radius:5px;margin-top:14px;position:relative}.ov-market-bar span{position:absolute;height:13px;width:3px;background:white;top:-4px;left:50%;transition:left .25s}
+.ov-info-button{border:1px solid var(--border);background:transparent;color:var(--dim);border-radius:4px;padding:6px 9px;font-size:.68rem;cursor:help}.ov-action-card{margin-bottom:16px}.ov-action-list,.ov-list{display:flex;flex-direction:column;gap:8px}.ov-action-row{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border-left:3px solid var(--border);background:var(--p2);border-radius:4px;font-size:.78rem;line-height:1.45}.ov-action-row.danger{border-color:var(--red)}.ov-action-row.warn{border-color:var(--gold)}.ov-action-row.info{border-color:var(--cyan)}
+.ov-add-row{display:flex;gap:6px;margin-bottom:10px}.ov-add-row input{flex:1;min-width:0;background:var(--p2);border:1px solid var(--border);border-radius:4px;color:var(--white);padding:8px 10px}.ov-news-toggle{display:flex}.ov-news-toggle button{padding:6px 10px}.ov-empty{padding:12px 0;color:var(--dim);font-size:.8rem}.ov-insight-copy{font-size:.82rem;line-height:1.6;color:var(--text)}
+@media(max-width:800px){.ov-hero-grid,.ov-content-grid{grid-template-columns:1fr}.ov-metric-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:480px){.ov-summary-card,.ov-content-card,.ov-action-card,.ov-news-card,.ov-insight-card{padding:14px}.ov-metric-grid{grid-template-columns:1fr}.ov-tab{padding:10px 9px}}
+.ov-tab-old-marker {display:none}
+ font-family:'Inter',sans-serif; font-size:0.9rem; color:var(--dim); cursor:pointer; padding-bottom:8px; border-bottom:2px solid transparent; white-space:nowrap; transition:all 0.2s; }
+.ov-tab-old:hover { color:var(--text); }
+.ov-tab-old.active { color:var(--cyan); border-bottom-color:var(--cyan); font-weight:600; }
 
 .ov-idx-item { padding:12px 20px; cursor:pointer; border-right:1px solid var(--border); min-width:140px; transition:background 0.2s; }
 .ov-idx-item:hover { background:var(--p2); }
@@ -283,7 +268,7 @@ HTML = r"""
 .ov-tab-btn { background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 14px; cursor:pointer; font-size:0.8rem; border-radius:4px; outline:none; }
 .ov-tab-btn.active { border-color:var(--cyan); color:var(--cyan); background:rgba(41,98,255,0.05); font-weight:600; }
 
-.ov-select { background:transparent; border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:4px; outline:none; font-size:0.8rem; cursor:pointer; }
+.ov-select { background:var(--panel); border:1px solid var(--border); color:var(--text); padding:6px 10px; border-radius:4px; outline:none; font-size:0.8rem; cursor:pointer; }
 .ov-select:focus { border-color:var(--cyan); }
 
 .ov-trow { display:grid; grid-template-columns:1.5fr 1fr 1fr; padding:12px 0; border-bottom:1px solid var(--border); align-items:center; }
@@ -296,341 +281,167 @@ HTML = r"""
 
 .ov-research-card { background:var(--p2); border:1px solid var(--border); border-radius:6px; padding:16px; min-width:320px; flex-shrink:0; cursor:pointer;}
 .ov-research-card:hover { border-color:var(--dim); }
-.ov-research-progress { height:6px; background:var(--border); border-radius:3px; overflow:hidden; margin-top:12px; }
-.ov-research-bar { height:100%; background:var(--gold); }
+
+.ov-tab{font-family:Inter,sans-serif;font-size:.82rem;color:var(--dim);background:transparent;border:0;border-bottom:2px solid transparent;padding:11px 14px;white-space:nowrap;cursor:pointer;transition:color .15s,border-color .15s}
+.ov-tab.active{color:var(--cyan);border-bottom-color:var(--cyan);font-weight:600}
+.ov-derivatives-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}.ov-option-metric{display:flex;justify-content:space-between;gap:12px;margin:10px 0;font-size:.78rem}.ov-option-metric span{color:var(--dim)}
+.ov-chain-controls{display:flex;flex-wrap:wrap;gap:12px;padding:14px;margin-bottom:12px}.ov-chain-controls label{display:flex;flex-direction:column;gap:5px;color:var(--dim);font-size:.72rem}.ov-chain-summary{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.ov-chain-summary .card{padding:12px 16px;min-width:140px}.ov-chain-table-wrap{overflow:auto;padding:0}.ov-chain-table{width:100%;min-width:760px;border-collapse:collapse;font-size:.76rem}.ov-chain-table th,.ov-chain-table td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}.ov-chain-table th{color:var(--dim);font-weight:600;position:sticky;top:0;background:var(--panel)}.ov-chain-table td:nth-child(4),.ov-chain-table th:nth-child(4){text-align:center}.ov-chain-table .call-side{color:#72c7aa}.ov-chain-table .put-side{color:#f28b96}.ov-chain-guide{padding:12px 4px;max-width:1000px}.ov-market-subtabs{display:flex;gap:6px;margin-bottom:14px}.ov-markets-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
 </style>
 """
 
 JS = r"""
-let _ovData = null;
-let _ovChartObj = null;
+var _ovData = window._ovData || null;
+var _ovCurrentIndexIdx = 0;
+var _ovCurrentIndexTf = '1M';
+var _ovCurrentMoversType = 'gainers';
+var _ovCurrentMoversUniverse = 'nifty500';
+var _ovCurrentPerfTf = '1W';
+var _ovCurrentPerfCap = 'all';
+var _ovCurrentResearchHorizon = 'all';
+var _ovLoadedSections = new Set();
+var _ovPocketRequest = 0;
+function ovEsc(value) { return String(value == null ? '' : value).replace(/[&<>\"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',"'":'&#39;'}[ch])); }
+function ovSafeHref(value) {
+  try { const u = new URL(String(value || ''), window.location.href); return (u.protocol === 'http:' || u.protocol === 'https:') ? u.href : ''; }
+  catch (_) { return ''; }
+}
 
 async function loadOverview() {
+  if (_ovData) {
+    document.getElementById('ov-loading').style.display = 'none';
+    document.getElementById('ov-content').style.display = 'block';
+    renderOverview();
+    return;
+  }
   document.getElementById('ov-loading').style.display = 'flex';
   document.getElementById('ov-content').style.display = 'none';
   try {
-    const res = await api('overview_data', {});
+    const res = await api('overview_data', {section: 'discovery'});
     if (res.error) throw new Error(res.error);
     _ovData = res;
-    renderOverview();
+    _ovLoadedSections.add('discovery');
     document.getElementById('ov-loading').style.display = 'none';
     document.getElementById('ov-content').style.display = 'block';
+    renderOverview();
   } catch (e) {
-    document.getElementById('ov-loading').innerHTML = '<div class="err">⚠ Failed to load market overview: ' + e.message + '</div>';
+    document.getElementById('ov-loading').innerHTML = '<div class="err">Market overview could not load. <button class="btn btn-sm" onclick="loadOverview()">Retry</button></div>';
   }
 }
+
+async function ovEnsureTabData(tab) {
+  if (tab === 'stocks_fno') tab = 'index_fno';
+  if (_ovLoadedSections.has(tab)) return;
+  _ovLoadedSections.add(tab);
+  const targets = {discovery:'discovery', index_fno:'derivatives', markets:'markets', news:'news'};
+  const section = targets[tab];
+  if (!section) return;
+  try {
+    const payload = await api('overview_data', {section});
+    if (payload && !payload.error) {
+      _ovData = Object.assign({}, _ovData || {}, payload);
+      _ovLoadedSections.add(section);
+      if (section === 'discovery') renderDiscovery();
+      else if (section === 'derivatives') ovInitDerivativeControls();
+      else if (section === 'markets') renderMarketsTab('indices');
+      else if (section === 'news') renderNewsTab();
+    } else {
+      _ovLoadedSections.delete(tab);
+    }
+  } catch (e) {
+    _ovLoadedSections.delete(tab);
+  }
+}
+
+document.addEventListener('keydown', function(e) {
+  const tab = e.target.closest && e.target.closest('.ov-tabs [role="tab"]');
+  if (!tab || !['ArrowLeft','ArrowRight','Home','End'].includes(e.key)) return;
+  const tabs = Array.from(document.querySelectorAll('.ov-tabs [role="tab"]'));
+  let i = tabs.indexOf(tab);
+  if (e.key === 'ArrowRight') i = (i + 1) % tabs.length;
+  else if (e.key === 'ArrowLeft') i = (i - 1 + tabs.length) % tabs.length;
+  else if (e.key === 'Home') i = 0; else i = tabs.length - 1;
+  e.preventDefault(); tabs[i].focus(); tabs[i].click();
+});
 
 function ovSwitchMainTab(el, tab) {
-  document.querySelectorAll('.ov-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.ov-tab').forEach(t => {
+    t.classList.remove('active');
+    t.setAttribute('aria-selected', 'false');
+    t.tabIndex = -1;
+  });
   el.classList.add('active');
-  
-  // Hide all panes
-  document.getElementById('ov-discovery-pane').style.display = 'none';
-  document.getElementById('ov-index-fno-pane').style.display = 'none';
-  document.getElementById('ov-stocks-fno-pane').style.display = 'none';
-  document.getElementById('ov-commodities-pane').style.display = 'none';
-  document.getElementById('ov-all-indices-pane').style.display = 'none';
-  document.getElementById('ov-news-pane').style.display = 'none';
-  
-  // Show selected pane
-  if (tab === 'discovery') {
-     document.getElementById('ov-discovery-pane').style.display = 'block';
-  } else if (tab === 'index_fno') {
-     document.getElementById('ov-index-fno-pane').style.display = 'block';
-     renderIndexFnO();
-  } else if (tab === 'stocks_fno') {
-     document.getElementById('ov-stocks-fno-pane').style.display = 'block';
-     renderStocksFnO();
-  } else if (tab === 'commodities') {
-     document.getElementById('ov-commodities-pane').style.display = 'block';
-     renderCommodities();
-  } else if (tab === 'all_indices') {
-     document.getElementById('ov-all-indices-pane').style.display = 'block';
-     renderAllIndicesTab();
-  } else if (tab === 'news') {
-     document.getElementById('ov-news-pane').style.display = 'block';
-     renderNewsTab();
-  }
-}
-
-function renderIndexFnO() {
-  const c = document.getElementById('ov-index-fno-list');
-  let html = '';
-  (_ovData.indices || []).forEach(idx => {
-     const cls = idx.chg >= 0 ? 'var(--green)' : 'var(--red)';
-     html += `<div class="ov-stock-card" style="min-width:300px;">
-       <div style="font-weight:700;color:var(--white);font-size:0.95rem;margin-bottom:8px;">${idx.symbol} FUT</div>
-       <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">Price</span>
-         <span style="color:${cls};font-weight:700;">₹${idx.ltp.toFixed(2)}</span>
-       </div>
-       <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">Open Interest (OI)</span>
-         <span style="color:var(--text);">${(idx.ltp * 1234 % 100000).toLocaleString()} contracts</span>
-       </div>
-       <div style="display:flex;justify-content:space-between;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">PCR (Put-Call Ratio)</span>
-         <span style="color:var(--gold);">${(0.8 + (idx.ltp % 5) / 10).toFixed(2)}</span>
-       </div>
-     </div>`;
-  });
-  c.innerHTML = html;
-}
-
-function renderStocksFnO() {
-  const c = document.getElementById('ov-stocks-fno-list');
-  let html = '';
-  (_ovData.most_bought || []).forEach(s => {
-     const cls = s.chg >= 0 ? 'var(--green)' : 'var(--red)';
-     html += `<div class="ov-stock-card" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
-       <div style="font-weight:700;color:var(--white);font-size:0.95rem;margin-bottom:8px;">${s.symbol}</div>
-       <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">LTP</span>
-         <span style="color:${cls};font-weight:700;">₹${s.ltp.toFixed(2)} (${s.chgPct.toFixed(2)}%)</span>
-       </div>
-       <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">OI Change %</span>
-         <span style="color:var(--green);">${(s.ltp * 7 % 15).toFixed(1)}%</span>
-       </div>
-       <div style="display:flex;justify-content:space-between;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">Rollover %</span>
-         <span style="color:var(--text);">${(70 + s.ltp % 20).toFixed(1)}%</span>
-       </div>
-     </div>`;
-  });
-  c.innerHTML = html;
-}
-
-function renderCommodities() {
-  const c = document.getElementById('ov-commodities-list');
-  let html = '';
-  (_ovData.commodities || []).forEach(s => {
-     const cls = s.chg >= 0 ? 'var(--green)' : 'var(--red)';
-     const sign = s.chg >= 0 ? '▲' : '▼';
-     html += `<div class="ov-stock-card" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
-       <div style="font-weight:700;color:var(--white);font-size:0.95rem;margin-bottom:8px;">${s.symbol}</div>
-       <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">Price</span>
-         <span style="color:${cls};font-weight:700;">₹${s.ltp.toLocaleString('en-IN', {minimumFractionDigits:2})}</span>
-       </div>
-       <div style="display:flex;justify-content:space-between;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">Change</span>
-         <span style="color:${cls};">${sign} ${s.chgPct.toFixed(2)}%</span>
-       </div>
-     </div>`;
-  });
-  c.innerHTML = html || '<div style="color:var(--dim);font-size:0.8rem;padding:10px;">No commodities data found.</div>';
-}
-
-function renderAllIndicesTab() {
-  const c = document.getElementById('ov-all-indices-list');
-  let html = '';
-  (_ovData.indices || []).forEach(s => {
-     const cls = s.chg >= 0 ? 'var(--green)' : 'var(--red)';
-     const sign = s.chg >= 0 ? '▲' : '▼';
-     html += `<div class="ov-stock-card" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
-       <div style="font-weight:700;color:var(--white);font-size:0.95rem;margin-bottom:8px;">${s.symbol}</div>
-       <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">Value</span>
-         <span style="color:${cls};font-weight:700;">${s.ltp.toLocaleString('en-IN', {minimumFractionDigits:2})}</span>
-       </div>
-       <div style="display:flex;justify-content:space-between;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
-         <span style="color:var(--dim);">Change</span>
-         <span style="color:${cls};">${sign} ${s.chgPct.toFixed(2)}%</span>
-       </div>
-     </div>`;
-  });
-  c.innerHTML = html;
-}
-
-function renderNewsTab() {
-  const c = document.getElementById('ov-news-list');
-  let html = '';
-  (_ovData.news || []).forEach(n => {
-     const score = n.score || 0.0;
-     const badgeColor = score > 0.15 ? 'var(--green)' : score < -0.15 ? 'var(--red)' : 'var(--dim)';
-     const badgeText = score > 0.15 ? 'BULLISH' : score < -0.15 ? 'BEARISH' : 'NEUTRAL';
-     
-     html += `<div class="card" style="padding:16px;">
-       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:12px;">
-         <span style="font-weight:700;color:var(--white);font-size:0.95rem;">${n.title}</span>
-         <span class="badge" style="background:${badgeColor}20;color:${badgeColor};font-size:0.6rem;padding:3px 8px;font-weight:700;white-space:nowrap;">
-           ${badgeText} (${score.toFixed(2)})
-         </span>
-       </div>
-       <p style="font-size:0.8rem;color:var(--text);margin-bottom:12px;line-height:1.4;">${n.snippet || ''}</p>
-       <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--dim);">
-         <span>Source: ${n.source || 'Market Feed'}</span>
-         <span>Published: ${new Date(n.published_at).toLocaleString()}</span>
-       </div>
-     </div>`;
-  });
-  c.innerHTML = html || '<div style="color:var(--dim);font-size:0.8rem;padding:10px;">No news feed items found.</div>';
+  el.setAttribute('aria-selected', 'true');
+  el.tabIndex = 0;
+  const paneMap = {discovery:'ov-discovery-pane', index_fno:'ov-index-fno-pane', markets:'ov-markets-pane', news:'ov-news-pane'};
+  Object.values(paneMap).forEach(id => { const node = document.getElementById(id); if (node) node.style.display = 'none'; });
+  const pane = document.getElementById(paneMap[tab]);
+  if (pane) pane.style.display = 'block';
+  if (tab === 'discovery' && _ovData && _ovLoadedSections.has('discovery')) renderDiscovery();
+  if (tab === 'index_fno' && _ovData && _ovLoadedSections.has('derivatives')) ovInitDerivativeControls();
+  if (tab === 'markets' && _ovData && _ovLoadedSections.has('markets')) renderMarketsTab('indices');
+  if (tab === 'news' && _ovData && _ovLoadedSections.has('news')) renderNewsTab();
+  ovEnsureTabData(tab);
 }
 
 function renderOverview() {
   if (!_ovData) return;
-  
-  const role = localStorage.getItem('user_role') || 'USER';
-  if (role === 'USER') {
-     document.getElementById('ov-user-pane').style.display = 'block';
-     document.getElementById('ov-discovery-pane').style.display = 'none';
-     renderUserDashboard();
-  } else {
-     document.getElementById('ov-user-pane').style.display = 'none';
-     document.getElementById('ov-discovery-pane').style.display = 'block';
-     
-     // Original admin rendering
-     renderIndicesList();
-     if (_ovData.indices && _ovData.indices.length > 0) {
-       selectIndex(0);
-     }
-     renderMostBought();
-     renderMovers('gainers');
-     renderSectorTabs();
-     ovLoadPerformers(document.querySelector('#page-overview .ov-pill-btn.active'), '1W');
-     ovLoadScreeners(document.querySelector('#page-overview .ov-tab-btn.active'), 'rsi');
-     ovLoadSignals(document.querySelectorAll('#ov-signals-list')[0]?.previousElementSibling?.querySelector('.active'), 'candles');
-     renderResearch();
-     ovLoadPocket(document.querySelector('#ov-pocket-list').previousElementSibling.querySelector('.active'), 50);
+  renderDiscovery();
+}
+
+function renderDiscovery() {
+  if (!_ovData) return;
+  const coverageNote = document.getElementById('ov-discovery-asof');
+  if (coverageNote) {
+    const meta = _ovData.meta || {};
+    coverageNote.textContent = meta.trade_date ? `Market data through ${meta.trade_date}${meta.fallback ? ` · ${meta.latest_coverage_pct}% latest-date coverage; prior comparable snapshot shown` : ''}` : 'Snapshot date unavailable';
+    coverageNote.title = meta.selection_note || '';
+  }
+  renderIndicesList();
+  setTimeout(() => selectIndex(_ovCurrentIndexIdx), 0);
+  renderMostBought();
+  renderMovers(_ovCurrentMoversType);
+  renderSectorTabs();
+  const perfBtn = document.querySelector('#ov-discovery-pane [onclick*="ovLoadPerformers"].active');
+  if (perfBtn) ovLoadPerformers(perfBtn, '1W');
+  const screenBtn = document.querySelector('#ov-discovery-pane .ov-tab-btn.active');
+  if (screenBtn) ovLoadScreeners(screenBtn, 'rsi');
+  const sigBtn = document.querySelectorAll('#ov-signals-list')[0]?.previousElementSibling?.querySelector('.active');
+  if (sigBtn) ovLoadSignals(sigBtn, 'candles');
+  renderResearch();
+  const pktBtn = document.querySelector('#ov-pocket-list')?.previousElementSibling?.querySelector('.active');
+  if (pktBtn) ovLoadPocket(pktBtn, 0, 50);
+}
+
+// ══════════════════════════════════════════════════════════════════════════════
+// STOCK DISCOVERY FUNCTIONS
+// ══════════════════════════════════════════════════════════════════════════════
+
+
+async function ovAddToWatchlist(sym) {
+  sym = (sym || '').toUpperCase().trim();
+  if (!sym) { alert('Enter a valid symbol (e.g. RELIANCE, TCS)'); return; }
+  try {
+    const res = await api('watchlist_add', {symbol: sym});
+    if (res && res.ok) {
+      const inp = document.getElementById('ov-wl-input');
+      if (inp) inp.value = '';
+      if (typeof mdLoad === 'function') mdLoad();
+    } else {
+      alert((res && res.error) || 'Failed to add to watchlist');
+    }
+  } catch(e) {
+    alert('Error: ' + e.message);
   }
 }
 
-async function renderUserDashboard() {
-  // 1. Market Status
-  const statusEl = document.getElementById('usr-mkt-status');
-  const nifty = (_ovData.indices || []).find(idx => idx.symbol === 'NIFTY50');
-  if (nifty && statusEl) {
-    const chg = nifty.chgPct;
-    if (chg > 0.4) {
-      statusEl.innerHTML = '🟢 BULLISH';
-      statusEl.style.color = 'var(--green)';
-    } else if (chg < -0.4) {
-      statusEl.innerHTML = '🔴 BEARISH';
-      statusEl.style.color = 'var(--red)';
-    } else {
-      statusEl.innerHTML = '🟡 NEUTRAL';
-      statusEl.style.color = 'var(--gold)';
-    }
-  }
-
-  // 2. Portfolio Summary
+async function ovRemoveFromWatchlist(sym) {
+  if (!confirm('Remove ' + sym + ' from watchlist?')) return;
   try {
-    const riskData = await api('risk_dashboard');
-    if (riskData && riskData.portfolio) {
-      const totVal = riskData.portfolio.total_value || 0;
-      const totGains = riskData.portfolio.total_gain || 0;
-      const gainPct = riskData.portfolio.gain_pct || 0;
-      
-      document.getElementById('usr-portfolio-val').textContent = '₹' + totVal.toLocaleString('en-IN', {minimumFractionDigits:2});
-      const pnlEl = document.getElementById('usr-portfolio-pnl');
-      if (pnlEl) {
-        pnlEl.textContent = (totGains >= 0 ? '+' : '') + totGains.toLocaleString('en-IN', {minimumFractionDigits:2}) + ' (' + gainPct.toFixed(2) + '%)';
-        pnlEl.style.color = totGains >= 0 ? 'var(--green)' : 'var(--red)';
-      }
+    const res = await api('watchlist_remove', {symbol: sym});
+    if (res && res.ok) {
+      if (typeof mdLoad === 'function') mdLoad();
     }
-  } catch (pe) {
-    console.warn("Failed to load user portfolio summary:", pe);
-  }
-
-  // 3. AI Summary
-  const summaryEl = document.getElementById('usr-ai-summary');
-  if (nifty && summaryEl) {
-    summaryEl.innerHTML = `Markets are currently trading <b>${nifty.chgPct >= 0 ? 'higher' : 'lower'}</b>. The benchmark index <b>NIFTY50</b> is at <b>${nifty.ltp.toLocaleString('en-IN', {minimumFractionDigits:2})}</b> (change of <b>${nifty.chgPct.toFixed(2)}%</b>). <br><br>
-    Our Astro-Quant intelligence filters suggest watching key breakout sectors. Ensure your position sizing limits conform to your onboarding configuration to protect trading capital. Use tight stop losses around historical S/R supports.`;
-  }
-
-  // 4. Watchlist (Personalized)
-  try {
-    const wl = await api('watchlist_get');
-    const wlContainer = document.getElementById('usr-watchlist-list');
-    if (wlContainer) {
-      if (wl.watchlist && wl.watchlist.length > 0) {
-        let html = '';
-        wl.watchlist.slice(0, 5).forEach(item => {
-           const cls = item.chg_pct >= 0 ? 'var(--green)' : 'var(--red)';
-           const sign = item.chg_pct >= 0 ? '▲' : '▼';
-           html += `<div style="display:flex; justify-content:space-between; align-items:center; padding:10px; border-bottom:1px solid var(--border); background:var(--p2); border-radius:4px; font-family:'JetBrains Mono',monospace; font-size:0.82rem; cursor:pointer;" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${item.symbol}', 500);">
-             <div style="font-weight:600; color:var(--white);">${item.symbol}</div>
-             <div style="color:var(--text);">₹${item.price.toFixed(2)}</div>
-             <div style="color:${cls}; font-weight:bold;">${sign} ${Math.abs(item.chg_pct).toFixed(2)}%</div>
-           </div>`;
-        });
-        wlContainer.innerHTML = html;
-      } else {
-        wlContainer.innerHTML = '<div style="padding:14px; color:var(--dim); font-size:0.8rem; text-align:center;">Your watchlist is currently empty. <br><span style="text-decoration:underline; cursor:pointer; color:var(--cyan);" onclick="nav(\'watchlist\')">Click here to manage your watchlist</span></div>';
-      }
-    }
-  } catch (we) {
-    const wlContainer = document.getElementById('usr-watchlist-list');
-    if (wlContainer) wlContainer.innerHTML = '<div style="color:var(--dim); font-size:0.8rem; text-align:center;">Watchlist data unavailable.</div>';
-  }
-
-  // 5. Tailored Opportunities
-  try {
-    const recs = await api('recommendations');
-    const oppContainer = document.getElementById('usr-opp-list');
-    if (oppContainer) {
-      if (recs.recommendations && recs.recommendations.length > 0) {
-         let html = '';
-         recs.recommendations.slice(0, 3).forEach(r => {
-            const payload = typeof r.payload === 'string' ? JSON.parse(r.payload) : r.payload;
-            const reasons = typeof r.reasoning === 'string' ? JSON.parse(r.reasoning) : r.reasoning;
-            html += `<div style="padding:12px; background:var(--p2); border:1px solid var(--border); border-radius:4px; cursor:pointer; margin-bottom:8px;" onclick="nav('advisor')">
-              <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                <span style="font-weight:700; color:var(--white); font-size:0.85rem;">${r.symbol || payload.symbol}</span>
-                <span class="badge bgo" style="font-size:0.6rem;">${payload.type || 'Breakout'}</span>
-              </div>
-              <div style="font-size:0.75rem; color:var(--t2); margin-bottom:8px; line-height:1.4;">
-                ${reasons.engine_contributions || 'Scored breakout opportunity matches your profile.'}
-              </div>
-              <div style="display:flex; justify-content:space-between; font-size:0.65rem; color:var(--dim); font-family:'JetBrains Mono',monospace;">
-                <span>Target: ₹${(payload.target || payload.target1 || 0).toFixed(2)}</span>
-                <span>SL: ₹${(payload.sl || payload.stop_loss || 0).toFixed(2)}</span>
-              </div>
-            </div>`;
-         });
-         oppContainer.innerHTML = html;
-      } else {
-         oppContainer.innerHTML = '<div style="padding:14px; color:var(--dim); font-size:0.8rem; text-align:center;">No direct matching opportunities found today.</div>';
-      }
-    }
-  } catch (re) {
-    const oppContainer = document.getElementById('usr-opp-list');
-    if (oppContainer) oppContainer.innerHTML = '<div style="padding:14px; color:var(--dim); font-size:0.8rem; text-align:center;">Tailored recommendations loading...</div>';
-  }
-
-  // 6. Risks
-  const riskContainer = document.getElementById('usr-risk-list');
-  if (riskContainer) {
-    riskContainer.innerHTML = `
-      <div style="display:flex; gap:10px; align-items:flex-start; padding:10px; background:rgba(255,152,0,0.05); border-left:3px solid var(--gold); font-size:0.78rem; border-radius:3px; margin-bottom:10px;">
-         <span style="font-size:0.95rem;">⚠️</span>
-         <div style="color:var(--text); line-height:1.4;">Please review single-position sizing limits before trading. Never concentrate more than your derived max threshold in a single asset class.</div>
-      </div>
-      <div style="display:flex; gap:10px; align-items:flex-start; padding:10px; background:rgba(242,54,69,0.05); border-left:3px solid var(--red); font-size:0.78rem; border-radius:3px;">
-         <span style="font-size:0.95rem;">🚨</span>
-         <div style="color:var(--text); line-height:1.4;">High volatility planetary stations are currently active. Be cautious about placing wide stop-loss orders.</div>
-      </div>
-    `;
-  }
-
-  // 7. News
-  const newsContainer = document.getElementById('usr-news-list');
-  if (newsContainer) {
-    if (_ovData.news && _ovData.news.length > 0) {
-       let html = '';
-       _ovData.news.slice(0, 3).forEach(n => {
-          html += `<div style="border-bottom:1px solid var(--border); padding-bottom:8px; margin-bottom:8px;">
-            <div style="font-weight:600; color:var(--white); font-size:0.82rem; margin-bottom:4px; cursor:pointer;" onclick="nav('sentiment')">${n.title}</div>
-            <p style="font-size:0.7rem; color:var(--dim); margin-bottom:0;">Source: ${n.source} · ${new Date(n.published_at).toLocaleDateString()}</p>
-          </div>`;
-       });
-       newsContainer.innerHTML = html;
-    } else {
-       newsContainer.innerHTML = '<div style="padding:10px; color:var(--dim); font-size:0.8rem;">No recent news matching preferred sectors.</div>';
-    }
-  }
+  } catch(e) {}
 }
 
 function renderIndicesList() {
@@ -639,7 +450,7 @@ function renderIndicesList() {
   (_ovData.indices || []).forEach((idx, i) => {
      const cls = idx.chg >= 0 ? 'var(--green)' : 'var(--red)';
      const sign = idx.chg >= 0 ? '▲' : '▼';
-     html += `<div class="ov-idx-item ${i===0?'active':''}" onclick="selectIndex(${i}, this)">
+     html += `<div class="ov-idx-item ${i===_ovCurrentIndexIdx?'active':''}" onclick="selectIndex(${i}, this)">
        <div style="font-size:0.75rem;color:var(--dim);margin-bottom:4px;font-weight:600;">${idx.symbol}</div>
        <div style="font-family:Share Tech Mono,monospace;font-size:0.9rem;color:${cls};font-weight:700;">
          ${idx.ltp.toFixed(2)} <span style="font-size:0.7rem;">${sign} ${Math.abs(idx.chg).toFixed(2)} (${idx.chgPct.toFixed(2)}%)</span>
@@ -650,14 +461,20 @@ function renderIndicesList() {
 }
 
 function selectIndex(i, el) {
+  _ovCurrentIndexIdx = i;
   if (el) {
     document.querySelectorAll('.ov-idx-item').forEach(x => x.classList.remove('active'));
     el.classList.add('active');
+  } else {
+    const items = document.querySelectorAll('.ov-idx-item');
+    if (items[i]) {
+      items.forEach(x => x.classList.remove('active'));
+      items[i].classList.add('active');
+    }
   }
-  const idx = _ovData.indices[i];
+  const idx = (_ovData && _ovData.indices) ? _ovData.indices[i] : null;
   if (!idx) return;
 
-  // Update details
   document.getElementById('ov-index-low').textContent = idx.low.toFixed(2);
   document.getElementById('ov-index-high').textContent = idx.high.toFixed(2);
   document.getElementById('ov-index-open').textContent = idx.open.toFixed(2);
@@ -667,7 +484,6 @@ function selectIndex(i, el) {
   document.getElementById('ov-index-chart-price').textContent = idx.ltp.toFixed(2);
   document.getElementById('ov-index-chart-price').style.background = idx.chg >= 0 ? 'var(--green)' : 'var(--red)';
 
-  // Slider marker
   const range = idx.high - idx.low;
   let pct = 50;
   if (range > 0) {
@@ -675,8 +491,11 @@ function selectIndex(i, el) {
   }
   document.getElementById('ov-index-slider-marker').style.left = pct + '%';
 
-  // Draw chart
-  drawIndexChart(idx.history || []);
+  // Draw chart with current timeframe
+  const historySeries = (idx.histories && idx.histories[_ovCurrentIndexTf]) ? idx.histories[_ovCurrentIndexTf] : (idx.history || []);
+  const tfLabel = document.getElementById('ov-index-chart-tf-label');
+  if (tfLabel) tfLabel.textContent = _ovCurrentIndexTf === '1D' && historySeries.length < 2 ? 'No observed intraday candles' : `${_ovCurrentIndexTf} observed history`;
+  drawIndexChart(historySeries);
 }
 
 function drawIndexChart(history) {
@@ -685,6 +504,7 @@ function drawIndexChart(history) {
   const ctx = canvas.getContext('2d');
   
   const rect = canvas.parentElement.getBoundingClientRect();
+  if (rect.width <= 0 || rect.height <= 0) return;
   canvas.width = rect.width;
   canvas.height = rect.height;
   
@@ -695,7 +515,7 @@ function drawIndexChart(history) {
   const maxP = Math.max(...history.map(d => d.c));
   const range = maxP - minP;
   
-  const pad = 10;
+  const pad = 12;
   const h = canvas.height - pad * 2;
   const w = canvas.width;
   const step = w / (history.length - 1);
@@ -712,7 +532,7 @@ function drawIndexChart(history) {
   const color = isGreen ? '#089981' : '#F23645';
   
   ctx.strokeStyle = color;
-  ctx.lineWidth = 2;
+  ctx.lineWidth = 2.5;
   ctx.stroke();
   
   const grad = ctx.createLinearGradient(0, 0, 0, canvas.height);
@@ -726,55 +546,68 @@ function drawIndexChart(history) {
 }
 
 function ovSetIndexChartTf(el, tf) {
+  _ovCurrentIndexTf = tf;
   document.querySelectorAll('.ov-tf-btn').forEach(b => b.classList.remove('active'));
-  el.classList.add('active');
-  const activeIdxEl = document.querySelector('.ov-idx-item.active');
-  if (activeIdxEl) {
-     const i = Array.from(activeIdxEl.parentNode.children).indexOf(activeIdxEl);
-     selectIndex(i);
-  }
+  if (el) el.classList.add('active');
+  const tfLabel = document.getElementById('ov-index-chart-tf-label');
+  if (tfLabel) tfLabel.textContent = `${tf} Trend`;
+  selectIndex(_ovCurrentIndexIdx);
 }
 
 function renderMostBought() {
   const c = document.getElementById('ov-most-bought');
+  const asof = document.getElementById('ov-most-bought-asof');
+  if (asof) asof.textContent = `Daily share volume · ${(_ovData.meta||{}).trade_date || 'date unavailable'} · local snapshot`;
   let html = '';
   (_ovData.most_bought || []).forEach(s => {
     const cls = s.chg >= 0 ? 'var(--green)' : 'var(--red)';
     const sign = s.chg >= 0 ? '▲' : '▼';
-    html += `<div class="ov-stock-card" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
+    html += `<div class="ov-stock-card" onclick="openSymbolChart('${ovEsc(s.symbol)}')">
       <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
         <div style="width:36px;height:36px;background:var(--panel);border:1px solid var(--border);border-radius:4px;display:flex;align-items:center;justify-content:center;font-weight:700;color:var(--text);font-size:0.8rem;">
-          ${s.symbol.substring(0,2)}
+          ${ovEsc(s.symbol.substring(0,2))}
         </div>
         <div>
-          <div style="font-weight:700;color:var(--white);font-size:0.9rem;">${s.symbol}</div>
-          <div style="font-size:0.7rem;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;">${s.name||'Equity'}</div>
+          <div style="font-weight:700;color:var(--white);font-size:0.9rem;">${ovEsc(s.symbol)}</div>
+          <div style="font-size:0.7rem;color:var(--dim);">${ovEsc(s.name||'Equity')}</div>
         </div>
       </div>
       <div style="font-family:Share Tech Mono,monospace;font-size:1rem;color:${cls};font-weight:700;">
         ₹${s.ltp.toFixed(2)} <span style="font-size:0.75rem;">${sign} ${Math.abs(s.chg).toFixed(2)} (${s.chgPct.toFixed(2)}%)</span>
       </div>
+      <div class="ov-data-note" style="margin-top:8px;">Reported daily volume: ${Number(s.volume || 0).toLocaleString('en-IN')} shares</div>
     </div>`;
   });
-  c.innerHTML = html;
+  c.innerHTML = html || '<div class="ov-empty">No equity volume rows are available for the validated session. Check that the daily price feed includes reported volume.</div>';
 }
 
 function ovSwitchMoversTab(el, type) {
+  _ovCurrentMoversType = type;
   el.parentNode.querySelectorAll('.ov-pill-btn').forEach(b => b.classList.remove('active'));
-  if(el) el.classList.add('active');
+  if (el) el.classList.add('active');
   renderMovers(type);
+}
+
+function ovFilterMoversUniverse(val) {
+  _ovCurrentMoversUniverse = val;
+  renderMovers(_ovCurrentMoversType);
 }
 
 function renderMovers(type) {
   const c = document.getElementById('ov-movers-list');
-  const data = type === 'gainers' ? (_ovData.gainers || []) : (_ovData.losers || []);
+  let data = [];
+  if (type === 'gainers') {
+    data = _ovCurrentMoversUniverse === 'nifty50' ? (_ovData.gainers_n50 || []) : (_ovData.gainers_n500 || []);
+  } else {
+    data = _ovCurrentMoversUniverse === 'nifty50' ? (_ovData.losers_n50 || []) : (_ovData.losers_n500 || []);
+  }
   let html = '';
-  data.forEach(s => {
+  (data || []).forEach(s => {
     const cls = s.chg >= 0 ? 'var(--green)' : 'var(--red)';
     const sign = s.chg >= 0 ? '▲' : '▼';
-    html += `<div class="ov-trow" style="cursor:pointer;" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
+    html += `<div class="ov-trow" style="cursor:pointer;" onclick="openSymbolChart('${ovEsc(s.symbol)}')">
        <div>
-         <div style="font-weight:600;color:var(--white);font-size:0.85rem;">${s.symbol}</div>
+         <div style="font-weight:600;color:var(--white);font-size:0.85rem;">${ovEsc(s.symbol)}</div>
          <div style="font-size:0.65rem;color:var(--dim);">${s.name||'Equity'}</div>
        </div>
        <div style="text-align:right;font-family:Share Tech Mono,monospace;color:${cls};font-size:0.85rem;">
@@ -785,34 +618,38 @@ function renderMovers(type) {
        </div>
      </div>`;
   });
-  c.innerHTML = html;
+  const meta = _ovData.meta || {};
+  c.innerHTML = html || `<div style="padding:14px;color:var(--dim);font-size:.8rem;text-align:center;">No mover rows in the validated snapshot (${ovEsc(meta.trade_date || 'date unavailable')}).</div>`;
 }
 
 function renderSectorTabs() {
-  const tabs = document.getElementById('ov-sector-tabs');
+  const selectEl = document.getElementById('ov-sector-select');
   const sectors = Object.keys(_ovData.sectors || {});
   if (sectors.length === 0) return;
   
-  let html = '';
+  let selectHtml = '';
   sectors.forEach((sec, i) => {
-    html += `<button class="ov-tab-btn ${i===0?'active':''}" onclick="ovSelectSector(this, '${sec}')">${sec}</button>`;
+    selectHtml += `<option value="${sec}">${sec}</option>`;
   });
-  tabs.innerHTML = html;
-  ovSelectSector(tabs.querySelector('.ov-tab-btn'), sectors[0]);
+  if (selectEl) selectEl.innerHTML = selectHtml;
+  ovSelectSector(null, sectors[0]);
+}
+
+function ovSelectSectorDropdown(sec) {
+  ovSelectSector(null, sec);
 }
 
 function ovSelectSector(el, sec) {
-  if (el) {
-    el.parentNode.querySelectorAll('.ov-tab-btn').forEach(b => b.classList.remove('active'));
-    el.classList.add('active');
-  }
+  const selectEl = document.getElementById('ov-sector-select');
+  if (selectEl && selectEl.value !== sec) selectEl.value = sec;
+
   const data = (_ovData.sectors || {})[sec] || [];
   const c = document.getElementById('ov-sector-list');
   let html = '';
   data.forEach(s => {
     const cls = s.chg >= 0 ? 'var(--green)' : 'var(--red)';
     const sign = s.chg >= 0 ? '▲' : '▼';
-    html += `<div class="ov-trow" style="cursor:pointer;" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
+    html += `<div class="ov-trow" style="cursor:pointer;" onclick="openSymbolChart('${s.symbol}')">
        <div>
          <div style="font-weight:600;color:var(--white);font-size:0.85rem;">${s.symbol}</div>
          <div style="font-size:0.65rem;color:var(--dim);">${s.name||'Equity'}</div>
@@ -825,34 +662,50 @@ function ovSelectSector(el, sec) {
        </div>
      </div>`;
   });
-  c.innerHTML = html;
+  c.innerHTML = html || `<div style="padding:14px;color:var(--dim);font-size:.8rem;text-align:center;">No constituents have valid prices for ${ovEsc(sec)} on ${ovEsc((_ovData.meta||{}).trade_date||'the selected date')}.</div>`;
 }
 
 function ovLoadPerformers(el, tf) {
+  _ovCurrentPerfTf = tf;
   if(el) {
     el.parentNode.querySelectorAll('.ov-pill-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
   }
+  renderPerformersList();
+}
+
+function ovFilterPerfCap(cap) {
+  _ovCurrentPerfCap = cap;
+  renderPerformersList();
+}
+
+function renderPerformersList() {
   const c = document.getElementById('ov-performers-list');
-  const data = (_ovData.performers || {})[tf] || [];
+  let data = [];
+  if (_ovData.performers_by_cap && _ovData.performers_by_cap[_ovCurrentPerfCap]) {
+    data = _ovData.performers_by_cap[_ovCurrentPerfCap][_ovCurrentPerfTf] || [];
+  } else {
+    data = (_ovData.performers || {})[_ovCurrentPerfTf] || [];
+  }
   let html = '';
+  const meta = (_ovData && _ovData.meta) || {};
   data.forEach(s => {
-     html += `<div class="ov-stock-card" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
+     html += `<div class="ov-stock-card" onclick="openSymbolChart('${s.symbol}')">
        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
          <div>
-           <div style="font-weight:700;color:var(--white);font-size:0.9rem;">${s.symbol}</div>
-           <div style="font-size:0.7rem;color:var(--dim);">${s.name||'Equity'}</div>
+       <div style="font-weight:700;color:var(--white);font-size:0.9rem;">${s.symbol}</div>
+           <div style="font-size:0.7rem;color:var(--dim);">${s.name||'Equity'} · ${ovEsc(s.start_date || '')} to ${ovEsc(s.end_date || '')}</div>
          </div>
-         <div style="background:rgba(8,153,129,0.1);color:var(--green);font-family:Share Tech Mono,monospace;font-size:0.75rem;padding:4px 8px;border-radius:4px;font-weight:700;">
-           +${s.returnPct.toFixed(2)}%
+       <div style="background:${Number(s.returnPct)>=0?'rgba(8,153,129,0.1)':'rgba(242,54,69,0.1)'};color:${Number(s.returnPct)>=0?'var(--green)':'var(--red)'};font-family:Share Tech Mono,monospace;font-size:0.75rem;padding:4px 8px;border-radius:4px;font-weight:700;">
+           ${Number(s.returnPct)>=0?'+':''}${Number(s.returnPct).toFixed(2)}%
          </div>
        </div>
-       <div style="font-family:Share Tech Mono,monospace;font-size:0.9rem;color:var(--green);font-weight:700;">
-         ₹${s.ltp.toFixed(2)} <span style="font-size:0.7rem;">▲ ${s.chg.toFixed(2)}</span>
+       <div style="font-family:Share Tech Mono,monospace;font-size:0.9rem;color:${Number(s.returnPct)>=0?'var(--green)':'var(--red)'};font-weight:700;">
+         ₹${Number(s.ltp).toFixed(2)} <span style="font-size:0.7rem;">${Number(s.chg)>=0?'▲':'▼'} ${Math.abs(Number(s.chg)).toFixed(2)}</span>
        </div>
      </div>`;
   });
-  c.innerHTML = html;
+  c.innerHTML = html || `<div style="padding:14px;color:var(--dim);font-size:.8rem;text-align:center;">No performer records for ${ovEsc(_ovCurrentPerfTf)} in the validated date range ending ${ovEsc(meta.trade_date||'unknown')}.</div>`;
 }
 
 function ovLoadScreeners(el, type) {
@@ -866,15 +719,33 @@ function ovLoadScreeners(el, type) {
   data.forEach(s => {
     const cls = s.chg >= 0 ? 'var(--green)' : 'var(--red)';
     const sign = s.chg >= 0 ? '▲' : '▼';
-    html += `<div class="ov-stock-card" style="min-width:180px;" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
-      <div style="font-weight:600;color:var(--white);font-size:0.85rem;">${s.symbol}</div>
-      <div style="font-size:0.65rem;color:var(--dim);margin-bottom:8px;">${s.name||'Equity'}</div>
+    
+    // Explicit badge for RSI & screeners (Bug 11)
+    let badgeHtml = '';
+    if (type === 'rsi') {
+      const isBull = s.is_bullish !== undefined ? s.is_bullish : (s.rsi_val >= 50);
+      const bColor = isBull ? 'var(--green)' : 'var(--red)';
+      badgeHtml = `<div style="margin-top:6px;"><span class="badge" style="background:${bColor}20; color:${bColor}; font-size:0.62rem; padding:2px 6px; font-weight:700;">${isBull ? '🟢 Bullish Momentum' : '🔴 Oversold'} (RSI ${s.rsi_val||55})</span></div>`;
+    } else if (type === 'macd') {
+      badgeHtml = `<div style="margin-top:6px;"><span class="badge" style="background:rgba(41,98,255,0.15); color:var(--cyan); font-size:0.62rem; padding:2px 6px;">MACD histogram ${Number(s.macd_hist)>=0?'positive':'negative'}</span></div>`;
+    } else if (type === 'sma') {
+      badgeHtml = `<div style="margin-top:6px;"><span class="badge" style="background:${Number(s.ltp)>=Number(s.sma20)?'rgba(8,153,129,0.15)':'rgba(242,54,69,0.15)'}; color:${Number(s.ltp)>=Number(s.sma20)?'var(--green)':'var(--red)'}; font-size:0.62rem; padding:2px 6px;">${Number(s.ltp)>=Number(s.sma20)?'Above':'Below'} SMA 20 (₹${s.sma20||s.ltp})</span></div>`;
+    } else if (type === 'ema') {
+      badgeHtml = `<div style="margin-top:6px;"><span class="badge" style="background:${Number(s.ltp)>=Number(s.ema20)?'rgba(8,153,129,0.15)':'rgba(242,54,69,0.15)'}; color:${Number(s.ltp)>=Number(s.ema20)?'var(--green)':'var(--red)'}; font-size:0.62rem; padding:2px 6px;">${Number(s.ltp)>=Number(s.ema20)?'Above':'Below'} EMA 20 (₹${s.ema20||s.ltp})</span></div>`;
+    } else if (type === 'pivot') {
+      badgeHtml = `<div style="margin-top:6px;"><span class="badge" style="background:rgba(255,152,0,0.15); color:var(--gold); font-size:0.62rem; padding:2px 6px;">Trading Above Pivot P</span></div>`;
+    }
+
+    html += `<div class="ov-stock-card" style="min-width:200px;" onclick="openSymbolChart('${s.symbol}')">
+      <div style="font-weight:700;color:var(--white);font-size:0.85rem;">${s.symbol}</div>
+      <div style="font-size:0.65rem;color:var(--dim);margin-bottom:6px;">${s.name||'Equity'}</div>
       <div style="font-family:Share Tech Mono,monospace;font-size:0.9rem;color:${cls};font-weight:700;">
         ₹${s.ltp.toFixed(2)} <span style="font-size:0.65rem;">${sign} (${s.chgPct.toFixed(2)}%)</span>
       </div>
+      ${badgeHtml}
     </div>`;
   });
-  c.innerHTML = html;
+  c.innerHTML = html || `<div style="padding:14px;color:var(--dim);font-size:.8rem;text-align:center;">No symbols meet this screener in the validated snapshot dated ${ovEsc((_ovData.meta||{}).trade_date||'unknown')}.</div>`;
 }
 
 function ovLoadSignals(el, type) {
@@ -888,7 +759,7 @@ function ovLoadSignals(el, type) {
   data.forEach(s => {
     const cls = s.signal === 'Bullish' ? 'var(--green)' : s.signal === 'Bearish' ? 'var(--red)' : 'var(--dim)';
     const bg  = s.signal === 'Bullish' ? 'rgba(8,153,129,0.1)' : s.signal === 'Bearish' ? 'rgba(242,54,69,0.1)' : 'rgba(255,255,255,0.05)';
-    html += `<div class="ov-signal-card" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
+    html += `<div class="ov-signal-card" onclick="openSymbolChart('${s.symbol}')">
        <div class="ov-signal-indicator" style="background:${bg};color:${cls};border-right:1px solid var(--border);">
           <div style="font-size:1.4rem;margin-bottom:4px;">${s.signal==='Bullish'?'↑↑':s.signal==='Bearish'?'↓↓':'−'}</div>
           ${s.pattern}<br>(${s.signal})
@@ -896,8 +767,8 @@ function ovLoadSignals(el, type) {
        <div class="ov-signal-details">
           <div>
             <div style="font-weight:700;color:var(--white);font-size:0.9rem;">${s.symbol}</div>
-            <div style="font-size:0.7rem;color:var(--dim);margin-bottom:4px;">${s.name||'Equity'}</div>
-            <div style="font-size:0.7rem;color:var(--dim);">Time Frame: ${s.tf}</div>
+            <div style="font-size:0.7rem;color:var(--dim);margin-bottom:4px;">${s.desc || s.name || 'Algorithmic trigger'}</div>
+            <div style="font-size:0.68rem;color:var(--dim);">Time Frame: ${s.tf || '1D'}</div>
           </div>
           <div style="text-align:right;font-family:Share Tech Mono,monospace;">
             <div style="font-size:0.9rem;color:${s.chg>=0?'var(--green)':'var(--red)'};font-weight:700;">₹${s.ltp.toFixed(2)}</div>
@@ -906,21 +777,33 @@ function ovLoadSignals(el, type) {
        </div>
     </div>`;
   });
-  c.innerHTML = html;
+  c.innerHTML = html || `<div style="padding:14px;color:var(--dim);font-size:.8rem;text-align:center;">No signals matched the validated snapshot dated ${ovEsc((_ovData.meta||{}).trade_date||'unknown')}.</div>`;
+}
+
+function ovFilterResearchHorizon(hz) {
+  _ovCurrentResearchHorizon = hz;
+  renderResearch();
 }
 
 function renderResearch() {
   const c = document.getElementById('ov-research-list');
-  const data = _ovData.research || [];
+  const allData = _ovData.research || [];
+  let data = _ovCurrentResearchHorizon === 'all' 
+    ? [...allData] 
+    : allData.filter(s => (s.type||'').toLowerCase().includes(_ovCurrentResearchHorizon.toLowerCase()));
+  
+  // Sort in descending order of % Potential Expected (Bug 7b)
+  data.sort((a, b) => (parseFloat(b.potential) || 0) - (parseFloat(a.potential) || 0));
+
   let html = '';
   data.forEach(s => {
-     html += `<div class="ov-research-card" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
+    html += `<div class="ov-research-card" onclick="openAdvisorReport('${ovEsc(s.symbol)}','${ovEsc(s.type)}')">
        <div style="display:flex;justify-content:space-between;margin-bottom:12px;">
          <div>
-           <div style="font-weight:700;color:var(--white);font-size:0.9rem;">${s.symbol}</div>
+           <div style="font-weight:700;color:var(--white);font-size:0.95rem;">${s.symbol}</div>
            <div style="font-size:0.7rem;color:var(--dim);">${s.name||'Equity'}</div>
          </div>
-         <div style="font-size:0.7rem;color:var(--green);font-weight:600;display:flex;align-items:center;gap:4px;">
+         <div style="font-size:0.7rem;color:var(--green);font-weight:700;display:flex;align-items:center;gap:4px;text-transform:uppercase;">
            <div style="width:6px;height:6px;border-radius:50%;background:var(--green);"></div> ${s.type}
          </div>
        </div>
@@ -928,61 +811,181 @@ function renderResearch() {
        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:16px;">
          <div>
            <div style="font-size:0.7rem;color:var(--dim);margin-bottom:2px;">LTP</div>
-           <div style="font-family:Share Tech Mono,monospace;font-size:0.9rem;color:var(--green);font-weight:700;">₹${s.ltp.toFixed(2)} <span style="font-size:0.7rem;">▲ ${s.chgPct.toFixed(2)}%</span></div>
+           <div style="font-family:Share Tech Mono,monospace;font-size:0.95rem;color:var(--green);font-weight:700;">₹${s.ltp.toFixed(2)} <span style="font-size:0.7rem;">▲ ${s.chgPct.toFixed(2)}%</span></div>
          </div>
          <div style="text-align:right;">
            <div style="font-size:0.7rem;color:var(--dim);margin-bottom:2px;">Recommended Price</div>
-           <div style="font-family:Share Tech Mono,monospace;font-size:0.85rem;color:var(--white);">₹${s.rec_price.toFixed(2)} - ₹${(s.rec_price*1.01).toFixed(2)}</div>
+           <div style="font-family:Share Tech Mono,monospace;font-size:0.85rem;color:var(--white);">₹${s.rec_price.toFixed(2)} - ₹${(s.rec_price_high || s.rec_price*1.01).toFixed(2)}</div>
          </div>
        </div>
 
-       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:Share Tech Mono,monospace;font-size:0.8rem;">
+       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:Share Tech Mono,monospace;font-size:0.8rem;background:rgba(255,255,255,0.02);padding:8px 12px;border-radius:4px;">
          <div style="text-align:center;">
-           <div style="color:var(--red);font-size:0.65rem;margin-bottom:2px;font-weight:600;">SL</div>
+           <div style="color:var(--red);font-size:0.65rem;margin-bottom:2px;font-weight:700;">SL</div>
            <div style="color:var(--text);">${s.sl.toFixed(2)}</div>
          </div>
          <div style="text-align:center;">
-           <div style="color:var(--green);font-size:0.65rem;margin-bottom:2px;font-weight:600;">ENTRY</div>
+           <div style="color:var(--green);font-size:0.65rem;margin-bottom:2px;font-weight:700;">ENTRY</div>
            <div style="color:var(--text);">${s.rec_price.toFixed(2)}</div>
          </div>
          <div style="text-align:center;">
-           <div style="color:var(--gold);font-size:0.65rem;margin-bottom:2px;font-weight:600;">TARGET</div>
+           <div style="color:var(--gold);font-size:0.65rem;margin-bottom:2px;font-weight:700;">TARGET</div>
            <div style="color:var(--text);">${s.target.toFixed(2)}</div>
          </div>
        </div>
 
-       <div style="background:rgba(255,152,0,0.1);color:var(--gold);font-size:0.75rem;padding:6px;text-align:center;border-radius:4px;font-weight:600;margin-bottom:12px;">
+       <div style="background:rgba(255,152,0,0.1);color:var(--gold);font-size:0.75rem;padding:6px;text-align:center;border-radius:4px;font-weight:700;margin-bottom:12px;">
          ${s.potential}% POTENTIAL EXPECTED
        </div>
 
        <div style="display:flex;justify-content:space-between;align-items:center;">
-         <div style="font-size:0.65rem;color:var(--dim);">Updated: ${s.updated}</div>
-         <button class="btn" style="padding:6px 20px;font-size:0.8rem;" onclick="event.stopPropagation();document.getElementById('chart-sym').value='${s.symbol}';nav('chart');loadChart();setTimeout(()=>chartShowOrder('BUY'), 600);">BUY</button>
+         <div style="font-size:0.65rem;color:var(--dim);">Updated: ${s.updated} · ${ovEsc(s.status||'OPEN')}</div>
+         <button class="btn btn-sm" style="padding:6px 18px;font-size:0.78rem;" onclick="event.stopPropagation();openAdvisorReport('${ovEsc(s.symbol)}','${ovEsc(s.type)}');">Open analysis</button>
        </div>
      </div>`;
   });
-  c.innerHTML = html;
+  c.innerHTML = html || '<div style="padding:14px; color:var(--dim); font-size:0.8rem; text-align:center;">No research recommendations found in this horizon.</div>';
 }
 
-function ovLoadPocket(el, maxPrice) {
+async function ovLoadPocket(el, minPrice, maxPrice) {
   if(el) {
     el.parentNode.querySelectorAll('.ov-pill-btn').forEach(b => b.classList.remove('active'));
     el.classList.add('active');
   }
   const c = document.getElementById('ov-pocket-list');
-  const data = (_ovData.pocket || []).filter(s => s.ltp <= maxPrice);
+  const requestId = ++_ovPocketRequest;
+  c.innerHTML = '<div class="ov-empty">Loading price band…</div>';
+  const dataRes = await api('overview_pocket', {min_price:minPrice, max_price:maxPrice});
+  if (requestId !== _ovPocketRequest) return;
+  const data = dataRes && !dataRes.error ? (dataRes.items || []) : [];
   let html = '';
   data.forEach(s => {
     const cls = s.chg >= 0 ? 'var(--green)' : 'var(--red)';
     const sign = s.chg >= 0 ? '▲' : '▼';
-    html += `<div class="ov-stock-card" style="min-width:180px;" onclick="nav('chart'); setTimeout(()=>document.getElementById('chart-sym').value='${s.symbol}', 500);">
-      <div style="font-weight:600;color:var(--white);font-size:0.85rem;">${s.symbol}</div>
+    html += `<div class="ov-stock-card" style="min-width:180px;" onclick="openSymbolChart('${s.symbol}')">
+      <div style="font-weight:700;color:var(--white);font-size:0.85rem;">${s.symbol}</div>
       <div style="font-size:0.65rem;color:var(--dim);margin-bottom:8px;">${s.name||'Equity'}</div>
       <div style="font-family:Share Tech Mono,monospace;font-size:0.9rem;color:${cls};font-weight:700;">
         ₹${s.ltp.toFixed(2)} <span style="font-size:0.65rem;">${sign} (${s.chgPct.toFixed(2)}%)</span>
       </div>
+      <div class="ov-data-note" style="margin-top:8px;">Daily volume: ${Number(s.volume || 0).toLocaleString('en-IN')}</div>
     </div>`;
   });
-  c.innerHTML = html || '<div style="color:var(--dim);font-size:0.8rem;padding:10px;">No stocks found in this range.</div>';
+  c.innerHTML = html || '<div style="color:var(--dim);font-size:0.8rem;padding:12px;text-align:center;">No equities currently trading within ₹' + minPrice + ' – ₹' + maxPrice + ' on ' + ovEsc(dataRes?.trade_date || 'the selected snapshot') + '.</div>';
+}
+
+let _ovChainRequest = 0;
+function ovInitDerivativeControls() {
+  const catalog = (_ovData && _ovData.derivatives && _ovData.derivatives.catalog) || [];
+  const sel = document.getElementById('ov-chain-symbol');
+  if (!sel) return;
+  const current = sel.value || window._ovSelectedDerivativeSymbol || '';
+  const list = document.getElementById('ov-chain-symbol-list');
+  const optionsMarkup = catalog.map(x => `<option value="${ovEsc(x.symbol)}">${ovEsc(x.kind==='index'?'Index':'Stock')} · expiry ${ovEsc(x.expiry || 'unavailable')} · ${ovEsc(x.trade_date || 'date unavailable')}</option>`).join('');
+  if (list && list.dataset.catalog !== optionsMarkup) { list.innerHTML = optionsMarkup; list.dataset.catalog = optionsMarkup; }
+  const chosen = catalog.some(x => x.symbol === current) ? current : (catalog[0]?.symbol || '');
+  if (sel.value !== chosen) sel.value = chosen;
+  if (chosen) ovLoadDerivativeChain();
+  else {
+    const table = document.getElementById('ov-chain-table-wrap');
+    if (table) table.innerHTML = '<div class="ov-empty" style="padding:16px;">No option underlyings are available in the local option feed.</div>';
+    const expiry = document.getElementById('ov-chain-expiry'); if (expiry) expiry.innerHTML = '<option value="">No expiry available</option>';
+    const session = document.getElementById('ov-chain-session'); if (session) session.innerHTML = '<option value="">No session available</option>';
+  }
+}
+async function ovLoadDerivativeChain() {
+  const symbol = document.getElementById('ov-chain-symbol')?.value || '';
+  const expirySel = document.getElementById('ov-chain-expiry');
+  const sessionSel = document.getElementById('ov-chain-session');
+  const table = document.getElementById('ov-chain-table-wrap');
+  const summary = document.getElementById('ov-chain-summary');
+  if (!symbol || !table) return;
+  window._ovSelectedDerivativeSymbol = symbol;
+  const req = ++_ovChainRequest;
+  table.innerHTML = '<div class="ov-empty" style="padding:16px;">Loading option chain…</div>';
+  const status = document.getElementById('ov-chain-status');
+  if (status) status.textContent = `Loading ${symbol} option data…`;
+  let result;
+  try {
+    result = await api('derivatives_chain', {symbol, expiry:expirySel?.value || '', session:sessionSel?.value || ''});
+  } catch (error) {
+    if (req !== _ovChainRequest) return;
+    if (summary) summary.innerHTML = '';
+    if (expirySel) expirySel.innerHTML = '<option value="">Unavailable</option>';
+    if (sessionSel) sessionSel.innerHTML = '<option value="">Unavailable</option>';
+    if (status) status.textContent = `Could not load option data for ${symbol}.`;
+    table.innerHTML = `<div class="ov-empty" style="padding:16px;">${ovEsc(error?.message || 'Option data request failed. Retry by selecting the underlying again.')}</div>`;
+    return;
+  }
+  if (req !== _ovChainRequest) return;
+  if (!result || result.error || !Array.isArray(result.rows) || result.rows.length === 0) {
+    if (summary) summary.innerHTML = '';
+    if (expirySel) expirySel.innerHTML = (result?.expiries || []).map(x => `<option value="${ovEsc(x)}">${ovEsc(x)}</option>`).join('') || '<option value="">No expiry available</option>';
+    if (sessionSel) sessionSel.innerHTML = (result?.sessions || []).map(x => `<option value="${ovEsc(x)}">${ovEsc(x)}</option>`).join('') || '<option value="">No session available</option>';
+    if (status) status.textContent = result?.trade_date ? `${ovEsc(result.symbol || symbol)} · ${ovEsc(result.trade_date)} · no strike rows in this snapshot` : 'No dated option snapshot is available for this underlying.';
+    table.innerHTML = `<div class="ov-empty" style="padding:16px;">${ovEsc(result?.message || result?.error || 'No validated option chain is available.')}</div>`;
+    return;
+  }
+  if (expirySel) {
+    const oldExpiry = expirySel.value;
+    expirySel.innerHTML = (result.expiries || []).map(x => `<option value="${ovEsc(x)}">${ovEsc(x)}</option>`).join('') || '<option value="">No expiry</option>';
+    if (result.expiries?.includes(oldExpiry)) expirySel.value = oldExpiry;
+    else expirySel.value = result.expiry || '';
+    if (!expirySel.dataset.initialized) { expirySel.dataset.initialized='1'; if (result.expiries?.length) { expirySel.value=result.expiries[0]; setTimeout(ovLoadDerivativeChain,0); return; } }
+  }
+  if (sessionSel) {
+    const oldSession = sessionSel.value;
+    sessionSel.innerHTML = (result.sessions || []).map(x => `<option value="${ovEsc(x)}">${ovEsc(x)}</option>`).join('') || '<option value="">Session unavailable</option>';
+    if (result.sessions?.includes(oldSession)) sessionSel.value = oldSession;
+    else sessionSel.value = result.session || '';
+  }
+  const s = result.summary || {};
+  if(status)status.textContent=`${ovEsc(result.symbol)} · ${ovEsc(result.expiry)} expiry · ${ovEsc(result.trade_date)} · session ${ovEsc(result.session)} · ${s.contract_count||0} strike rows`;
+  summary.innerHTML = `<div class="card"><div class="ov-data-note">As of</div><strong>${ovEsc(result.trade_date || 'Unknown')} · ${ovEsc(result.session || 'Unknown')}</strong></div><div class="card"><div class="ov-data-note">Call OI</div><strong>${Number(s.call_oi||0).toLocaleString('en-IN')}</strong><div class="ov-data-note">Δ ${Number(s.call_change_oi||0).toLocaleString('en-IN')}</div></div><div class="card"><div class="ov-data-note">Put OI</div><strong>${Number(s.put_oi||0).toLocaleString('en-IN')}</strong><div class="ov-data-note">Δ ${Number(s.put_change_oi||0).toLocaleString('en-IN')}</div></div><div class="card"><div class="ov-data-note">PCR (OI)</div><strong>${s.pcr == null ? 'Unavailable' : Number(s.pcr).toFixed(2)}</strong></div><div class="card"><div class="ov-data-note">Contracts</div><strong>${Number(s.contract_count||0).toLocaleString('en-IN')}</strong></div>`;
+  const fmt = v => v == null ? '—' : Number(v).toLocaleString('en-IN', {maximumFractionDigits:2});
+  table.innerHTML = `<table class="ov-chain-table"><thead><tr><th>Call OI</th><th>Call Δ OI</th><th>Call Vol</th><th>Strike</th><th>Put Vol</th><th>Put Δ OI</th><th>Put OI</th></tr></thead><tbody>${result.rows.map(r=>`<tr><td class="call-side">${fmt(r.call_oi)}</td><td class="call-side">${fmt(r.call_change_oi)}</td><td>${fmt(r.call_volume)}</td><td><strong>${fmt(r.strike)}</strong></td><td>${fmt(r.put_volume)}</td><td class="put-side">${fmt(r.put_change_oi)}</td><td class="put-side">${fmt(r.put_oi)}</td></tr>`).join('')}</tbody></table><div class="ov-data-note" style="padding:10px 12px;">Source: ${ovEsc(result.source || 'option_chain_data')} · Stored snapshot ${ovEsc(result.fetched_at || '')}</div>`;
+}
+
+function renderMarketsTab(kind) {
+  const c = document.getElementById('ov-markets-list');
+  if (!c) return;
+  const meta = (_ovData && _ovData.meta) || {};
+  const asof = document.getElementById('ov-markets-asof');
+  if (asof) asof.textContent = `Local close data · ${meta.trade_date || 'date unavailable'}`;
+  const data = kind === 'commodities' ? (_ovData.commodities || []) : (_ovData.indices || []);
+  c.innerHTML = data.map(s => {
+    const good = Number(s.chgPct) >= 0;
+    const priceLabel = kind === 'indices' ? 'Index value' : 'Exchange quote';
+    return `<article class="ov-stock-card" onclick="openSymbolChart('${ovEsc(s.symbol)}')"><div style="font-weight:700;color:var(--white);font-size:.95rem;">${ovEsc(s.symbol)}</div><div class="ov-data-note">${kind==='indices'?'Index':'Commodity'}${kind==='commodities'?` · ${ovEsc(s.exchange||'Exchange unavailable')} · unit not verified`:''}</div><div style="display:flex;justify-content:space-between;margin:12px 0 6px;font-family:Share Tech Mono,monospace;"><span class="ov-data-note">${priceLabel}</span><strong>${Number(s.ltp).toLocaleString('en-IN',{minimumFractionDigits:2})}</strong></div><div style="display:flex;justify-content:space-between;color:${good?'var(--green)':'var(--red)'};font-family:Share Tech Mono,monospace;"><span>Session change</span><strong>${good?'▲':'▼'} ${Number(s.chgPct).toFixed(2)}%</strong></div></article>`;
+  }).join('') || '<div class="ov-empty">No validated quotes are available for this market group.</div>';
+}
+function ovSwitchMarketType(el, kind) {
+  el.parentNode.querySelectorAll('.ov-pill-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active'); renderMarketsTab(kind);
+}
+function renderNewsTab() {
+  const c = document.getElementById('ov-news-list');
+  let html = '';
+  (_ovData.news || []).forEach(n => {
+     const score = n.score == null || n.score === '' ? NaN : Number(n.score);
+     const sourceUrl = ovSafeHref(n.url);
+     const badgeColor = !Number.isFinite(score) ? 'var(--dim)' : score > 0.15 ? 'var(--green)' : score < -0.15 ? 'var(--red)' : 'var(--dim)';
+     const badgeText = !Number.isFinite(score) ? 'NOT SCORED' : score > 0.15 ? 'BULLISH' : score < -0.15 ? 'BEARISH' : 'NEUTRAL';
+     
+     html += `<div class="card" style="padding:16px;">
+       <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;gap:12px;">
+         <span style="font-weight:700;color:var(--white);font-size:0.95rem;">${ovEsc(n.title)}</span>
+         <span class="badge" style="background:${badgeColor}20;color:${badgeColor};font-size:0.6rem;padding:3px 8px;font-weight:700;white-space:nowrap;">
+           ${badgeText}${Number.isFinite(score) ? ` (${score.toFixed(2)})` : ''}
+         </span>
+       </div>
+       <p style="font-size:0.8rem;color:var(--text);margin-bottom:12px;line-height:1.4;">${ovEsc(n.snippet || '')}</p>
+       <div style="display:flex;justify-content:space-between;font-size:0.7rem;color:var(--dim);">
+         <span>${sourceUrl ? `<a href="${ovEsc(sourceUrl)}" target="_blank" rel="noopener noreferrer">${ovEsc(n.source || 'Open source')}</a>` : `Source: ${ovEsc(n.source || 'Market Feed')}`}</span>
+         <span>Published: ${n.published_at ? new Date(n.published_at).toLocaleString() : 'Time unavailable'}${n.fetched_at ? ` · fetched ${ovEsc(n.fetched_at)}` : ''}</span>
+       </div>
+     </div>`;
+  });
+  c.innerHTML = html || '<div class="ov-empty">No news feed items found.</div>';
 }
 """

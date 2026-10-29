@@ -5,9 +5,7 @@ Validates risk limits (Max Positions, Sector exposure, single stock weight, corr
 before recommending or executing a trade.
 
 PHASE 1 FIX (S1):
-  All portfolio queries now target the unified `positions` table (status='OPEN').
-  The old `paper_portfolio` table is no longer used — it was a phantom table
-  that made all risk checks silently pass.
+  All portfolio queries target the unified `positions` table (status='OPEN').
 """
 
 import math
@@ -86,8 +84,8 @@ def validate_candidate(candidate: dict, current_allocation: dict, risk_settings:
     Validates a candidate trade against active risk limits.
 
     PHASE 1 FIX:
-      Now reads open positions from the unified `positions` table (filtered by
-      portfolio_id if provided), not the phantom `paper_portfolio` table.
+      Reads open positions from the unified `positions` table (filtered by
+      portfolio_id if provided).
 
     candidate fields:
       - symbol, sector, price, entry, stop_loss
@@ -119,12 +117,9 @@ def validate_candidate(candidate: dict, current_allocation: dict, risk_settings:
     finally:
         conn.close()
 
-    # 1. Max positions constraint
-    max_pos    = int(risk_settings.get("max_positions", 5))
+    # Position count is intentionally unrestricted. Capital, per-position,
+    # sector and correlation controls remain independently configurable.
     open_syms  = [p[0] for p in open_positions]
-    if candidate["symbol"] not in open_syms:
-        if len(open_syms) >= max_pos:
-            return False, f"Maximum position limit reached ({max_pos} open positions)"
 
     # Compute candidate position size from risk settings
     capital      = float(risk_settings.get("capital", 1000000.0))
@@ -186,5 +181,14 @@ def validate_candidate(candidate: dict, current_allocation: dict, risk_settings:
                 f"{candidate['symbol']} has high correlation ({corr:.2f}) with open position "
                 f"'{open_sym}' (threshold: {max_corr}). Avoid concentrated correlation risk."
             )
+
+        # 5. Earnings / Board Meeting Event Risk Gate (Avoid gap risk)
+    try:
+        from core.corporate_calendar import is_earnings_imminent
+        imminent = is_earnings_imminent(candidate['symbol'], window_days=2)
+        if imminent.get('imminent'):
+            return False, f"Event Risk Gate: {imminent['risk_message']}. Avoid new breakout entry into imminent earnings announcement."
+    except Exception:
+        pass
 
     return True, f"All risk gates passed — estimated position size ₹{candidate_size:,.0f} ({shares} shares)"

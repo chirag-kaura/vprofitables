@@ -6,6 +6,7 @@
 yfinance>=0.2.40          # market data from Yahoo Finance
 pandas>=2.0.0             # OHLCV manipulation, date indexing
 numpy>=1.24.0             # numerical arrays used across analysis engines
+jugaad-data>=0.35.0       # NSE live option chain and market data API
 
 # ── Gann / quant engines ─────────────────────────────────────────────────────
 scipy>=1.11.0             # FFT (Simons Lab cycle analysis)
@@ -48,7 +49,7 @@ httpx>=0.25.0             # Async HTTP client for bulk news fetching
 #
 # pdfplumber>=0.11.0            # PDF text extraction for NSE/BSE filings
 # pymupdf>=1.24.0               # PDF fallback extractor (fitz)
-# -- Institutional Upgrade Additions ------------------------------------------
+# google-genai>=0.1.0           # Recommended: modern Google GenAI SDK (replaces legacy google-generativeai)
 duckdb>=0.10.0
 PyWavelets>=1.4.1
 

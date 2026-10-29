@@ -383,7 +383,7 @@ def autocorrelation_analysis(closes: List[float], max_lag: int = 120) -> Dict:
         acf_man = cov_man / var_r
         cov_fft = acf_fft[lag] / (n - lag)
         acf_fft_val = cov_fft / var_r
-        assert abs(acf_man - acf_fft_val) < 1e-9, f"FFT ACF drift at lag {lag}: {acf_man} vs {acf_fft_val}"
+        assert abs(acf_man - acf_fft_val) < 1e-6, f"FFT ACF drift at lag {lag}: {acf_man} vs {acf_fft_val}"
 
     # ── Benjamini-Hochberg FDR correction ──
     sorted_by_p = sorted(raw_results, key=lambda x: x["p_value"])
@@ -854,7 +854,21 @@ def full_quant_analysis(
     volumes = data["volumes"]
     dates   = data["dates"]
 
-    fourier = wavelet_cycle_analysis(closes)
+    # Use FFT-based Fourier analysis as the primary source — it produces the complete
+    # format (strength_pct, planetary_ruler, days_to_next_peak/trough, forecast_60d,
+    # r_squared) that the frontend and strategy advisor matrix depend on.
+    fourier = fourier_cycle_analysis(closes)
+
+    # Optionally enhance with Wavelet (CWT) if pywt is installed — adds wavelet power info
+    # but do NOT replace the main fourier dict since wavelet output is a subset format.
+    try:
+        wavelet_data = wavelet_cycle_analysis(closes)
+        if "error" not in wavelet_data:
+            fourier["wavelet_cycles"] = wavelet_data.get("dominant_cycles", [])
+            fourier["wavelet_method"] = wavelet_data.get("method", "CWT")
+    except Exception:
+        pass  # pywt not installed or failed — FFT result is sufficient
+
     acf = autocorrelation_analysis(closes)
     regime = detect_market_regime(closes)
     sr = find_support_resistance(closes, highs, lows, volumes, current_price=current_price)

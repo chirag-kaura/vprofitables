@@ -75,7 +75,7 @@ def sq9_levels(price: float, n: int = 4) -> List[Sq9Level]:
     return levels
 
 
-def nearest_sq9(price: float) -> Tuple[float, float, str]:
+def nearest_sq9(price: float) -> Tuple[float, float, str, str]:
     """Find the nearest Sq9 levels above and below current price."""
     sqrt_p = math.sqrt(price)
     # Walk the Sq9 spiral to find nearest
@@ -96,7 +96,7 @@ def nearest_sq9(price: float) -> Tuple[float, float, str]:
                 nearest_below = round(dn, 2)
                 nearest_below_label = f"{int(quarter*90)}°-{i-1} rot"
 
-    return nearest_above, nearest_below, nearest_above_label
+    return nearest_above, nearest_below, nearest_above_label, nearest_below_label
 
 
 def sq9_bounce_confirmed(
@@ -308,6 +308,11 @@ def confluence_score(
     """
     Calculate the Gann confluence score for a date/price combination.
     """
+    # ── Guard: current_price must be positive ────────────────────────────────
+    if not current_price or current_price <= 0:
+        return {"score": 0, "max_score": 20, "signals": ["⚠ No price provided — cannot compute confluence."],
+                "pct": 0, "level": "WEAK", "bias": "NEUTRAL"}
+
     # Fix 2: Require scale explicitly, fallback to symbol look-up
     if scale is None or scale <= 0:
         if symbol:
@@ -413,7 +418,7 @@ def confluence_score(
     for ang in angles:
         if angle_count >= 2:
             break
-        dist_pct = abs(ang.price_at_date - current_price) / current_price * 100
+        dist_pct = abs(ang.price_at_date - current_price) / current_price * 100 if current_price else 999.0
         if dist_pct <= 1.0:
             score += w_ang
             angle_count += 1
@@ -629,13 +634,13 @@ def calibrate_gann_scale(symbol: str) -> float:
     Calibrate Gann angle scale using ATR(14) over a 250-bar (1 year) lookback.
     Returns the price units per day scale factor.
     """
+    conn = None
     try:
-        conn = sqlite3.connect(DB_PATH)
+        conn = sqlite3.connect(DB_PATH, timeout=30.0)
         cursor = conn.cursor()
         cursor.execute("CREATE TABLE IF NOT EXISTS gann_instrument_scales (symbol TEXT PRIMARY KEY, scale REAL, updated_at TEXT)")
         row = cursor.execute("SELECT scale FROM gann_instrument_scales WHERE symbol=?", (symbol,)).fetchone()
         if row:
-            conn.close()
             return float(row[0])
         
         # Calculate ATR(14) over last 250 bars
@@ -663,11 +668,13 @@ def calibrate_gann_scale(symbol: str) -> float:
             VALUES (?, ?, ?)
         """, (symbol, scale, datetime.utcnow().isoformat()))
         conn.commit()
-        conn.close()
         return scale
     except Exception as e:
         print(f"Error calibrating scale for {symbol}: {e}")
         return 1.0
+    finally:
+        if conn:
+            conn.close()
 
 
 def cross_validate_cycle(cycle_days: int, symbol: str, tolerance_pct: float = 10.0) -> bool:
@@ -732,26 +739,76 @@ def load_calibrated_weights() -> dict:
     return weights
 
 
+import queue as _py_queue
+import threading as _py_threading
+
+_sub_signal_q = _py_queue.Queue(maxsize=50000)
+_flusher_started = False
+_flusher_init_lock = _py_threading.Lock()
+
+def _sub_signal_worker():
+    import uuid
+    while True:
+        try:
+            item = _sub_signal_q.get(timeout=1.5)
+        except _py_queue.Empty:
+            continue
+            
+        batch = [item]
+        while len(batch) < 100:
+            try:
+                batch.append(_sub_signal_q.get_nowait())
+            except _py_queue.Empty:
+                break
+                
+        if batch:
+            try:
+                conn = sqlite3.connect(DB_PATH, timeout=30.0)
+                conn.execute("PRAGMA journal_mode = WAL")
+                conn.execute("PRAGMA busy_timeout = 30000")
+                now = datetime.utcnow().isoformat()
+                params = [
+                    (
+                        str(uuid.uuid4()), b[0], b[2].isoformat() if hasattr(b[2], 'isoformat') else str(b[2]),
+                        now, b[1], b[2].isoformat() if hasattr(b[2], 'isoformat') else str(b[2]),
+                        b[3], b[4], b[5], b[6]
+                    )
+                    for b in batch
+                ]
+                conn.executemany("""
+                    INSERT INTO signals (
+                        id, symbol, engine_name, engine_version, analysis_date,
+                        score, confidence, raw_output, computed_at,
+                        signal_subtype, fired_at, price_at_signal, planet_name, aspect_type, direction
+                    ) VALUES (?, ?, 'gann', '4.0', ?, 0.0, 0.0, '{}', ?, ?, ?, ?, ?, ?, ?)
+                """, params)
+                conn.commit()
+                conn.close()
+            except Exception:
+                pass
+            finally:
+                for _ in batch:
+                    _sub_signal_q.task_done()
+
+def _ensure_sub_signal_flusher():
+    global _flusher_started
+    if not _flusher_started:
+        with _flusher_init_lock:
+            if not _flusher_started:
+                t = _py_threading.Thread(target=_sub_signal_worker, daemon=True, name="GannSubSignalFlusher")
+                t.start()
+                _flusher_started = True
+
 def log_gann_sub_signal(symbol: str, signal_subtype: str, fired_at: date, price: float, direction: str, planet_name: str = None, aspect_type: str = None):
     """
-    Log sub-signal to signals table for self-supervised weight calibration.
+    Non-blocking, thread-safe asynchronous sub-signal logger.
+    Batches database writes in the background to eliminate SQLite locks completely.
     """
-    import uuid
     try:
-        conn = sqlite3.connect(DB_PATH)
-        sig_id = str(uuid.uuid4())
-        now = datetime.utcnow().isoformat()
-        conn.execute("""
-            INSERT INTO signals (
-                id, symbol, engine_name, engine_version, analysis_date,
-                score, confidence, raw_output, computed_at,
-                signal_subtype, fired_at, price_at_signal, planet_name, aspect_type, direction
-            ) VALUES (?, ?, 'gann', '4.0', ?, 0.0, 0.0, '{}', ?, ?, ?, ?, ?, ?, ?)
-        """, (sig_id, symbol, fired_at.isoformat(), now, signal_subtype, fired_at.isoformat(), price, planet_name, aspect_type, direction))
-        conn.commit()
-        conn.close()
-    except Exception as e:
-        print(f"Error logging sub-signal: {e}")
+        _ensure_sub_signal_flusher()
+        _sub_signal_q.put_nowait((symbol, signal_subtype, fired_at, price, direction, planet_name, aspect_type))
+    except Exception:
+        pass
 
 
 def recalibrate_gann_weights() -> dict:

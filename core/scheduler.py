@@ -118,12 +118,9 @@ def init_db():
         this function now calls init_personalization_db() to ensure the user/
         portfolio/risk_profile tables exist alongside price data.
       - `positions` table: the ONE table for all open/closed trades.
-        Replaces the now-retired paper_portfolio for risk gate reads.
         Added: exit_reason, updated_at, source_signal_id, lifecycle_state.
       - `risk_settings` table: now keyed by user_id (not a single global row).
         Migration adds user_id column if the table already exists.
-      - `paper_portfolio` migration: any existing rows are copied to `positions`
-        and paper_portfolio is left intact but no longer written to.
     """
     conn = _get_db()
     c = conn.cursor()
@@ -272,30 +269,8 @@ def init_db():
         )
     """)
 
-    # Paper portfolio table (Phases 1-2)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS paper_portfolio (
-            id              INTEGER PRIMARY KEY AUTOINCREMENT,
-            symbol          TEXT NOT NULL,
-            inv_type        TEXT DEFAULT 'swing',
-            side            TEXT DEFAULT 'BUY',
-            entry_date      TEXT NOT NULL,
-            entry_price     REAL NOT NULL,
-            shares          INTEGER NOT NULL DEFAULT 1,
-            stop_loss       REAL NOT NULL DEFAULT 0,
-            target1         REAL NOT NULL DEFAULT 0,
-            target2         REAL NOT NULL DEFAULT 0,
-            gtt_trigger     REAL DEFAULT NULL,
-            trailing_pct    REAL DEFAULT NULL,
-            status          TEXT DEFAULT 'OPEN',
-            exit_date       TEXT DEFAULT NULL,
-            exit_price      REAL DEFAULT NULL,
-            exit_reason     TEXT DEFAULT NULL,
-            realized_pnl    REAL DEFAULT NULL,
-            created_at      TEXT,
-            updated_at      TEXT
-        )
-    """)
+    # Ensure paper_portfolio table is removed
+    conn.execute("DROP TABLE IF EXISTS paper_portfolio")
 
     # Watchlist items (Phase 3)
     conn.execute("""
@@ -354,7 +329,11 @@ def init_db():
     except Exception:
         pass
     # Ensure a legacy single-user default row (id=1) still exists for backward compat
-    conn.execute("INSERT OR IGNORE INTO risk_settings (id) VALUES (1)")
+    try:
+        conn.execute("INSERT OR IGNORE INTO risk_settings (id) VALUES (1)")
+        conn.commit()
+    except Exception:
+        pass
 
     # ── PHASE 3: position_audit_log table ──
     conn.execute("""
@@ -384,57 +363,6 @@ def init_db():
         except Exception:
             pass  # column already exists
 
-    # ── PHASE 1: Migrate any old paper_portfolio rows → positions ───────────
-    # paper_portfolio is now read-retired; existing rows are moved to `positions`
-    # so they appear in the Guardian and risk gates.  Runs once; safe to retry.
-    try:
-        _pp_rows = conn.execute(
-            "SELECT symbol, inv_type, entry_date, entry_price, shares, "
-            "stop_loss, target1, target2, status, exit_date, exit_price, "
-            "exit_reason, realized_pnl, created_at "
-            "FROM paper_portfolio"
-        ).fetchall()
-        if _pp_rows:
-            import uuid as _uuid_pp
-            # Find or create a 'legacy' portfolio for migrated rows
-            _leg_pf = conn.execute(
-                "SELECT id FROM portfolios WHERE name='legacy_paper'"
-            ).fetchone()
-            if not _leg_pf:
-                _leg_pf_id = str(_uuid_pp.uuid4())
-                conn.execute(
-                    "INSERT OR IGNORE INTO portfolios (id, user_id, name, created_at) "
-                    "VALUES (?, 'LEGACY', 'legacy_paper', ?)",
-                    (_leg_pf_id, ist_now_naive().isoformat())
-                )
-            else:
-                _leg_pf_id = _leg_pf[0]
-
-            _migrated = 0
-            for _row in _pp_rows:
-                (sym, inv_type, edate, eprice, shares, sl, t1, t2,
-                 st, exdate, exprice, exreason, pnl, creat) = _row
-                _pos_id = str(_uuid_pp.uuid4())
-                try:
-                    conn.execute(
-                        "INSERT OR IGNORE INTO positions "
-                        "(id, portfolio_id, symbol, inv_type, entry_date, entry_price, "
-                        " shares, stop_loss, target1, target2, status, exit_date, "
-                        " exit_price, exit_reason, realized_pnl, created_at) "
-                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
-                        (_pos_id, _leg_pf_id, sym, inv_type or 'swing',
-                         edate, eprice, shares or 1, sl or 0,
-                         t1 or 0, t2 or 0, st or 'OPEN',
-                         exdate, exprice, exreason, pnl, creat)
-                    )
-                    _migrated += 1
-                except Exception:
-                    pass
-            if _migrated:
-                print(f"  [INIT] Migrated {_migrated} paper_portfolio rows → positions", flush=True)
-    except Exception as _pp_err:
-        # paper_portfolio may not exist yet — that's fine
-        pass
 
     # ── PHASE 2 FIX (Fix 9): correlation_cache table ─────────────────────────
     # Stores pre-computed Pearson correlations so risk_gates doesn't

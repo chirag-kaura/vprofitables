@@ -13,7 +13,7 @@ To modify: edit HTML/JS here, backend logic in app.py.
 HTML = r"""
 <!-- ═══════════ PAGE: NATAL ═══════════ -->
 <div class="page" id="page-natal">
-  <div class="topbar"><h2>NATAL CHARTS</h2><span class="page-tag">TRANSIT × NATAL</span></div>
+  <div class="topbar"><h2>NATAL CHARTS</h2></div>
   <div class="card">
     <div class="card-title">⚙ SELECT INSTRUMENT</div>
     <div class="chip-grid" id="natal-chips"></div>

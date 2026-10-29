@@ -1,0 +1,104 @@
+2026-09-28 22:46:39,772  INFO    Equity Bhavcopy: 7 days to fetch.
+2026-09-28 22:46:40,547  INFO    [1/7] 2026-09-17: Saved 2649 records.
+2026-09-28 22:46:42,658  INFO    [2/7] 2026-09-18: Saved 2647 records.
+2026-09-28 22:46:45,034  INFO    [3/7] 2026-09-21: Saved 2665 records.
+2026-09-28 22:46:46,908  INFO    [4/7] 2026-09-22: Saved 2662 records.
+2026-09-28 22:46:49,396  INFO    [5/7] 2026-09-23: Saved 2668 records.
+2026-09-28 22:46:51,830  INFO    [6/7] 2026-09-24: Saved 2664 records.
+2026-09-28 22:46:53,883  INFO    [7/7] 2026-09-25: Saved 2660 records.
+2026-09-29 00:01:10,699  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-09-29 00:01:11,527  INFO    [1/1] 2026-09-28: Saved 2676 records.
+2026-09-29 00:26:57,880  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-09-29 01:10:51,671  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-09-29 02:11:27,593  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-09-29 02:44:38,759  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-09-29 10:46:40,617  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-09 09:16:41,605  INFO    Equity Bhavcopy: 8 days to fetch.
+2026-10-09 09:16:42,776  INFO    [1/8] 2026-09-29: Saved 2671 records.
+2026-10-09 09:16:45,028  INFO    [2/8] 2026-09-30: Saved 2669 records.
+2026-10-09 09:16:46,962  INFO    [3/8] 2026-10-01: Saved 2662 records.
+2026-10-09 09:16:49,287  INFO    [4/8] 2026-10-02: Saved 2662 records.
+2026-10-09 09:16:51,244  INFO    [5/8] 2026-10-05: Saved 2678 records.
+2026-10-09 09:16:54,019  INFO    [6/8] 2026-10-06: Saved 2679 records.
+2026-10-09 09:16:56,565  INFO    [7/8] 2026-10-07: Saved 2678 records.
+2026-10-09 09:16:58,613  INFO    [8/8] 2026-10-08: Saved 2681 records.
+2026-10-09 09:34:17,659  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-09 11:00:36,970  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-10 11:51:18,523  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-10 11:51:21,113  INFO    [1/1] 2026-10-09: Saved 2675 records.
+2026-10-11 09:38:37,023  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-11 22:25:13,257  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-13 09:20:38,191  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-13 09:20:40,951  INFO    [1/1] 2026-10-12: Saved 2696 records.
+2026-10-13 17:56:49,596  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-14 07:39:51,050  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-14 07:39:51,069  WARNING Error fetching 2026-10-13: HTTPSConnectionPool(host='nsearchives.nseindia.com', port=443): Max retries exceeded with url: /products/content/sec_bhavdata_full_13102026.csv (Caused by NameResolutionError("HTTPSConnection(host='nsearchives.nseindia.com', port=443): Failed to resolve 'nsearchives.nseindia.com' ([Errno 11001] getaddrinfo failed)"))
+2026-10-14 07:39:53,085  WARNING Error fetching 2026-10-13: HTTPSConnectionPool(host='nsearchives.nseindia.com', port=443): Max retries exceeded with url: /products/content/sec_bhavdata_full_13102026.csv (Caused by NameResolutionError("HTTPSConnection(host='nsearchives.nseindia.com', port=443): Failed to resolve 'nsearchives.nseindia.com' ([Errno 11001] getaddrinfo failed)"))
+2026-10-14 07:39:55,090  WARNING Error fetching 2026-10-13: HTTPSConnectionPool(host='nsearchives.nseindia.com', port=443): Max retries exceeded with url: /products/content/sec_bhavdata_full_13102026.csv (Caused by NameResolutionError("HTTPSConnection(host='nsearchives.nseindia.com', port=443): Failed to resolve 'nsearchives.nseindia.com' ([Errno 11001] getaddrinfo failed)"))
+2026-10-14 07:39:57,092  WARNING [1/1] 2026-10-13: Failed or missing.
+2026-10-14 21:10:56,890  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-14 21:10:58,328  INFO    [1/1] 2026-10-13: Saved 2691 records.
+2026-10-16 08:51:51,948  INFO    Equity Bhavcopy: 2 days to fetch.
+2026-10-16 08:51:56,162  INFO    [1/2] 2026-10-14: Saved 2689 records.
+2026-10-16 08:51:58,886  INFO    [2/2] 2026-10-15: Saved 2687 records.
+2026-10-17 09:48:48,779  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-17 09:48:50,025  INFO    [1/1] 2026-10-16: Saved 2691 records.
+2026-10-18 10:46:49,944  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-19 10:36:33,443  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-20 10:25:34,725  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-20 10:25:35,969  INFO    [1/1] 2026-10-19: Saved 2698 records.
+2026-10-20 10:53:25,550  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-20 16:19:08,371  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-20 18:21:12,132  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-20 21:03:01,571  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-20 23:17:14,447  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-20 23:27:25,988  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-20 23:51:27,651  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-21 00:06:28,410  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-21 00:06:31,102  INFO    [Ensemble ML] Loaded state with 252 samples in rolling buffer.
+2026-10-21 00:06:31,568  INFO    [1/1] 2026-10-20: Saved 2698 records.
+2026-10-21 10:19:51,205  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-22 09:16:25,394  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-22 09:16:30,192  INFO    [Ensemble ML] Loaded state with 252 samples in rolling buffer.
+2026-10-22 09:16:30,665  INFO    [1/1] 2026-10-21: Saved 2694 records.
+2026-10-22 21:02:00,613  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-24 08:33:15,489  INFO    Equity Bhavcopy: 2 days to fetch.
+2026-10-24 08:33:27,094  INFO    [Ensemble ML] Loaded state with 252 samples in rolling buffer.
+2026-10-24 08:33:28,732  INFO    [1/2] 2026-10-22: Saved 2694 records.
+2026-10-24 08:33:33,114  INFO    [2/2] 2026-10-23: Saved 2706 records.
+2026-10-24 21:01:39,288  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-25 14:04:20,347  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-25 21:03:37,524  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-25 23:06:21,152  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-25 23:53:03,337  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 03:55:08,310  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 10:15:48,807  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 10:32:50,763  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 10:48:48,326  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 13:35:51,634  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 15:21:08,633  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 15:39:56,761  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 17:38:44,654  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 19:03:34,652  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 20:04:39,173  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 21:01:27,746  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-26 21:06:27,052  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-27 09:48:24,746  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-27 09:48:30,823  INFO    [Ensemble ML] Loaded state with 252 samples in rolling buffer.
+2026-10-27 09:48:32,026  INFO    [1/1] 2026-10-26: Saved 2709 records.
+2026-10-27 12:40:14,594  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-27 15:40:46,975  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-27 16:13:45,186  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-27 20:23:48,028  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-27 22:54:39,325  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-27 23:37:08,582  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-28 10:43:06,330  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-28 10:43:09,561  INFO    [Ensemble ML] Loaded state with 252 samples in rolling buffer.
+2026-10-28 10:43:10,044  INFO    [1/1] 2026-10-27: Saved 2712 records.
+2026-10-28 12:09:09,759  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-28 12:55:29,668  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-28 14:02:49,562  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-29 03:31:59,368  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-29 03:32:03,672  INFO    [Ensemble ML] Loaded state with 252 samples in rolling buffer.
+2026-10-29 03:32:04,401  INFO    [1/1] 2026-10-28: Saved 2711 records.
+2026-10-29 08:47:32,400  INFO    Equity Bhavcopy: 0 days to fetch.

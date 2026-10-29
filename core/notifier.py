@@ -21,14 +21,55 @@ Configuration (edit NOTIFICATION_CONFIG below or pass via settings):
   TWILIO_TO       : your WhatsApp number e.g. whatsapp:+919876543210
 """
 
-import os, json, smtplib, urllib.request, urllib.parse
+import os, json, smtplib, urllib.request, urllib.parse, re, sqlite3
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from datetime import datetime
-from typing import Dict, Optional
+from datetime import date, datetime
+from typing import Dict, Optional, Any
 
-from core.paths import CONFIG_PATH
+from core.paths import CONFIG_PATH, DB_PATH
 _CFG_PATH = CONFIG_PATH
+
+def _init_notification_db(conn: sqlite3.Connection):
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS notification_dispatch_log (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            fingerprint TEXT NOT NULL UNIQUE,
+            subject TEXT NOT NULL,
+            recipient TEXT NOT NULL,
+            channel TEXT NOT NULL,
+            dispatched_at TEXT NOT NULL
+        )
+    """)
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_notify_dispatch_fp ON notification_dispatch_log(fingerprint)")
+
+def _check_already_dispatched(fingerprint: str) -> bool:
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=15.0)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=5000")
+        _init_notification_db(conn)
+        row = conn.execute("SELECT id, dispatched_at FROM notification_dispatch_log WHERE fingerprint = ?", (fingerprint,)).fetchone()
+        conn.close()
+        return row is not None
+    except Exception:
+        return False
+
+def _record_dispatched(fingerprint: str, subject: str, recipient: str, channel: str):
+    try:
+        conn = sqlite3.connect(DB_PATH, timeout=15.0)
+        conn.execute("PRAGMA journal_mode=WAL")
+        conn.execute("PRAGMA busy_timeout=5000")
+        _init_notification_db(conn)
+        now_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        conn.execute("""
+            INSERT OR IGNORE INTO notification_dispatch_log (fingerprint, subject, recipient, channel, dispatched_at)
+            VALUES (?, ?, ?, ?, ?)
+        """, (fingerprint, subject, recipient, channel, now_str))
+        conn.commit()
+        conn.close()
+    except Exception:
+        pass
 
 def _load_cfg() -> Dict:
     # ── Defaults — no personal credentials in source code ────────────────────
@@ -282,13 +323,19 @@ Top reasons:
 # SEND FUNCTIONS
 # ─────────────────────────────────────────────────────────────────────────────
 
-def send_email(signal: Dict) -> Dict:
-    """Send signal via Gmail SMTP."""
+def send_email(signal: Dict, force: bool = False) -> Dict:
+    """Send signal via Gmail SMTP with daily duplicate prevention."""
     cfg = _load_cfg()
     if not cfg.get("EMAIL_ENABLED") or not cfg.get("EMAIL_TO"):
         return {"ok": False, "error": "Email not configured or disabled"}
 
     subject, html, _ = _format_signal_text(signal)
+    clean_subj = re.sub(r'\s+', ' ', subject).strip().upper()
+    fingerprint = f"{date.today().isoformat()}::{clean_subj}"
+
+    if not force and not signal.get("force") and _check_already_dispatched(fingerprint):
+        print(f"  [NOTIFY-DEDUP] Signal email already sent today ({subject[:60]}...) -> Suppressed duplicate.", flush=True)
+        return {"ok": True, "deduped": True, "note": "Duplicate suppressed by daily rate limiter"}
 
     try:
         msg = MIMEMultipart("alternative")
@@ -299,9 +346,10 @@ def send_email(signal: Dict) -> Dict:
 
         with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
             server.login(cfg["EMAIL_FROM"], cfg["EMAIL_PASS"])
-            server.sendmail(cfg["EMAIL_FROM"], cfg["EMAIL_TO"], msg.as_string())
+            server.send_message(msg)
 
         print(f"  [NOTIFY] Email sent → {cfg['EMAIL_TO']}", flush=True)
+        _record_dispatched(fingerprint, subject, cfg["EMAIL_TO"], "email")
         return {"ok": True, "method": "email", "to": cfg["EMAIL_TO"]}
 
     except smtplib.SMTPAuthenticationError:
@@ -696,7 +744,7 @@ def send_signal_batch(signals: list, scan_date: str, inv_type: str) -> Dict:
 
             with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
                 server.login(cfg["EMAIL_FROM"], cfg["EMAIL_PASS"])
-                server.sendmail(cfg["EMAIL_FROM"], cfg["EMAIL_TO"], msg.as_string())
+                server.send_message(msg)
 
             print(f"  [NOTIFY] Batch email sent → {cfg['EMAIL_TO']} ({len(signals)} signals + Excel)", flush=True)
             results["email"] = {"ok": True, "signals": len(signals), "to": cfg["EMAIL_TO"]}
@@ -736,3 +784,379 @@ def send_signal_batch(signals: list, scan_date: str, inv_type: str) -> Dict:
 
     any_ok = any(v.get("ok") for v in results.values())
     return {"ok": any_ok, "channels": results, "signals_sent": len(signals)}
+
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# RADAR-TO-SNIPER AUTONOMOUS NOTIFICATION DISPATCHER
+# ─────────────────────────────────────────────────────────────────────────────
+
+def _dispatch_alert(subject: str, html_body: str, wa_text: str, *args, **kwargs) -> Dict[str, Any]:
+    force = bool(kwargs.get('force', False) or (len(args) > 0 and args[0]))
+    """
+    Central dispatcher for Email and WhatsApp alerts with simulation fallback and daily deduplication.
+    """
+    cfg = _load_cfg()
+    results = {}
+    any_channel_configured = False
+
+    # 0. Deduplication Rate-Limiter Gate
+    clean_subj = re.sub(r'\s+', ' ', subject).strip().upper()
+    fingerprint = f"{date.today().isoformat()}::{clean_subj}"
+
+    if not force and _check_already_dispatched(fingerprint):
+        print(f"  [NOTIFY-DEDUP] Alert already sent today ({subject[:60]}...) -> Suppressed duplicate.", flush=True)
+        return {
+            "ok": True,
+            "deduped": True,
+            "subject": subject,
+            "note": "Suppressed duplicate: notification already dispatched today",
+            "channels": {
+                "email": {"ok": True, "deduped": True, "note": "Suppressed duplicate"},
+                "whatsapp": {"ok": True, "deduped": True, "note": "Suppressed duplicate"}
+            },
+            "wa_text": wa_text,
+            "html_len": len(html_body)
+        }
+
+    # 1. Email Dispatch
+    if cfg.get("EMAIL_ENABLED") and cfg.get("EMAIL_TO"):
+        any_channel_configured = True
+        try:
+            from email.header import Header
+            msg = MIMEMultipart("alternative")
+            msg["Subject"] = Header(subject, "utf-8")
+            msg["From"]    = cfg.get("EMAIL_FROM", "")
+            msg["To"]      = cfg["EMAIL_TO"]
+            msg.attach(MIMEText(html_body, "html", "utf-8"))
+
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465, timeout=15) as server:
+                server.login(cfg.get("EMAIL_FROM", ""), cfg.get("EMAIL_PASS", ""))
+                server.send_message(msg)
+
+            results["email"] = {"ok": True, "to": cfg["EMAIL_TO"]}
+            print(f"  [NOTIFY] Alert email sent -> {cfg['EMAIL_TO']}", flush=True)
+            _record_dispatched(fingerprint, subject, cfg["EMAIL_TO"], "email")
+        except Exception as e:
+            results["email"] = {"ok": False, "error": str(e)}
+            print(f"  [NOTIFY] Email delivery failed: {e}", flush=True)
+    else:
+        results["email"] = {"ok": True, "simulated": True, "note": "Email disabled in settings"}
+        _record_dispatched(fingerprint, subject, "SIMULATED", "simulation")
+
+    # 2. WhatsApp Dispatch
+    method = cfg.get("WHATSAPP_METHOD", "none")
+    if method != "none":
+        any_channel_configured = True
+        try:
+            if method == "callmebot":
+                phone = cfg.get("CALLMEBOT_PHONE", "").strip()
+                key   = cfg.get("CALLMEBOT_KEY", "").strip()
+                if phone and key:
+                    encoded = urllib.parse.quote(wa_text[:1500])
+                    url = f"https://api.callmebot.com/whatsapp.php?phone={phone}&text={encoded}&apikey={key}"
+                    req = urllib.request.Request(url, headers={"User-Agent": "VPROFITABLES/4.0"})
+                    with urllib.request.urlopen(req, timeout=12) as resp:
+                        body = resp.read().decode("utf-8", errors="replace")
+                    results["whatsapp"] = {"ok": True, "method": "callmebot", "to": phone}
+                    _record_dispatched(fingerprint, subject, phone, "whatsapp")
+            elif method == "twilio":
+                from twilio.rest import Client as TwilioClient
+                sid   = cfg.get("TWILIO_SID", "")
+                token = cfg.get("TWILIO_TOKEN", "")
+                frm   = cfg.get("TWILIO_FROM", "")
+                to    = cfg.get("TWILIO_TO", "")
+                if all([sid, token, frm, to]):
+                    client = TwilioClient(sid, token)
+                    t_msg = client.messages.create(body=wa_text[:1500], from_=frm, to=to)
+                    results["whatsapp"] = {"ok": True, "method": "twilio", "sid": t_msg.sid}
+                    _record_dispatched(fingerprint, subject, to, "whatsapp")
+        except Exception as we:
+            results["whatsapp"] = {"ok": False, "error": str(we)}
+    else:
+        results["whatsapp"] = {"ok": True, "simulated": True, "note": "WhatsApp disabled in settings"}
+
+    return {
+        "ok": True,
+        "subject": subject,
+        "channels": results,
+        "wa_text": wa_text,
+        "html_len": len(html_body)
+    }
+
+
+def send_tracker_staged_alert(
+    symbol: str,
+    signal_data: Dict[str, Any],
+    dossier_html: str = "",
+    force: bool = False
+) -> Dict[str, Any]:
+    """
+    Dispatches the Tracker Induction Notice alongside the Bespoke Equity Research Dossier.
+    """
+    sym = symbol.upper()
+    proj_date = signal_data.get("projected_date", "Upcoming Window")
+    entry_min = signal_data.get("projected_entry_min", signal_data.get("entry", 0.0))
+    entry_max = signal_data.get("projected_entry_max", signal_data.get("entry", 0.0))
+    sl = signal_data.get("stop_loss", 0.0)
+    tp1 = signal_data.get("target1", 0.0)
+    tp2 = signal_data.get("target2", 0.0)
+    rr = signal_data.get("rr_ratio", 2.0)
+    conf = signal_data.get("confidence", 75)
+
+    subject = f"📡 [TRACKER INDUCTION] {sym} Staged for Window {proj_date} | Master Dossier Attached"
+
+    # If dossier HTML is supplied, use it or wrap it
+    if dossier_html and len(dossier_html) > 500:
+        html = dossier_html
+    else:
+        html = f"""<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:16px;background:#060F16;font-family:'Courier New',monospace;color:#d0e0f0;">
+  <div style="max-width:800px;margin:0 auto;background:#0D1B2A;border:1px solid #FFCC00;padding:20px;border-radius:4px;">
+    <div style="font-size:20px;color:#FFCC00;font-weight:bold;letter-spacing:2px;">
+      📡 VPROFITABLES TRACKER INDUCTION NOTICE
+    </div>
+    <div style="font-size:12px;color:#70889c;margin-top:4px;">
+      ADVANCE RADAR DETECTION &bull; SYMBOL STAGED INTO TRACKER BUCKET
+    </div>
+    <hr style="border:0;border-top:1px solid #1a3a5a;margin:16px 0;">
+    <div style="font-size:15px;color:#ffffff;line-height:1.6;">
+      <strong>Symbol:</strong> <span style="color:#00D4FF;">{sym}</span><br>
+      <strong>Target Arrival Window:</strong> {proj_date}<br>
+      <strong>Projected Entry Corridor:</strong> ₹{entry_min:,.2f} – ₹{entry_max:,.2f}<br>
+      <strong>Stop Loss:</strong> ₹{sl:,.2f}<br>
+      <strong>Target 1 / Target 2:</strong> ₹{tp1:,.2f} / ₹{tp2:,.2f}<br>
+      <strong>Risk:Reward:</strong> {rr}:1 &nbsp;|&nbsp; <strong>Conviction:</strong> {conf}%
+    </div>
+    <div style="margin-top:16px;padding:12px;background:#060F16;border-left:3px solid #00FF88;font-size:12px;color:#a0b8c8;">
+      This setup is now actively monitored. The 4-Checkpoint Verification Gate will evaluate on window arrival.
+    </div>
+  </div>
+</body>
+</html>"""
+
+    wa_text = (
+        f"📡 TRACKER INDUCTION: {sym}\n"
+        f"📅 Target Window: {proj_date}\n"
+        f"🎯 Entry Corridor: ₹{entry_min:,.2f} – ₹{entry_max:,.2f}\n"
+        f"🛑 Stop Loss: ₹{sl:,.2f}\n"
+        f"🚀 Targets: T1 ₹{tp1:,.2f} | T2 ₹{tp2:,.2f}\n"
+        f"⚖️ R:R Ratio: {rr}:1 (Conviction {conf}%)\n\n"
+        f"Full publication-grade Equity Research Dossier delivered to your registered email."
+    )
+
+    return _dispatch_alert(subject, html, wa_text, force=True) if force else _dispatch_alert(subject, html, wa_text)
+
+
+def send_drip_event_alert(
+    symbol: str,
+    event_type: str,
+    details: Dict[str, Any],
+    force: bool = False
+) -> Dict[str, Any]:
+    """
+    Dispatches automated flash updates while a setup is in the Tracker Bucket.
+    Events: BULK_DEAL, DELIVERY_SPIKE, OI_SHIFT, NEWS_ALERT.
+    """
+    sym = symbol.upper()
+    now_str = datetime.now().strftime("%Y-%m-%d %H:%M")
+
+    badge_colors = {
+        "BULK_DEAL": "#FFCC00",
+        "DELIVERY_SPIKE": "#00FF88",
+        "OI_SHIFT": "#00D4FF",
+        "NEWS_ALERT": "#FF7700"
+    }
+    badge_col = badge_colors.get(event_type, "#00D4FF")
+
+    # Titles & Subject
+    if event_type == "BULK_DEAL":
+        subject = f"⚡ [EVENT DRIP] {sym}: Institutional {details.get('deal_kind', 'Block')} Deal Detected"
+        headline = f"Institutional Flow: {details.get('deal_type', 'BUY')} of {details.get('quantity', 0):,} shares at ₹{details.get('price', 0):,.2f} (₹{details.get('value_cr', 0)} Cr)"
+        extra_info = f"Client: {details.get('client_name')}"
+    elif event_type == "DELIVERY_SPIKE":
+        subject = f"⚡ [EVENT DRIP] {sym}: Delivery Volume Absorption Spike ({details.get('deliverable_pct')}%)"
+        headline = f"Bhavcopy Delivery Surge: {details.get('deliverable_pct')}% Deliverable ({details.get('volume_surge_multiple')}x 20-day mean)"
+        extra_info = f"Quantity: {details.get('deliverable_qty', 0):,} shares (20D baseline: {details.get('avg_20d_qty', 0):,})"
+    elif event_type == "OI_SHIFT":
+        subject = f"⚡ [EVENT DRIP] {sym}: FII Derivatives Position Shift ({details.get('swing_pct', 0):+,.1f}%)"
+        headline = f"FII Index Long Ratio moved {details.get('swing_pct', 0):+,.1f}% to {details.get('fii_long_pct')}%"
+        extra_info = f"Smart Money Regime: {details.get('smart_money_bias')}"
+    elif event_type == "NEWS_ALERT":
+        subject = f"⚡ [EVENT DRIP] {sym}: FinBERT Breaking High-Impact News"
+        headline = f"High-Conviction Classified: {details.get('title', '')[:100]}"
+        extra_info = f"Sentiment: {details.get('sentiment_label')} | Source: {details.get('source')}"
+    else:
+        subject = f"⚡ [EVENT DRIP] {sym}: Microstructure Tracker Update ({event_type})"
+        headline = f"Event Triggered: {event_type}"
+        extra_info = str(details)
+
+    html = f"""<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:16px;background:#060F16;font-family:'Courier New',monospace;color:#d0e0f0;">
+  <div style="max-width:700px;margin:0 auto;background:#0D1B2A;border:1px solid #1E3A5A;padding:20px;border-radius:4px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <span style="background:#09121c;color:{badge_col};border:1px solid {badge_col};padding:3px 8px;font-size:11px;font-weight:bold;">
+        EVENT DRIP INTELLIGENCE &bull; {event_type}
+      </span>
+      <span style="font-size:11px;color:#70889c;">{now_str}</span>
+    </div>
+    <div style="font-size:18px;color:#ffffff;font-weight:bold;margin-top:12px;">
+      {sym}: {headline}
+    </div>
+    <div style="margin-top:10px;font-size:13px;color:#a0b8c8;background:#081420;padding:12px;border-left:3px solid {badge_col};">
+      {extra_info}
+    </div>
+    <div style="margin-top:14px;font-size:11px;color:#70889c;">
+      Setup Status: <strong>STAGED IN TRACKER BUCKET</strong> &bull; Window: {details.get('projected_date', 'Pending')}
+    </div>
+  </div>
+</body>
+</html>"""
+
+    wa_text = (
+        f"⚡ EVENT DRIP: {sym} [{event_type}]\n"
+        f"▸ {headline}\n"
+        f"▸ {extra_info}\n"
+        f"Tracker status active &bull; Vprofitables Radar"
+    )
+
+    return _dispatch_alert(subject, html, wa_text, force=True) if force else _dispatch_alert(subject, html, wa_text)
+
+
+def send_execution_trigger_alert(
+    symbol: str,
+    signal_data: Dict[str, Any],
+    gates_detail: Dict[str, Any],
+    force: bool = False
+) -> Dict[str, Any]:
+    """
+    Dispatches the high-priority EXECUTION GREEN LIGHT alert when 3+ gates pass.
+    """
+    sym = symbol.upper()
+    entry_min = signal_data.get("projected_entry_min", signal_data.get("entry", 0.0))
+    entry_max = signal_data.get("projected_entry_max", signal_data.get("entry", 0.0))
+    mid_entry = signal_data.get("entry", round((entry_min + entry_max) / 2.0, 2))
+    sl = signal_data.get("stop_loss", 0.0)
+    tp1 = signal_data.get("target1", 0.0)
+    tp2 = signal_data.get("target2", 0.0)
+    rr = signal_data.get("rr_ratio", 2.0)
+
+    passed_count = sum(1 for g in gates_detail.values() if g.get("passed"))
+    subject = f"🟢 [EXECUTION GREEN LIGHT] {sym} — 4-Checkpoint Gate Verified ({passed_count}/4 Passed)"
+
+    gates_tr = ""
+    for gate_key, g_info in gates_detail.items():
+        g_name = gate_key.replace("gate", "Gate ").replace("_", " ").title()
+        p_badge = '<span style="color:#00FF88;font-weight:bold;">PASSED (VERIFIED)</span>' if g_info.get("passed") else '<span style="color:#FF3355;">FAILED</span>'
+        gates_tr += f"""
+        <tr style="border-bottom:1px solid #1a2a3a;">
+          <td style="padding:7px 10px;color:#ffffff;font-weight:bold;">{g_name}</td>
+          <td style="padding:7px 10px;">{p_badge}</td>
+          <td style="padding:7px 10px;color:#a0b8c8;font-size:11px;">{g_info.get('detail', '')}</td>
+        </tr>"""
+
+    html = f"""<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:16px;background:#060F16;font-family:'Courier New',monospace;color:#d0e0f0;">
+  <div style="max-width:800px;margin:0 auto;background:#0D1B2A;border:2px solid #00FF88;padding:24px;border-radius:4px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:#003318;color:#00FF88;border:1px solid #00FF88;padding:6px 14px;font-size:14px;font-weight:bold;letter-spacing:1px;">
+        🟢 EXECUTION GREEN LIGHT &bull; ACTIONABLE BUY
+      </div>
+      <div style="font-size:18px;font-weight:bold;color:#00D4FF;">{sym}</div>
+    </div>
+
+    <div style="margin-top:16px;font-size:14px;color:#ffffff;line-height:1.6;">
+      All 4 microstructure gates have been evaluated. <strong>{passed_count} of 4 checkpoints are verified.</strong>
+      Setup has transitioned from Tracker Bucket to <strong>EXECUTION READY</strong>.
+    </div>
+
+    <div style="display:flex;flex-wrap:wrap;gap:10px;margin:18px 0;">
+      <div style="flex:1;min-width:140px;background:#091420;padding:12px;border-left:3px solid #FFCC00;">
+        <div style="font-size:10px;color:#70889c;">EXECUTION CORRIDOR</div>
+        <div style="font-size:15px;font-weight:bold;color:#FFCC00;margin-top:3px;">₹{entry_min:,.2f} – ₹{entry_max:,.2f}</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:#091420;padding:12px;border-left:3px solid #FF3355;">
+        <div style="font-size:10px;color:#70889c;">STRICT STOP LOSS</div>
+        <div style="font-size:15px;font-weight:bold;color:#FF3355;margin-top:3px;">₹{sl:,.2f}</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:#091420;padding:12px;border-left:3px solid #00FF88;">
+        <div style="font-size:10px;color:#70889c;">TARGET 1 (50% SCALE)</div>
+        <div style="font-size:15px;font-weight:bold;color:#00FF88;margin-top:3px;">₹{tp1:,.2f}</div>
+      </div>
+      <div style="flex:1;min-width:120px;background:#091420;padding:12px;border-left:3px solid #00FF88;">
+        <div style="font-size:10px;color:#70889c;">TARGET 2 (RUNNER)</div>
+        <div style="font-size:15px;font-weight:bold;color:#00FF88;margin-top:3px;">₹{tp2:,.2f}</div>
+      </div>
+    </div>
+
+    <div style="font-size:13px;font-weight:bold;color:#FFCC00;margin-bottom:8px;">CHECKPOINTS VERIFICATION AUDIT:</div>
+    <table style="width:100%;border-collapse:collapse;background:#08131d;font-size:12px;">
+      <thead><tr style="background:#091420;color:#70889c;text-align:left;">
+        <th style="padding:6px 10px;">Checkpoint Gate</th><th style="padding:6px 10px;">Status</th><th style="padding:6px 10px;">Verification Metric</th>
+      </tr></thead>
+      <tbody>{gates_tr}</tbody>
+    </table>
+  </div>
+</body>
+</html>"""
+
+    wa_text = (
+        f"🟢 EXECUTION GREEN LIGHT: {sym}\n"
+        f"Checkpoints Verified: {passed_count}/4 Passed\n\n"
+        f"🎯 BUY CORRIDOR: ₹{entry_min:,.2f} – ₹{entry_max:,.2f}\n"
+        f"🛑 STRICT SL: ₹{sl:,.2f}\n"
+        f"🚀 TP1: ₹{tp1:,.2f} | TP2: ₹{tp2:,.2f}\n"
+        f"⚖️ R:R: {rr}:1\n\n"
+        f"Execution window active. Capital limits enforced."
+    )
+
+    return _dispatch_alert(subject, html, wa_text, force=True) if force else _dispatch_alert(subject, html, wa_text)
+
+
+def send_invalidation_alert(
+    symbol: str,
+    signal_data: Dict[str, Any],
+    reason: str,
+    force: bool = False
+) -> Dict[str, Any]:
+    """
+    Dispatches the Trade Invalidation / Noise Pruning Notice.
+    """
+    sym = symbol.upper()
+    sl = signal_data.get("stop_loss", 0.0)
+    subject = f"🛑 [TRADE INVALIDATION] {sym} — Setup Aborted / Capital Preserved"
+
+    html = f"""<!DOCTYPE html>
+<html>
+<body style="margin:0;padding:16px;background:#060F16;font-family:'Courier New',monospace;color:#d0e0f0;">
+  <div style="max-width:700px;margin:0 auto;background:#180a0e;border:2px solid #FF3355;padding:24px;border-radius:4px;">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="background:#3a0b14;color:#FF3355;border:1px solid #FF3355;padding:6px 14px;font-size:13px;font-weight:bold;">
+        🛑 TRADE INVALIDATED &bull; NOISE PRUNED
+      </div>
+      <div style="font-size:18px;font-weight:bold;color:#ffffff;">{sym}</div>
+    </div>
+    <div style="margin-top:16px;font-size:14px;color:#ffffff;line-height:1.6;">
+      The forward trading setup staged in the Tracker Bucket has failed verification gates and is permanently aborted.
+    </div>
+    <div style="margin-top:12px;background:#240c12;padding:14px;border-left:3px solid #FF3355;font-size:13px;color:#ffccd5;">
+      <strong>Invalidation Cause:</strong> {reason}
+    </div>
+    <div style="margin-top:16px;font-size:12px;color:#a0b8c8;">
+      🛡️ <strong>Rule 1 Preserved:</strong> Capital safety is paramount. The order is purged from active triggers.
+    </div>
+  </div>
+</body>
+</html>"""
+
+    wa_text = (
+        f"🛑 TRADE INVALIDATION: {sym}\n"
+        f"Status: ABORTED / NOISE PRUNED\n"
+        f"Reason: {reason}\n"
+        f"Action: Capital preserved. Do NOT enter setup."
+    )
+
+    return _dispatch_alert(subject, html, wa_text, force=True) if force else _dispatch_alert(subject, html, wa_text)

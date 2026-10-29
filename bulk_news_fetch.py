@@ -511,6 +511,11 @@ def bulk_fetch_all(delay_secs=2.0, max_per_symbol=20, verbose=True, force_all=Fa
         # Run batch database saving
         t0_db = time.time()
         total_new = save_headlines_batch(batch_to_save)
+        try:
+            from core.tracker import handle_finbert_news_drip
+            handle_finbert_news_drip(batch_to_save)
+        except Exception as _e:
+            pass
         dur_db = time.time() - t0_db
         _log(f"  [DB   ] Bulk database insert completed in {dur_db*1000:.1f}ms")
         

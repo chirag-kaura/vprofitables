@@ -22,7 +22,7 @@ class TestSentimentFixes(unittest.TestCase):
         # Without Fix 1, VADER doesn't match multi-word phrases and scores this near 0.0 or slightly negative due to "weak".
         # With Fix 1, the phrase is stripped and scored with 40% weight.
         headline = "Company reports a 52-week low amid normal trading"
-        score = _score_text(headline)
+        score, _ = _score_text(headline)
         
         # Assert that the score is union of VADER compound (0) and phrase score (-2.0 / 3.0 = -0.667)
         # 0.6 * 0 + 0.4 * (-0.667) = -0.267

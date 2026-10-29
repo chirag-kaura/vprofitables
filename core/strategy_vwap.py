@@ -1,12 +1,12 @@
-﻿import numpy as np
+import numpy as np
 import pandas as pd
 from core.timeseries_db import get_1m_data
 
 def get_intraday_vwap_and_profile(symbol: str, target_date: str = None) -> dict:
-    \"\"\"
+    """
     Calculates Intraday VWAP, Market Profile (Point of Control), and 
     Cumulative Volume Delta (CVD) using the 1-minute DuckDB data.
-    \"\"\"
+    """
     try:
         # Get latest 375 minutes (1 trading day in India roughly)
         df = get_1m_data(symbol, limit=375)

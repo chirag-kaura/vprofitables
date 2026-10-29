@@ -8,13 +8,12 @@ HTML = r"""
 <div class="page" id="page-simons">
   <div class="topbar">
     <h2>SIMONS QUANT LAB</h2>
-    <span class="page-tag">FFT · AUTOCORRELATION · REGIME · BACKTEST</span>
   </div>
 
-  <div class="card" style="padding:10px 14px;margin-bottom:10px;">
+  <div class="card" data-feature-id="simons_fourier_lab" style="padding:10px 14px;margin-bottom:10px;">
     <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       <label style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--dim);letter-spacing:1px;flex-shrink:0;">SYMBOL</label>
-      <select id="simons-sym" onchange="autoFetchPrice('simons-sym','simons-price','simons-price-badge')"
+      <select id="simons-sym" onchange="autoFetchPrice('simons-sym','simons-price','simons-price-badge');checkDbRows('simons-sym','simons-db-badge');"
         style="background:var(--p2);border:1px solid var(--b2);color:var(--gold);padding:4px 8px;
         font-family:Share Tech Mono,monospace;font-size:0.82rem;font-weight:700;outline:none;min-width:140px;flex:1;"></select>
       <label style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--dim);letter-spacing:1px;flex-shrink:0;">CURRENT PRICE</label>
@@ -333,7 +332,7 @@ function renderSimons(d) {
   const slPct = Math.max(0.015, dailyVol * 1.5);
 
   // Time base values
-  const baseDateStr = GANN_DATE || today.isoformat();
+  const baseDateStr = GANN_DATE || today;
   
   const getFutureDate = (startStr, days) => {
     const dObj = new Date(startStr);
@@ -421,11 +420,15 @@ function renderSimons(d) {
     shortStatus.style.color = "var(--gold)";
     shortStatus.style.background = "rgba(255,152,0,0.15)";
     shortStatus.style.border = "1px solid var(--gold)";
-    shortDesc.innerHTML = `No clear 45-day position trend edge (Hit Rate ${btShort.hit_rate_pct || 0}%). Stay flat.`;
-    shortEntry.textContent = "—";
-    shortSl.textContent = "—";
-    shortT1.textContent = "—";
-    shortHold.textContent = "—";
+    shortDesc.innerHTML = `Consolidation mode (Hit Rate ${btShort.hit_rate_pct || 0}%). Directional trend is neutral. Accumulate near support floor ₹${nearSup.toFixed(0)}.`;
+    shortEntry.textContent = `₹${curPrice > 0 ? curPrice.toFixed(2) : nearSup.toFixed(2)}`;
+    shortSl.textContent = `₹${(curPrice > 0 ? (curPrice * 0.95) : (nearSup * 0.95)).toFixed(2)}`;
+    shortT1.textContent = `₹${(curPrice > 0 ? (curPrice * 1.08) : (nearRes * 1.06)).toFixed(2)}`;
+    shortHold.textContent = `45d / ${getFutureDate(baseDateStr, 45)}`;
+
+
+
+
   }
 
   // 3. LONG-TERM POSITION (3+ Months)
@@ -458,11 +461,15 @@ function renderSimons(d) {
     swingStatus.style.color = "var(--gold)";
     swingStatus.style.background = "rgba(255,152,0,0.15)";
     swingStatus.style.border = "1px solid var(--gold)";
-    swingDesc.innerHTML = `No clear 90-day structural edge (Hit Rate ${btLong.hit_rate_pct || 0}%). Stay flat or hedge portfolio.`;
-    swingEntry.textContent = "—";
-    swingSl.textContent = "—";
-    swingT1.textContent = "—";
-    swingHold.textContent = "—";
+    swingDesc.innerHTML = `Structural consolidation (Hit Rate ${btLong.hit_rate_pct || 0}%). Macro price action is range-bound. Long-term accumulation near SMA200 / deep support.`;
+    swingEntry.textContent = `₹${curPrice > 0 ? curPrice.toFixed(2) : (nearSup * 0.96).toFixed(2)}`;
+    swingSl.textContent = `₹${(curPrice > 0 ? (curPrice * 0.90) : (nearSup * 0.90)).toFixed(2)}`;
+    swingT1.textContent = `₹${(curPrice > 0 ? (curPrice * 1.18) : (nearRes * 1.18)).toFixed(2)}`;
+    swingHold.textContent = `90d / ${getFutureDate(baseDateStr, 90)}`;
+
+
+
+
   }
 
   // Fourier table

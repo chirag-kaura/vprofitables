@@ -122,6 +122,48 @@ NSE_INDICES = {i.symbol: i for i in [
          atl=1412,   atl_date=date(2004, 5, 17),
          ath=25980,  ath_date=date(2024, 7, 16),
          inception=date(2004, 1, 1), yf="^CNXAUTO"),
+
+    _idx("INDIAVIX",
+         "India VIX", "Volatility", "Rahu", "Ketu",
+         atl=8.0,    atl_date=date(2017, 7, 7),
+         ath=92.5,   ath_date=date(2008, 10, 24),
+         inception=date(2008, 1, 1), yf="^INDIAVIX"),
+
+    _idx("NIFTYFMCG",
+         "Nifty FMCG", "FMCG", "Moon", "Venus",
+         atl=1500,   atl_date=date(2001, 9, 21),
+         ath=66000,  ath_date=date(2024, 9, 27),
+         inception=date(2001, 1, 1), yf="^CNXFMCG"),
+
+    _idx("NIFTYMETAL",
+         "Nifty Metal", "Metals", "Mars", "Saturn",
+         atl=600,    atl_date=date(2001, 9, 21),
+         ath=10500,  ath_date=date(2024, 5, 21),
+         inception=date(2001, 1, 1), yf="^CNXMETAL"),
+
+    _idx("NIFTYENERGY",
+         "Nifty Energy", "Energy", "Sun", "Mars",
+         atl=1200,   atl_date=date(2001, 9, 21),
+         ath=43000,  ath_date=date(2024, 9, 27),
+         inception=date(2001, 1, 1), yf="^CNXENERGY"),
+
+    _idx("NIFTYREALTY",
+         "Nifty Realty", "Realty", "Mars", "Venus",
+         atl=130,    atl_date=date(2009, 3, 9),
+         ath=1150,   ath_date=date(2024, 6, 12),
+         inception=date(2007, 7, 10), yf="^CNXREALTY"),
+
+    _idx("NIFTYINFRA",
+         "Nifty Infra", "Infrastructure", "Saturn", "Mars",
+         atl=1000,   atl_date=date(2008, 10, 27),
+         ath=9200,   ath_date=date(2024, 6, 12),
+         inception=date(2004, 1, 1), yf="^CNXINFRA"),
+
+    _idx("NIFTYMIDCAP50",
+         "Nifty Midcap 50", "Broad Market", "Mercury", "Jupiter",
+         atl=800,    atl_date=date(2003, 5, 1),
+         ath=17000,  ath_date=date(2024, 9, 27),
+         inception=date(2003, 1, 1), yf="^NSEMDCP50"),
 ]}
 
 
@@ -277,10 +319,10 @@ NSE_EQUITIES = {i.symbol: i for i in [
         inception=date(1996, 3, 27), yf="M&M.NS", lot=350),
 
     _eq("TATAMOTORS",
-        "Tata Motors", "Auto", "Saturn", "Mars",
+        "Tata Motors Passenger Vehicles", "Auto", "Saturn", "Mars",
         atl=15,     atl_date=date(2001, 9, 21),    # split-adjusted
         ath=1179,   ath_date=date(2024, 7, 30),
-        inception=date(1995, 11, 29), yf="TATAMOTORS.NS", lot=550),
+        inception=date(1995, 11, 29), yf="TMPV.NS", lot=550),
 
     # ── METALS / CEMENT (3) ──────────────────────────────────────────────────
     _eq("TATASTEEL",

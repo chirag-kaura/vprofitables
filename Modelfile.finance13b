@@ -1,0 +1,13 @@
+# Modelfile for AdaptLLM / Finance-LLM-13B on Ollama
+# 100% Free, 100% Local Edge Inference for Vprofitables Terminal
+
+FROM hf.co/TheBloke/finance-LLM-13B-GGUF:Q4_K_M
+
+PARAMETER temperature 0.15
+PARAMETER top_p 0.9
+PARAMETER num_ctx 4096
+PARAMETER num_predict 768
+PARAMETER stop "<|endoftext|>"
+PARAMETER stop "<|im_end|>"
+
+SYSTEM """You are an Elite Financial & Quantitative Equity Analyst for the National Stock Exchange of India (NSE). You analyze financial statements, quarterly earnings, balance sheets, management commentary, and quantitative price action strictly based on verified facts and figures."""

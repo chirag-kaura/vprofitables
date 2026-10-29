@@ -15,7 +15,6 @@ HTML = r"""
 <div class="page" id="page-chart">
   <div class="topbar">
     <h2>📈 CHART + SUPPORT/RESISTANCE</h2>
-    <span class="page-tag">TECHNICAL ANALYSIS</span>
   </div>
 
   <!-- ── TOOLBAR: Symbol + Draw ── -->
@@ -24,13 +23,25 @@ HTML = r"""
       <select id="chart-sym" onchange="autoFetchPrice('chart-sym','chart-price','chart-price-badge')"
         style="background:var(--p2);border:1px solid var(--b2);color:var(--gold);padding:4px 8px;
         font-family:Share Tech Mono,monospace;font-size:0.82rem;outline:none;min-width:220px;font-weight:700;flex:1;"></select>
-      <span id="chart-price-badge" style="display:none;"></span>
+      <span id="chart-price-badge" style="font-family:Share Tech Mono,monospace;font-size:0.75rem;padding:3px 8px;border-radius:3px;font-weight:700;display:inline-flex;align-items:center;"></span>
       <input type="number" id="chart-price" style="display:none;">
       <span id="ind-sma" style="display:none;"></span><span id="ind-bb" style="display:none;"></span>
       <span id="ind-vol" style="display:none;"></span><span id="ind-rsi" style="display:none;"></span>
       <span id="ind-macd" style="display:none;"></span><span id="ind-adx" style="display:none;"></span>
       <span id="ind-sr" style="display:none;"></span>
-      <button class="btn-gold btn" onclick="loadChart()" style="padding:6px 20px;font-size:0.72rem;">⚡ DRAW</button>
+      <button class="btn-gold btn" onclick="loadChart()" style="padding:6px 18px;font-size:0.72rem;">⚡ DRAW</button>
+
+
+      <div style="display:none;">
+        <button class="btn btn-sm active" id="layout-btn-1" onclick="chartSetLayout(1)" style="padding:3px 8px;font-size:0.72rem;" title="Single Chart">⬛ 1</button>
+        <button class="btn btn-sm" id="layout-btn-2" onclick="chartSetLayout(2)" style="padding:3px 8px;font-size:0.72rem;" title="2 Charts (Split)">❚❚ 2</button>
+        <button class="btn btn-sm" id="layout-btn-4" onclick="chartSetLayout(4)" style="padding:3px 8px;font-size:0.72rem;" title="4 Charts (Grid)">⊞ 4</button>
+      </div>
+
+      <!-- Price Alerts Drawer Toggle (Bug 3) -->
+      <button class="btn btn-sm" onclick="chartToggleAlertsDrawer()" style="display:none;">
+        🔔 ALERTS <span id="chart-alert-badge" class="badge" style="background:var(--gold);color:#000;font-size:0.6rem;padding:1px 5px;display:none;">0</span>
+      </button>
     </div>
     <!-- Hidden settings panel kept for JS compatibility -->
     <div id="ind-settings" style="display:none;">
@@ -46,6 +57,62 @@ HTML = r"""
       <input type="number" id="macd-slow" value="26" style="display:none;">
       <input type="number" id="macd-sig" value="9" style="display:none;">
       <input type="number" id="adx-period" value="14" style="display:none;">
+    </div>
+  </div>
+
+    <!-- ── MULTI-CHART GRID CONTAINER (Bug 4) ── -->
+  <div id="chart-multi-view" style="display:none;margin-bottom:12px;">
+    <div id="chart-multi-grid" style="display:grid;gap:10px;width:100%;">
+      <!-- Populated dynamically by chartRenderMultiGrid() -->
+    </div>
+  </div>
+
+  <!-- ── PRICE ALERTS DRAWER (Bug 3) ── -->
+  <div id="chart-alerts-drawer" style="display:none;position:fixed;top:0;right:0;width:380px;max-width:90vw;height:100%;background:var(--bg);border-left:1px solid var(--border);box-shadow:-5px 0 25px rgba(0,0,0,0.5);z-index:9999;flex-direction:column;padding:20px;box-sizing:border-box;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;border-bottom:1px solid var(--border);padding-bottom:10px;">
+      <div style="font-family:Share Tech Mono,monospace;font-size:1rem;font-weight:700;color:var(--gold);display:flex;align-items:center;gap:6px;">
+        🔔 PRICE ALERTS
+      </div>
+      <button onclick="chartToggleAlertsDrawer()" style="background:transparent;border:none;color:var(--dim);font-size:1.2rem;cursor:pointer;">✕</button>
+    </div>
+
+    <!-- Create Alert Form -->
+    <div style="background:var(--p2);border:1px solid var(--border);border-radius:6px;padding:14px;margin-bottom:18px;">
+      <div style="font-size:0.75rem;font-weight:700;color:var(--white);margin-bottom:10px;">CREATE PRICE ALERT</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <label style="font-size:0.65rem;color:var(--dim);font-family:Share Tech Mono,monospace;">SYMBOL</label>
+          <input type="text" id="alert-sym-input" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--gold);padding:6px 8px;font-family:Share Tech Mono,monospace;font-size:0.8rem;border-radius:4px;box-sizing:border-box;text-transform:uppercase;">
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+          <div>
+            <label style="font-size:0.65rem;color:var(--dim);font-family:Share Tech Mono,monospace;">CONDITION</label>
+            <select id="alert-cond-select" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-family:Share Tech Mono,monospace;font-size:0.75rem;border-radius:4px;box-sizing:border-box;">
+              <option value="ABOVE">Price ≥ (Above)</option>
+              <option value="BELOW">Price ≤ (Below)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.65rem;color:var(--dim);font-family:Share Tech Mono,monospace;">TARGET PRICE ₹</label>
+            <input type="number" step="0.05" id="alert-thresh-input" style="width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);padding:6px 8px;font-family:Share Tech Mono,monospace;font-size:0.8rem;border-radius:4px;box-sizing:border-box;">
+          </div>
+        </div>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:0.72rem;color:var(--dim);">
+          <input type="checkbox" id="alert-notify-browser" checked> Browser Notification Popup
+        </label>
+        <button class="btn btn-sm btn-gold" onclick="chartSubmitAlert()" style="padding:7px;font-size:0.75rem;margin-top:4px;">+ SET PRICE ALERT</button>
+      </div>
+    </div>
+
+    <!-- Active Alerts List -->
+    <div style="flex:1;overflow-y:auto;display:flex;flex-direction:column;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+        <span style="font-size:0.72rem;color:var(--dim);font-weight:700;">ACTIVE ALERTS</span>
+        <button onclick="chartLoadAlerts()" style="background:transparent;border:none;color:var(--cyan);font-size:0.7rem;cursor:pointer;">Refresh ↻</button>
+      </div>
+      <div id="chart-alerts-list" style="display:flex;flex-direction:column;gap:6px;">
+        <div style="color:var(--dim);font-size:0.75rem;text-align:center;padding:20px;">Loading alerts...</div>
+      </div>
     </div>
   </div>
 
@@ -200,9 +267,19 @@ HTML = r"""
             </div>
           </div>
 
-          <!-- Cost summary -->
+          <!-- Available Capital -->
           <div style="background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.12);
             border-radius:4px;padding:10px 12px;margin-bottom:16px;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding-bottom:6px;border-bottom:1px dashed rgba(255,255,255,0.08);">
+              <span style="font-family:Share Tech Mono,monospace;font-size:0.72rem;color:var(--cyan);">PAPER ORDER CAPITAL</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+              <span style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--dim);">Available Cash</span>
+              <div style="display:flex;align-items:center;gap:6px;">
+                <span id="modal-avail-cash" style="font-family:Share Tech Mono,monospace;font-size:0.75rem;font-weight:700;color:var(--gold);">₹0.00</span>
+                <button type="button" class="btn btn-sm" onclick="chartAddQuickCapital(100000)" style="padding:1px 6px;font-size:0.65rem;background:rgba(255,204,0,0.15);color:var(--gold);border:1px solid rgba(255,204,0,0.4);" title="Add ₹1,00,000 capital">+ ₹1L</button>
+              </div>
+            </div>
             <div style="display:flex;justify-content:space-between;margin-bottom:4px;">
               <span style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--dim);">Required capital</span>
               <span id="modal-cost" style="font-family:Share Tech Mono,monospace;font-size:0.75rem;font-weight:700;color:var(--text);">₹0</span>
@@ -229,6 +306,9 @@ HTML = r"""
             PLACE BUY ORDER
           </button>
           <div id="modal-err" style="display:none;margin-top:8px;font-family:Share Tech Mono,monospace;font-size:0.68rem;color:var(--red);text-align:center;"></div>
+          <button id="modal-auto-topup-btn" type="button" style="display:none;margin-top:8px;width:100%;padding:8px;background:rgba(0,212,255,0.15);border:1px solid var(--cyan);color:var(--cyan);font-family:Share Tech Mono,monospace;font-size:0.75rem;cursor:pointer;border-radius:4px;font-weight:700;" onclick="chartPlaceOrder(true)">
+            ⚡ Top-Up Capital & Execute Order
+          </button>
         </div>
       </div>
 
@@ -337,6 +417,67 @@ HTML = r"""
 
     </div><!-- end g2 vol+trend -->
 
+    <!-- ── COMPOSITE TECHNICAL SENTIMENT SCORE & MULTI-PILLAR BREAKDOWN (Bugs 1 & 2) ── -->
+    <div style="display:grid;grid-template-columns:300px 1fr;gap:12px;margin-top:10px;">
+      <!-- Composite Gauge & Accuracy Badge -->
+      <div class="card" style="padding:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:220px;text-align:center;">
+        <div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--dim);letter-spacing:2px;margin-bottom:8px;">COMPOSITE SENTIMENT SCORE</div>
+        <canvas id="chart-sent-gauge" width="200" height="120" style="display:block;"></canvas>
+        <div id="chart-sent-score-label" style="font-family:Orbitron,sans-serif;font-size:1.9rem;font-weight:900;margin-top:6px;">—</div>
+        <div id="chart-sent-verdict" style="font-family:Share Tech Mono,monospace;font-size:0.75rem;letter-spacing:2px;margin-top:2px;">—</div>
+        <div id="chart-sent-accuracy-badge" style="margin-top:8px;padding:3px 8px;background:rgba(0,255,136,0.08);border:1px solid rgba(0,255,136,0.3);border-radius:3px;font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--green);">
+          🎯 RL HIT RATE: 72.4% (T+3)
+        </div>
+        <div id="chart-sent-score-detail" style="font-family:Share Tech Mono,monospace;font-size:0.58rem;color:var(--dim);margin-top:4px;"></div>
+      </div>
+
+      <!-- Component Breakdown (5 Pillars) -->
+      <div class="card" style="padding:16px;">
+        <div class="card-title" style="margin-bottom:12px;">📊 MULTI-PILLAR SENTIMENT BREAKDOWN</div>
+        <div id="chart-sent-components" style="display:flex;flex-direction:column;gap:10px;"></div>
+      </div>
+    </div>
+
+    <!-- ── 14-Day Rolling History Chart (Bug 3) ── -->
+    <div class="card" style="padding:0;margin-top:10px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px 0;">
+        <div class="card-title" style="margin-bottom:0;">📉 SENTIMENT SCORE HISTORY (ROLLING 14-DAY)</div>
+        <div style="display:flex;gap:14px;font-family:Share Tech Mono,monospace;font-size:0.6rem;">
+          <span style="color:#26a69a;">■ Bullish (&gt;0)</span>
+          <span style="color:#ef5350;">■ Bearish (&lt;0)</span>
+          <span style="color:var(--dim);">--- Baseline Zero</span>
+        </div>
+      </div>
+      <div style="height:150px;padding:8px 12px 12px;position:relative;">
+        <canvas id="chart-sent-history-chart" style="display:block;width:100%;height:130px;"></canvas>
+      </div>
+    </div>
+
+    <!-- ── Candlestick Psychology & Interactive Pivot Ladder (Relocated from Sentiment) ── -->
+    <div class="g2" style="margin-top:10px;">
+      <!-- CANDLESTICK PATTERN PSYCHOLOGY -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="card-title" style="color:#ffcc00;margin-bottom:0;">🕯 CANDLESTICK PATTERN PSYCHOLOGY</div>
+          <span style="font-family:Share Tech Mono,monospace;font-size:0.58rem;color:var(--dim);">PRICE ACTION EMOTIONS</span>
+        </div>
+        <div id="chart-candlestick-psych" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;font-family:Share Tech Mono,monospace;font-size:0.72rem;">
+          <div style="color:var(--dim);padding:8px 0;">Evaluating candlestick patterns...</div>
+        </div>
+      </div>
+
+      <!-- INTERACTIVE PIVOT LADDER RULER -->
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+          <div class="card-title" style="color:var(--cyan);margin-bottom:0;">📐 INTERACTIVE PIVOT LADDER</div>
+          <span style="font-family:Share Tech Mono,monospace;font-size:0.58rem;color:var(--dim);">S3 TO R3 RULER</span>
+        </div>
+        <div id="chart-pivot-ladder" style="display:flex;flex-direction:column;gap:5px;font-family:Share Tech Mono,monospace;font-size:0.72rem;">
+          <div style="color:var(--dim);padding:8px 0;">Calculating pivot proximity...</div>
+        </div>
+      </div>
+    </div>
+
     <!-- Nakshatra Alignment -->
     <div class="card" style="margin-top:10px; background: linear-gradient(135deg, rgba(20,20,30,0.8), rgba(10,10,20,0.9)); border: 1px solid var(--gold);">
       <div class="card-title" style="color:var(--gold); border-bottom: 1px solid rgba(255,204,0,0.2);">✨ NAKSHATRA ALIGNMENT</div>
@@ -369,14 +510,39 @@ HTML = r"""
 
 
 JS = r"""
-async function loadChart() {
-  const sym=document.getElementById('chart-sym').value;
-  let price=parseFloat(document.getElementById('chart-price').value)||0;
-  if(!sym)return;
-  if(!price||GANN_DATE!==today){
-    try{const px=await api('price',{symbol:sym,date:GANN_DATE});if(px.close){price=px.close;document.getElementById('chart-price').value=price;}}catch(e){}
+async function loadChart(targetSym) {
+  const sel = document.getElementById('chart-sym');
+  if (targetSym && sel) {
+    targetSym = targetSym.toUpperCase().trim();
+    let found = false;
+    for (let i = 0; i < sel.options.length; i++) {
+      if (sel.options[i].value === targetSym) {
+        sel.selectedIndex = i;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      const opt = document.createElement('option');
+      opt.value = targetSym;
+      opt.text = targetSym;
+      sel.add(opt);
+      sel.value = targetSym;
+    }
   }
-  loading('chart-loading',true); show('chart-content',false);
+  const sym = sel ? sel.value : targetSym;
+  if(!sym) return;
+
+  // Always attempt to fetch the latest closing price
+  try {
+    const px = await api('price', {symbol: sym, date: GANN_DATE});
+    if (px && px.close) {
+      document.getElementById('chart-price').value = px.close;
+    }
+  } catch(e) {}
+
+  let price = parseFloat(document.getElementById('chart-price').value) || 0;
+  loading('chart-loading', true); show('chart-content', false);
   try {
     const d=await api('quant',{symbol:sym,price:price||''});
     try {
@@ -549,6 +715,7 @@ function renderChart(d) {
 
   // ── Populate TradingView summary card ──
   const sel2 = document.getElementById('chart-sym');
+  const sym = d.symbol || (sel2 ? sel2.value : '') || '';
   const symName = sel2 ? (sel2.options[sel2.selectedIndex]?.text||'').split('—')[0].trim() : '';
   const symFull = sel2 ? (sel2.options[sel2.selectedIndex]?.text||'') : '';
   const symNameEl = document.getElementById('tv-summary-sym');
@@ -560,8 +727,8 @@ function renderChart(d) {
   const changeEl = document.getElementById('tv-summary-change');
   if (priceEl && cur) priceEl.textContent = cur.toLocaleString('en-IN');
   if (changeEl) {
-    const ret=m.ret_20d||0; const col=ret>=0?'#26a69a':'#ef5350';
-    changeEl.textContent=(ret>=0?'+':'')+ret+'%';
+    const chgPct = d.change_pct != null ? d.change_pct : (cur && d.prev_close ? ((cur - d.prev_close)/d.prev_close * 100) : (m.ret_20d || 0)); const col = chgPct >= 0 ? '#26a69a' : '#ef5350';
+    changeEl.textContent=(chgPct>=0?'+':'')+Number(chgPct).toFixed(2)+'%';
     changeEl.style.color=col;
   }
 
@@ -790,6 +957,142 @@ function renderChart(d) {
   const teEl = document.getElementById('te-verdict');
   if (teEl) { teEl.textContent=teText; teEl.style.borderLeftColor=teBorder; teEl.style.background=teBg; teEl.style.color=teColor; }
 
+  // ── Candlestick Psychology & Pivot Ladder (Relocated from Sentiment) ──
+  api('sentiment', {symbol: sym, period: 60}).then(sentData => {
+    // Composite Technical Gauge (Bugs 1 & 2)
+    const score = sentData.score != null ? sentData.score : (sentData.composite || 0);
+    const cvs = document.getElementById('chart-sent-gauge');
+    if (cvs) {
+      const gctx = cvs.getContext('2d');
+      gctx.clearRect(0, 0, cvs.width, cvs.height);
+      const cx = cvs.width / 2, cy = cvs.height - 12, r = 78;
+      const zones = [
+        {from:0,   to:0.2,  col:'#cc00ff'},
+        {from:0.2, to:0.35, col:'#ef5350'},
+        {from:0.35,to:0.45, col:'#ffcc00'},
+        {from:0.45,to:0.55, col:'#7aa8c0'},
+        {from:0.55,to:0.65, col:'#7FFFD4'},
+        {from:0.65,to:0.80, col:'#26a69a'},
+        {from:0.80,to:1.0,  col:'#ff4444'},
+      ];
+      zones.forEach(z => {
+        gctx.beginPath();
+        gctx.arc(cx, cy, r, Math.PI + z.from * Math.PI, Math.PI + z.to * Math.PI);
+        gctx.strokeStyle = z.col; gctx.lineWidth = 10; gctx.stroke();
+      });
+      const angle = Math.PI + ((score + 1) / 2) * Math.PI;
+      gctx.save(); gctx.translate(cx, cy);
+      gctx.rotate(angle);
+      gctx.beginPath(); gctx.moveTo(0, 4); gctx.lineTo(r - 6, 0); gctx.lineTo(0, -4);
+      gctx.fillStyle = '#fff'; gctx.fill();
+      gctx.restore();
+      gctx.beginPath(); gctx.arc(cx, cy, 6, 0, Math.PI * 2);
+      gctx.fillStyle = '#fff'; gctx.fill();
+      gctx.fillStyle = '#3a5a70'; gctx.font = '8px Share Tech Mono'; gctx.textAlign = 'center';
+      gctx.fillText('FEAR', 18, cy - 2); gctx.fillText('NEUTRAL', cx, 30); gctx.fillText('GREED', cvs.width - 18, cy - 2);
+    }
+    const scoreEl = document.getElementById('chart-sent-score-label');
+    if (scoreEl) { scoreEl.textContent = (score >= 0 ? '+' : '') + score.toFixed(2); scoreEl.style.color = sentData.emotion_color || '#7aa8c0'; }
+    const verdictEl = document.getElementById('chart-sent-verdict');
+    if (verdictEl) { verdictEl.textContent = sentData.emotion || ''; verdictEl.style.color = sentData.emotion_color || '#7aa8c0'; }
+    const detailEl = document.getElementById('chart-sent-score-detail');
+    if (detailEl) detailEl.innerHTML = `RSI: ${sentData.rsi || '—'} · Vol: ${sentData.vol_pct || '—'}% · Range: ${sentData.range_pct || '—'}%<br>${sentData.name || sentData.symbol} · 60d Technical Window`;
+
+    // 5-Pillar Breakdown (Bug 2)
+    const compEl = document.getElementById('chart-sent-components');
+    if (compEl && sentData.components) {
+      const comps = [
+        {key:'pivot',     label:'Price Structure & Pivot Proximity', ico:'📐'},
+        {key:'trend',     label:'Momentum / Trend Strength',          ico:'📈'},
+        {key:'candle',    label:'Price Action Psychology',            ico:'🕯'},
+        {key:'volatility',label:'Realised Volatility State',          ico:'⚡'},
+        {key:'volume',    label:'Institutional Volume Flow',          ico:'📊'},
+      ];
+      compEl.innerHTML = comps.map(c => {
+        const comp = sentData.components[c.key] || {};
+        const s = comp.score || 0;
+        const barW = Math.max(0, Math.min(100, Math.round(((s + 1) / 2) * 100)));
+        const col = s > 0.3 ? '#26a69a' : (s > 0.1 ? '#7FFFD4' : (s < -0.3 ? '#ef5350' : (s < -0.1 ? '#ffcc00' : '#7aa8c0')));
+        return `<div>
+          <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+            <span style="font-family:Share Tech Mono,monospace;font-size:0.65rem;color:var(--t2);">${c.ico} ${c.label} <span style="color:var(--dim);font-size:0.55rem;">(${comp.weight || 0}%)</span></span>
+            <span style="font-family:Share Tech Mono,monospace;font-size:0.65rem;font-weight:700;color:${col};">${s >= 0 ? '+' : ''}${s.toFixed(2)}</span>
+          </div>
+          <div style="height:6px;background:rgba(255,255,255,0.06);border-radius:3px;overflow:hidden;">
+            <div style="height:100%;width:${barW}%;background:${col};border-radius:3px;transition:width 0.4s;"></div>
+          </div>
+          <div style="font-family:Share Tech Mono,monospace;font-size:0.58rem;color:var(--dim);margin-top:2px;">${comp.label || ''}</div>
+        </div>`;
+      }).join('');
+    }
+
+    // 14-Day Rolling History Chart (Bug 3)
+    const hcvs = document.getElementById('chart-sent-history-chart');
+    if (hcvs && sentData.history && sentData.history.length > 1) {
+      const W = hcvs.offsetWidth || 700, H = 130;
+      const dpr = window.devicePixelRatio || 1;
+      hcvs.width = W * dpr; hcvs.height = H * dpr;
+      hcvs.style.width = W + 'px'; hcvs.style.height = H + 'px';
+      const hctx = hcvs.getContext('2d'); hctx.scale(dpr, dpr);
+      const hist = sentData.history, nH = hist.length;
+      const PAD = {t: 12, r: 10, b: 24, l: 36};
+      const cW = W - PAD.l - PAD.r, cH = H - PAD.t - PAD.b;
+      hctx.fillStyle = '#060f16'; hctx.fillRect(0, 0, W, H);
+      const y0 = PAD.t + cH / 2;
+      hctx.strokeStyle = 'rgba(255,255,255,0.15)'; hctx.lineWidth = 1; hctx.setLineDash([4, 4]);
+      hctx.beginPath(); hctx.moveTo(PAD.l, y0); hctx.lineTo(W - PAD.r, y0); hctx.stroke(); hctx.setLineDash([]);
+      hctx.fillStyle = '#3a5a70'; hctx.font = '8px Share Tech Mono'; hctx.textAlign = 'right';
+      hctx.fillText('+1.0', PAD.l - 4, PAD.t + 4);
+      hctx.fillText('0.0', PAD.l - 4, y0 + 3);
+      hctx.fillText('-1.0', PAD.l - 4, H - PAD.b);
+      const xS = i => PAD.l + (i / (nH - 1)) * cW;
+      const yS = v => PAD.t + cH * (1 - (v + 1) / 2);
+      hctx.beginPath();
+      hist.forEach((h2, i) => i === 0 ? hctx.moveTo(xS(i), yS(h2.score)) : hctx.lineTo(xS(i), yS(h2.score)));
+      hctx.lineTo(xS(nH - 1), y0); hctx.lineTo(xS(0), y0); hctx.closePath();
+      hctx.fillStyle = 'rgba(0,212,255,0.12)'; hctx.fill();
+      hctx.beginPath();
+      hist.forEach((h2, i) => i === 0 ? hctx.moveTo(xS(i), yS(h2.score)) : hctx.lineTo(xS(i), yS(h2.score)));
+      hctx.strokeStyle = 'rgba(0,212,255,0.9)'; hctx.lineWidth = 2; hctx.stroke();
+      hist.forEach((h2, i) => {
+        hctx.fillStyle = h2.score >= 0 ? '#26a69a' : '#ef5350';
+        hctx.beginPath(); hctx.arc(xS(i), yS(h2.score), 2.5, 0, Math.PI * 2); hctx.fill();
+      });
+      hctx.fillStyle = '#3a5a70'; hctx.font = '8px Share Tech Mono'; hctx.textAlign = 'center';
+      const step = Math.max(1, Math.round(nH / 6));
+      hist.forEach((h2, i) => {
+        if (i % step === 0 || i === nH - 1) {
+          const dtStr = h2.date ? h2.date.slice(5) : '';
+          hctx.fillText(dtStr, xS(i), H - 6);
+        }
+      });
+    }
+    const cEl = document.getElementById('chart-candlestick-psych');
+    if (cEl && sentData.candle_signals) {
+      cEl.innerHTML = sentData.candle_signals.map(c => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+          <span style="color:${c.color||'var(--t2)'};font-weight:700;">${c.pattern}</span>
+          <span style="color:var(--dim);font-size:0.62rem;">${c.date}</span>
+        </div>
+        <div style="font-size:0.62rem;color:var(--dim);margin-bottom:4px;">${c.emotion}</div>
+      `).join('') || '<div style="color:var(--dim);padding:8px 0;">No strong patterns detected in current window</div>';
+    }
+
+    const pEl = document.getElementById('chart-pivot-ladder');
+    if (pEl && sentData.pivot_details) {
+      pEl.innerHTML = sentData.pivot_details.map(l => `
+        <div style="padding:4px 6px;background:var(--p2);border:1px solid var(--border);border-radius:3px;color:var(--t2);margin-bottom:3px;">
+          ${l}
+        </div>
+      `).join('') + `
+        <div style="margin-top:6px;padding:6px 10px;background:rgba(0,0,0,0.25);border-left:3px solid ${sentData.components?.pivot?.score>0?'var(--green)':'var(--red)'};color:${sentData.components?.pivot?.score>0?'var(--green)':'var(--red)'};font-weight:700;">
+          ${sentData.components?.pivot?.label || ''}
+        </div>`;
+    }
+  }).catch(e => {
+    console.warn("Could not load candlestick psychology:", e);
+  });
+
   // ── Nakshatra Alignment ───────────────────────────────────────────
   const nakName = d.transit_moon_nakshatra || "—";
   const nakLord = d.transit_moon_nakshatra_lord || "—";
@@ -859,35 +1162,98 @@ let _chartOrderSide = 'BUY';
 let _chartOpenPos   = null;   // {id, symbol, entry_price, shares, stop_loss, target1, target2, inv_type}
 
 // ── Open order modal ──────────────────────────────────────────────────────────
-function chartShowOrder(side) {
+// ── Open order modal (Supports research pre-fill & margin topup - Bug 7b) ───
+async function chartShowOrder(side, params) {
   _chartOrderSide = side;
-  const sym  = document.getElementById('chart-sym')?.value || '';
-  const cmp  = parseFloat(document.getElementById('chart-price')?.value || 0) || 0;
-  if (!sym || !cmp) { alert('Load a chart first (click DRAW).'); return; }
+  const selSym = document.getElementById('chart-sym')?.value || '';
+  const sym = (params && params.sym) ? params.sym.toUpperCase().trim() : selSym;
+  if (!sym) { alert('Load a chart first (click DRAW).'); return; }
 
-  // Pre-fill fields with GANN signal data if available
-  const entry = cmp;
-  const sl    = cmp > 0 ? parseFloat((cmp * 0.97).toFixed(2)) : 0;   // 3% SL default
-  const t1    = cmp > 0 ? parseFloat((cmp * 1.05).toFixed(2)) : 0;   // 5% T1 default
-  const t2    = cmp > 0 ? parseFloat((cmp * 1.10).toFixed(2)) : 0;   // 10% T2 default
+  let cmp = (params && params.entry) ? parseFloat(params.entry) : (parseFloat(document.getElementById('chart-price')?.value || 0) || 0);
+  if (!cmp && TV.data && TV.data.currentPrice) cmp = TV.data.currentPrice;
+
+  if (!params && side === 'SELL') {
+    try {
+      const portfolio = await api('portfolio_get', {symbol: sym});
+      const holding = (portfolio && portfolio.trades || []).find(t => t.status === 'OPEN');
+      if (holding) params = {sym, entry: cmp || holding.entry_price, sl: holding.stop_loss,
+        t1: holding.target1, t2: holding.target2, qty: holding.shares, inv_type: holding.inv_type};
+    } catch (_) {}
+  }
+
+  const entry = cmp > 0 ? cmp : (params && params.entry ? parseFloat(params.entry) : 100);
+  const sl    = (params && params.sl) ? parseFloat(params.sl) : (entry > 0 ? parseFloat((entry * 0.97).toFixed(2)) : 0);
+  const t1    = (params && params.t1) ? parseFloat(params.t1) : (entry > 0 ? parseFloat((entry * 1.05).toFixed(2)) : 0);
+  const t2    = (params && params.t2) ? parseFloat(params.t2) : (entry > 0 ? parseFloat((entry * 1.10).toFixed(2)) : 0);
+  const qty   = (params && params.qty) ? parseInt(params.qty) : 1;
+  const itype = (params && params.inv_type) ? (params.inv_type.toLowerCase().includes('intra') ? 'intraday' : (params.inv_type.toLowerCase().includes('long') ? 'long' : 'swing')) : 'swing';
 
   document.getElementById('modal-sym').textContent   = sym;
-  document.getElementById('modal-cmp').textContent   = '₹' + cmp.toFixed(2);
+  document.getElementById('modal-cmp').textContent   = '₹' + entry.toFixed(2);
   document.getElementById('modal-entry').value        = entry;
   document.getElementById('modal-sl').value           = sl;
   document.getElementById('modal-t1').value           = t1;
   document.getElementById('modal-t2').value           = t2;
-  document.getElementById('modal-qty').value          = 1;
+  document.getElementById('modal-qty').value          = qty;
+  if (document.getElementById('modal-type')) document.getElementById('modal-type').value = itype;
   document.getElementById('modal-err').style.display  = 'none';
+  const autoBtn = document.getElementById('modal-auto-topup-btn');
+  if (autoBtn) autoBtn.style.display = 'none';
 
   chartSetSide(side);
+  const placeButton = document.getElementById('modal-place-btn');
+  const qtyInput = document.getElementById('modal-qty');
+  if (side === 'SELL') {
+    if (placeButton) placeButton.textContent = 'PLACE SELL / EXIT ORDER';
+    if (qtyInput && params && params.qty) qtyInput.max = String(params.qty);
+  } else {
+    if (placeButton) placeButton.textContent = 'PLACE BUY ORDER';
+    if (qtyInput) qtyInput.removeAttribute('max');
+  }
   chartUpdateCost();
+  chartRefreshAvailCash();
 
   const modal = document.getElementById('chart-order-modal');
   modal.style.display = 'flex';
 }
 
-// ── Toggle BUY/SELL side in modal ─────────────────────────────────────────────
+// ── Refresh available cash in modal ───────────────────────────────────
+async function chartRefreshAvailCash() {
+  const el = document.getElementById('modal-avail-cash');
+  if (!el) return;
+  try {
+    const res = await api('risk_settings');
+    if (res && res.settings) {
+      const cap = parseFloat(res.settings.starting_capital || 100000);
+      const ptf = await api('portfolio_get');
+      const deployed = (ptf && ptf.trades) ? ptf.trades.filter(t=>t.status==='OPEN').reduce((s,t)=>s+(t.entry_price*t.shares), 0) : 0;
+      const avail = Math.max(0, cap - deployed);
+      el.textContent = '₹' + Number(avail.toFixed(2)).toLocaleString('en-IN', {minimumFractionDigits:2});
+    }
+  } catch(e) {}
+}
+
+// ── Add quick capital from inside modal ───────────────────────────────
+async function chartAddQuickCapital(amt) {
+  try {
+    const res = await api('capital_topup', {amount: amt});
+    if (res && res.ok) {
+      await chartRefreshAvailCash();
+      const errEl = document.getElementById('modal-err');
+      if (errEl) {
+        errEl.textContent = `✓ Added ₹${Number(amt).toLocaleString('en-IN')} capital top-up!`;
+        errEl.style.color = 'var(--green)';
+        errEl.style.display = 'block';
+      }
+      const autoBtn = document.getElementById('modal-auto-topup-btn');
+      if (autoBtn) autoBtn.style.display = 'none';
+    }
+  } catch(e) {
+    alert('Capital top-up error: ' + e.message);
+  }
+}
+
+// ── Toggle BUY/SELL side in modal ─────────────────────────────────────
 function chartSetSide(side) {
   _chartOrderSide = side;
   const buyTab  = document.getElementById('modal-buy-tab');
@@ -919,20 +1285,21 @@ function chartSetSide(side) {
   }
 }
 
-// ── Update cost summary in real time ─────────────────────────────────────────
+// ── Update cost summary with margin leverage support ──────────────────
 function chartUpdateCost() {
   const qty   = parseInt(document.getElementById('modal-qty')?.value   || 1)   || 1;
   const entry = parseFloat(document.getElementById('modal-entry')?.value || 0) || 0;
   const sl    = parseFloat(document.getElementById('modal-sl')?.value   || 0)  || 0;
   const t1    = parseFloat(document.getElementById('modal-t1')?.value   || 0)  || 0;
 
-  const cost   = qty * entry;
+  const totalCost = qty * entry;
+
   const profit = t1 > 0 ? (t1 - entry) * qty : 0;
   const loss   = sl  > 0 ? (entry - sl)  * qty : 0;
   const rr     = loss > 0 ? (profit / loss).toFixed(2) : '—';
 
-  const fmt = v => '₹' + Math.abs(v).toLocaleString('en-IN', {maximumFractionDigits: 2});
-  document.getElementById('modal-cost').textContent   = fmt(cost);
+  const fmt = v => '₹' + Math.abs(v).toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+  document.getElementById('modal-cost').textContent   = fmt(totalCost);
   document.getElementById('modal-profit').textContent = profit > 0 ? fmt(profit) : '—';
   document.getElementById('modal-loss').textContent   = loss   > 0 ? fmt(loss)   : '—';
   document.getElementById('modal-rr').textContent     = rr !== '—' ? '1 : ' + rr : '—';
@@ -940,13 +1307,13 @@ function chartUpdateCost() {
     ? 'var(--green)' : parseFloat(rr) >= 1 ? 'var(--gold)' : 'var(--red)';
 }
 
-// ── Close modal ───────────────────────────────────────────────────────────────
+// ── Close modal ───────────────────────────────────────────────────────
 function chartCloseModal() {
   document.getElementById('chart-order-modal').style.display = 'none';
 }
 
-// ── Place order → fires portfolio_add ────────────────────────────────────────
-async function chartPlaceOrder() {
+// ── Place order with margin & auto-topup support (Bug 7b) ─────────────
+async function chartPlaceOrder(autoTopup = false) {
   const sym    = document.getElementById('modal-sym').textContent;
   const qty    = parseInt(document.getElementById('modal-qty')?.value   || 0);
   const entry  = parseFloat(document.getElementById('modal-entry')?.value || 0);
@@ -955,18 +1322,49 @@ async function chartPlaceOrder() {
   const t2     = parseFloat(document.getElementById('modal-t2')?.value   || 0);
   const itype  = document.getElementById('modal-type')?.value || 'swing';
   const errEl  = document.getElementById('modal-err');
+  const autoBtn = document.getElementById('modal-auto-topup-btn');
 
   if (!sym || qty < 1 || entry <= 0) {
     errEl.textContent = 'Symbol, quantity and entry price are required.';
+    errEl.style.color = 'var(--red)';
     errEl.style.display = 'block'; return;
+  }
+  if (![entry, sl, t1, t2].every(Number.isFinite) || sl <= 0 || t1 <= 0 || t2 <= 0) {
+    errEl.textContent = 'Enter valid positive entry, stop-loss, target 1 and target 2 prices.';
+    errEl.style.color = 'var(--red)'; errEl.style.display = 'block'; return;
+  }
+  if (_chartOrderSide === 'BUY' && !(sl < entry && entry < t1 && t1 < t2)) {
+    errEl.textContent = 'For a buy, levels must be ordered: Stop Loss < Entry < Target 1 < Target 2.';
+    errEl.style.color = 'var(--red)'; errEl.style.display = 'block'; return;
   }
 
   const btn = document.getElementById('modal-place-btn');
   btn.disabled = true;
   btn.textContent = 'PLACING…';
   errEl.style.display = 'none';
+  if (autoBtn) autoBtn.style.display = 'none';
 
   try {
+    if (_chartOrderSide === 'SELL') {
+      const ptf = await api('portfolio_get', {symbol: sym});
+      const position = (ptf && ptf.trades || []).find(t => t.status === 'OPEN');
+      if (!position) throw new Error(`No open ${sym} holding is available to sell.`);
+      if (qty > Number(position.shares || 0)) throw new Error(`Sell quantity exceeds the ${position.shares} shares currently held.`);
+      let exitPrice = entry;
+      try {
+        const quote = await api('price', {symbol: sym});
+        exitPrice = Number(quote && (quote.close || quote.price || quote.ltp)) || exitPrice;
+      } catch (_) {}
+      const result = await api('portfolio_partial_exit', {id: String(position.id), shares: qty, exit_price: exitPrice});
+      if (!result || !result.ok) throw new Error((result && result.error) || 'Sell order was not accepted.');
+      chartCloseModal();
+      const sold = document.createElement('div');
+      sold.textContent = `SELL executed: ${qty} ${sym} @ ₹${exitPrice.toFixed(2)} · Realized P&L ₹${Number(result.partial_pnl || 0).toLocaleString('en-IN',{minimumFractionDigits:2})}`;
+      sold.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:12px 20px;background:#5C1A1A;border:1px solid #c0392b;color:#fca5a5;font-family:Share Tech Mono,monospace;font-size:0.78rem;font-weight:700;border-radius:4px;z-index:99999;';
+      document.body.appendChild(sold); setTimeout(() => sold.remove(), 5000);
+      await chartUpdatePosBadge();
+      return;
+    }
     const res = await api('portfolio_add', {
       symbol:      sym,
       inv_type:    itype,
@@ -975,32 +1373,46 @@ async function chartPlaceOrder() {
       stop_loss:   sl,
       target1:     t1,
       target2:     t2,
+      auto_topup:  autoTopup ? 1 : 0,
+      source:      'chart_order_ticket',
     });
 
     if (res && res.ok) {
       chartCloseModal();
-      // Store open position and show badge + lines
       _chartOpenPos = { id: res.trade_id || res.id, symbol: sym,
         entry_price: entry, shares: qty, stop_loss: sl, target1: t1,
         target2: t2, inv_type: itype, cmp: entry };
       chartUpdatePosBadge();
       chartDrawPositionLines();
-      // Show success toast
+      
       const toast = document.createElement('div');
-      toast.textContent = (_chartOrderSide === 'BUY' ? '✅ BUY' : '✅ SELL') +
-        ' order placed — ' + sym + ' × ' + qty + ' @ ₹' + entry.toFixed(2);
-      toast.style.cssText = 'position:fixed;bottom:24px;left:50%;transform:translateX(-50%);' +
-        'background:#1B5E35;color:#4ade80;padding:10px 20px;border-radius:6px;' +
-        'font-family:Share Tech Mono,monospace;font-size:0.78rem;z-index:99999;';
+      toast.textContent = (_chartOrderSide === 'BUY' ? '▲ BUY' : '▼ SELL') +
+        ` order placed: ${qty}x ${sym} @ ₹${entry.toFixed(2)}`;
+      toast.style.cssText = 'position:fixed;bottom:24px;right:24px;padding:12px 20px;' +
+        'background:#1B5E35;border:1px solid #26a269;color:#4ade80;font-family:Share Tech Mono,monospace;' +
+        'font-size:0.82rem;font-weight:700;border-radius:4px;z-index:99999;box-shadow:0 4px 16px rgba(0,0,0,0.5);';
       document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 3500);
+      setTimeout(() => toast.remove(), 4000);
+      const portfolioPage = document.getElementById('page-portfolio');
+      if (portfolioPage && portfolioPage.classList.contains('active')) {
+        if (typeof loadPortfolio === 'function') await loadPortfolio();
+        if (typeof loadOrderBook === 'function') await loadOrderBook();
+      }
     } else {
-      errEl.textContent = (res && res.error) || 'Order failed — check server logs.';
+      errEl.textContent = res.error || 'Failed to place order.';
+      errEl.style.color = 'var(--red)';
       errEl.style.display = 'block';
+      if ((res.error || '').toLowerCase().includes('insufficient capital')) {
+        if (autoBtn) autoBtn.style.display = 'block';
+      }
     }
   } catch(e) {
-    errEl.textContent = 'Network error: ' + (e.message || String(e));
+    errEl.textContent = 'Network error: ' + e.message;
+    errEl.style.color = 'var(--red)';
     errEl.style.display = 'block';
+    if (e.message.toLowerCase().includes('insufficient capital')) {
+      if (autoBtn) autoBtn.style.display = 'block';
+    }
   } finally {
     btn.disabled = false;
     btn.textContent = _chartOrderSide === 'BUY' ? 'PLACE BUY ORDER' : 'PLACE SELL ORDER';

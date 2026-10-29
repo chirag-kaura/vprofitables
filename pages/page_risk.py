@@ -27,10 +27,6 @@ HTML = r"""
   <div class="topbar">
     <div style="display:flex;align-items:center;gap:10px;">
       <span style="font-family:Orbitron,sans-serif;font-size:1.1rem;color:var(--gold);font-weight:700;letter-spacing:2px;">⚠️ RISK MANAGEMENT</span>
-      <span class="page-tag">MARGIN · DASHBOARD · SETTINGS · CORRELATION</span>
-    </div>
-    <div style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--dim);letter-spacing:1px;">
-      PHASE 4 · MARGIN ENGINE · PORTFOLIO PROTECTION
     </div>
   </div>
 
@@ -401,16 +397,10 @@ HTML = r"""
 
           <div class="rs-field">
             <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-              <label class="rs-label" style="margin:0;">MAX OPEN POSITIONS</label>
-              <span id="rs-pos-val" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--cyan);">10</span>
+              <label class="rs-label" style="margin:0;">OPEN POSITIONS</label>
+              <span id="rs-pos-val" style="font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--cyan);">Unlimited</span>
             </div>
-            <input type="range" id="rs-max-positions" min="2" max="20" step="1" value="10"
-              oninput="document.getElementById('rs-pos-val').textContent=this.value;"
-              style="width:100%;accent-color:var(--cyan);">
-            <div style="display:flex;justify-content:space-between;margin-top:2px;">
-              <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--dim);">2 MIN</span>
-              <span style="font-family:'JetBrains Mono',monospace;font-size:0.58rem;color:var(--dim);">20 MAX</span>
-            </div>
+            <div style="font-size:0.68rem;color:var(--dim);">No position-count limit is applied. Capital, sector and correlation controls still apply.</div>
           </div>
 
           <div class="rs-field">
@@ -828,43 +818,25 @@ function _updateGauge(posPct) {
 // ═══════════════════════════════════════════════════════════
 async function loadRiskDashboard() {
   try {
-    const resp = await fetch('/api/risk_dashboard');
-    const data = resp.ok ? await resp.json() : _mockDashboardData();
-    _renderDashboard(data);
+    const data = await api('risk_dashboard');
+    if (data && data.ok) {
+      _renderDashboard(data);
+    } else {
+      _renderDashboard({
+        max_drawdown_pct: 0, var_95_pct: 0, total_exposure: 0, win_pct: 0,
+        sharpe_ratio: 0, profit_factor: 0, expectancy: 0, health_score: 100,
+        health_dd: 100, health_var: 100, health_div: 100, health_wr: 100,
+        sector_exposure: [], positions: [], daily_pnl: []
+      });
+    }
   } catch (e) {
-    _renderDashboard(_mockDashboardData());
+    _renderDashboard({
+      max_drawdown_pct: 0, var_95_pct: 0, total_exposure: 0, win_pct: 0,
+      sharpe_ratio: 0, profit_factor: 0, expectancy: 0, health_score: 100,
+      health_dd: 100, health_var: 100, health_div: 100, health_wr: 100,
+      sector_exposure: [], positions: [], daily_pnl: []
+    });
   }
-}
-
-function _mockDashboardData() {
-  return {
-    drawdown: -4.2,
-    var_95: -2.8,
-    total_exposure: 324500,
-    win_rate: 62.5,
-    health_score: 74,
-    health_dd: 78,
-    health_var: 72,
-    health_div: 65,
-    health_wr: 82,
-    sectors: [
-      { name:'IT', pct:28 }, { name:'Banking', pct:22 },
-      { name:'FMCG', pct:15 }, { name:'Pharma', pct:18 },
-      { name:'Auto', pct:10 }, { name:'Energy', pct:7 }
-    ],
-    positions: [
-      { symbol:'TCS', entry:3450.5, cmp:3521.0, qty:10, days:5, sector:'IT' },
-      { symbol:'HDFC', entry:1620.0, cmp:1598.5, qty:20, days:12, sector:'Banking' },
-      { symbol:'ITC', entry:445.0, cmp:452.3, qty:50, days:3, sector:'FMCG' },
-    ],
-    daily_pnl: [
-      { date:'Jun 17', pnl:1240 }, { date:'Jun 18', pnl:-560 },
-      { date:'Jun 19', pnl:2100 }, { date:'Jun 20', pnl:-120 },
-      { date:'Jun 21', pnl:880 },  { date:'Jun 24', pnl:1650 },
-      { date:'Jun 25', pnl:-430 }, { date:'Jun 26', pnl:3200 },
-      { date:'Jun 27', pnl:-200 }, { date:'Jun 28', pnl:1100 }
-    ]
-  };
 }
 
 function _renderDashboard(d) {
@@ -1027,7 +999,7 @@ function _updateSettingsSummary() {
   const g = id => document.getElementById(id)?.value || '—';
   _setEl('rs-s-cap',  '₹' + _fmt(parseFloat(g('rs-capital'))));
   _setEl('rs-s-risk', parseFloat(g('rs-max-risk')).toFixed(1) + '%');
-  _setEl('rs-s-pos',  g('rs-max-positions') + ' trades');
+  _setEl('rs-s-pos',  'Unlimited');
   _setEl('rs-s-dll',  '₹' + _fmt(parseFloat(g('rs-daily-loss'))));
   _setEl('rs-s-sec',  g('rs-sector-cap') + '%');
   _setEl('rs-s-kill', _risk.killSwitchOn ? 'ON 🚨' : 'OFF ✅');
@@ -1039,7 +1011,7 @@ async function saveRiskSettings() {
   const payload = {
     capital:          parseFloat(document.getElementById('rs-capital')?.value) || 500000,
     max_risk_pct:     parseFloat(document.getElementById('rs-max-risk')?.value) || 2,
-    max_positions:    parseInt(document.getElementById('rs-max-positions')?.value) || 10,
+    max_positions:    null,
     daily_loss_limit: parseFloat(document.getElementById('rs-daily-loss')?.value) || 10000,
     max_sector_exp:   parseFloat(document.getElementById('rs-sector-cap')?.value) || 30,
     kill_switch:      _risk.killSwitchOn

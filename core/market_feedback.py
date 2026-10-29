@@ -123,13 +123,26 @@ def _return_pct(p_start: float, p_end: float) -> float:
     return round((p_end - p_start) / p_start * 100, 4)
 
 
-def _market_label(ret: float) -> str:
+def _market_label(ret: float, instrument_type: str = "EQUITY") -> str:
+    """
+    Fix 7: Sector / instrument-type specific threshold scaling.
+    INDEX (e.g. NIFTY50) is less volatile → 0.6x scale threshold.
+    COMMODITY (e.g. MCX Gold) → 1.2x scale threshold.
+    EQUITY → 1.0x standard calibrated threshold.
+    """
     t = load_thresholds()
-    if   ret >  t["STRONGLY BULLISH"]: return "STRONGLY BULLISH"
-    elif ret >  t["BULLISH"]:          return "BULLISH"
-    elif ret >= t["NEUTRAL"]:          return "NEUTRAL"
-    elif ret >= t["BEARISH"]:          return "BEARISH"
-    else:                              return "STRONGLY BEARISH"
+    scale = 0.6 if instrument_type == "INDEX" else (1.2 if instrument_type == "COMMODITY" else 1.0)
+    
+    sb = t["STRONGLY BULLISH"] * scale
+    b  = t["BULLISH"] * scale
+    n  = t["NEUTRAL"] * scale
+    br = t["BEARISH"] * scale
+    
+    if   ret >  sb: return "STRONGLY BULLISH"
+    elif ret >  b:  return "BULLISH"
+    elif ret >= n:  return "NEUTRAL"
+    elif ret >= br: return "BEARISH"
+    else:           return "STRONGLY BEARISH"
 
 
 def _price_on_or_before(c, symbol: str, date_str: str) -> Optional[float]:
@@ -150,6 +163,71 @@ def _price_on_or_after(c, symbol: str, date_str: str) -> Optional[float]:
         ORDER BY trade_date ASC LIMIT 1
     """, (symbol, date_str)).fetchone()
     return float(row[0]) if row else None
+
+
+def _get_intraday_impact(c, symbol: str, pub_date: str, pub_time: str, nifty_sym: str = None) -> Tuple[Optional[float], Optional[float]]:
+    """
+    Returns (stock_impact, nifty_impact).
+    If before 09:15 AM: (Close - Open) / Open of the next available trading day.
+    If during/after market hours: (Close - Prev_Close) / Prev_Close of the next available trading day.
+    """
+    # Find the next available trading day on or after pub_date
+    row = c.execute("""
+        SELECT trade_date, open, close FROM daily_prices
+        WHERE symbol=? AND trade_date>=? AND close IS NOT NULL AND open IS NOT NULL
+        ORDER BY trade_date ASC LIMIT 1
+    """, (symbol, pub_date)).fetchone()
+    
+    if not row:
+        return None, None
+        
+    actual_trade_date = row["trade_date"]
+    stock_open = float(row["open"])
+    stock_close = float(row["close"])
+    
+    # If the news was published before market open ON this actual trade date
+    if pub_date == actual_trade_date and pub_time < "09:15":
+        stock_impact = _return_pct(stock_open, stock_close)
+        nifty_impact = 0.0
+        if nifty_sym:
+            nrow = c.execute("""
+                SELECT open, close FROM daily_prices
+                WHERE symbol=? AND trade_date=? AND close IS NOT NULL AND open IS NOT NULL
+            """, (nifty_sym, actual_trade_date)).fetchone()
+            if nrow:
+                nifty_impact = _return_pct(float(nrow["open"]), float(nrow["close"]))
+        return stock_impact, nifty_impact
+    else:
+        # During or after market hours, use Close vs Previous Close
+        prev_row = c.execute("""
+            SELECT close FROM daily_prices
+            WHERE symbol=? AND trade_date<? AND close IS NOT NULL
+            ORDER BY trade_date DESC LIMIT 1
+        """, (symbol, actual_trade_date)).fetchone()
+        
+        if prev_row:
+            stock_impact = _return_pct(float(prev_row["close"]), stock_close)
+        else:
+            stock_impact = _return_pct(stock_open, stock_close) # fallback
+            
+        nifty_impact = 0.0
+        if nifty_sym and prev_row:
+            nrow = c.execute("""
+                SELECT close FROM daily_prices
+                WHERE symbol=? AND trade_date<=? AND close IS NOT NULL
+                ORDER BY trade_date DESC LIMIT 1
+            """, (nifty_sym, actual_trade_date)).fetchone()
+            
+            nprev_row = c.execute("""
+                SELECT close FROM daily_prices
+                WHERE symbol=? AND trade_date<? AND close IS NOT NULL
+                ORDER BY trade_date DESC LIMIT 1
+            """, (nifty_sym, actual_trade_date)).fetchone()
+            
+            if nrow and nprev_row:
+                nifty_impact = _return_pct(float(nprev_row["close"]), float(nrow["close"]))
+                
+        return stock_impact, nifty_impact
 
 
 def get_all_excess_returns(c, nifty_sym) -> List[float]:
@@ -262,7 +340,7 @@ def apply_market_labels(
 
     if symbol:
         rows = c.execute("""
-            SELECT id, symbol, published_at, raw_score
+            SELECT id, symbol, published_at, raw_score, COALESCE(instrument_type, 'EQUITY') as instrument_type
             FROM   news_sentiment
             WHERE  market_label IS NULL
               AND  published_at != ''
@@ -272,7 +350,7 @@ def apply_market_labels(
         """, (cutoff, symbol, batch_size)).fetchall()
     else:
         rows = c.execute("""
-            SELECT id, symbol, published_at, raw_score
+            SELECT id, symbol, published_at, raw_score, COALESCE(instrument_type, 'EQUITY') as instrument_type
             FROM   news_sentiment
             WHERE  market_label IS NULL
               AND  published_at != ''
@@ -290,8 +368,10 @@ def apply_market_labels(
         sym       = row["symbol"]
         pub_raw   = row["published_at"]
         raw_score = float(row["raw_score"] or 0)
+        itype     = str(row["instrument_type"] or "EQUITY")
 
         pub_date = pub_raw[:10]
+        pub_time = pub_raw[11:16] if len(pub_raw) > 10 else "00:00"
         try:
             datetime.strptime(pub_date, "%Y-%m-%d")
         except ValueError:
@@ -302,43 +382,39 @@ def apply_market_labels(
         if p_news is None:
             continue  # No price data for this symbol
 
-        prev_date = (datetime.strptime(pub_date, "%Y-%m-%d") - timedelta(days=4)).strftime("%Y-%m-%d")
-        p_prev    = _price_on_or_before(c, sym, prev_date)
-        ret_1d    = _return_pct(p_prev, p_news) if p_prev else 0.0
+        # Fix 5: Intraday impact stored in market_return_1d
+        stock_impact, nifty_impact = _get_intraday_impact(c, sym, pub_date, pub_time, _nifty_sym)
+        ret_1d = stock_impact if stock_impact is not None else 0.0
 
-        d5  = (datetime.strptime(pub_date, "%Y-%m-%d") + timedelta(days=window_days + 2)).strftime("%Y-%m-%d")
+        # Real 5-trading-day forward price reaction
+        d5 = (datetime.strptime(pub_date, "%Y-%m-%d") + timedelta(days=7)).strftime("%Y-%m-%d")
+        p5 = _price_on_or_after(c, sym, d5)
+        ret_5d_fwd = _return_pct(p_news, p5) if p5 else (stock_impact if stock_impact is not None else 0.0)
+        ret_5d = ret_5d_fwd
+
+        # 20-trading-day forward price trend
         d20 = (datetime.strptime(pub_date, "%Y-%m-%d") + timedelta(days=22)).strftime("%Y-%m-%d")
-        p5  = _price_on_or_after(c, sym, d5)
         p20 = _price_on_or_after(c, sym, d20)
-
-        ret_5d  = _return_pct(p_news, p5)  if p5  else None
         ret_20d = _return_pct(p_news, p20) if p20 else None
 
-        if ret_5d is None:
-            continue
+        # Nifty 5-day return for excess return calculation
+        nifty_5d = 0.0
+        if _nifty_sym:
+            p_n5_news = _price_on_or_before(c, _nifty_sym, pub_date)
+            p_n5_end  = _price_on_or_after(c, _nifty_sym, d5)
+            if p_n5_news and p_n5_end:
+                nifty_5d = _return_pct(p_n5_news, p_n5_end)
 
-        # ── Nifty50 excess return ─────────────────────────────────────────
-        # Subtract market return so label reflects NEWS impact on THIS stock
-        nifty_ret_5d = 0.0
-        if _nifty_sym and sym not in _nifty_syms:
-            pn0 = _price_on_or_before(c, _nifty_sym, pub_date)
-            pn5 = _price_on_or_after(c, _nifty_sym, d5)
-            if pn0 and pn5:
-                nifty_ret_5d = _return_pct(pn0, pn5)
+        excess_ret = round(ret_5d - nifty_5d, 4)
 
-        excess_ret = round(ret_5d - nifty_ret_5d, 4)
+        # ── Ground truth label (Fix 7: pass instrument_type for sector scaling) ──
+        mkt_lbl = _market_label(excess_ret, itype)
 
-        # ── Ground truth label ────────────────────────────────────────────
-        # Label is based on EXCESS return — pure stock-specific reaction
-        mkt_lbl = _market_label(excess_ret)
-
-        # Was VADER correct direction vs market excess?
+        # Fix 6: Direction match + Magnitude MAE (Mean Absolute Error)
         vader_says_up  = raw_score >= 0.1
         market_went_up = excess_ret > 0
         was_correct    = 1 if (vader_says_up == market_went_up) else 0
 
-        # Calibrated score: excess return normalised to [-1,+1]
-        # ±3% excess = ±1.0 (smaller scale — excess moves are tighter than absolute)
         cal_score = round(max(-1.0, min(1.0, excess_ret / 3.0)), 4)
         pred_err  = round(abs(raw_score - cal_score), 4)
 
@@ -487,17 +563,19 @@ class ComboWrap:
             
         self.c.fit(Xa, y, sample_weight=clf__sample_weight)
         
-    def _X(self, t):
+    def _X(self, t, feats=None):
         from scipy.sparse import hstack as _h, csr_matrix as _cm
         import numpy as _np
-        return _h([self.v.transform(t),
-                   _cm(_np.zeros((len(t), self._feats_shape), dtype=_np.float32))])
+        X_vec = self.v.transform(t)
+        if feats is not None and len(feats) == len(t):
+            return _h([X_vec, _cm(feats)])
+        return _h([X_vec, _cm(_np.zeros((len(t), self._feats_shape), dtype=_np.float32))])
                    
-    def predict(self, t):
-        return self.c.predict(self._X(t))
+    def predict(self, t, feats=None):
+        return self.c.predict(self._X(t, feats))
         
-    def predict_proba(self, t):
-        return self.c.predict_proba(self._X(t))
+    def predict_proba(self, t, feats=None):
+        return self.c.predict_proba(self._X(t, feats))
         
     @property
     def classes_(self):
@@ -604,8 +682,10 @@ def train_market_model(
             try:
                 if stage_name == "TF-IDF + NSE Features":
                     feats_tr = feats[:split_idx][train_idx]
+                    feats_val = feats[:split_idx][val_idx]
                     model = ComboWrap(feats_tr)
                     model.fit(X_fold_tr, y_fold_tr, clf__sample_weight=w_fold_tr)
+                    preds = model.predict(X_fold_val, feats=feats_val)
                 else:
                     model = creator_func()
                     if hasattr(model, "fit"):
@@ -615,7 +695,7 @@ def train_market_model(
                             model.fit(X_fold_tr, y_fold_tr, clf__sample_weight=w_fold_tr)
                         else:
                             model.fit(X_fold_tr, y_fold_tr)
-                preds = model.predict(X_fold_val)
+                    preds = model.predict(X_fold_val)
                 accs.append(accuracy_score(y_fold_val, preds))
                 f1s.append(f1_score(y_fold_val, preds, average="macro", zero_division=0))
             except Exception:
@@ -699,7 +779,11 @@ def train_market_model(
 
     # ── Stage 2: FinBERT ─────────────────────────────────────────────
     if use_finbert and len(texts)>=100:
-        fb = _try_finbert(X_tr,X_te,y_tr,y_te,w_tr,n_splits)
+        try:
+            fb = _try_finbert(X_tr,X_te,y_tr,y_te,w_tr,n_splits)
+        except Exception as e:
+            print(f"  [MKTF ] FinBERT stage skipped: {e}", flush=True)
+            fb = None
         if fb:
             all_results["FinBERT"] = {
                 "cv_acc_mean": fb["cv_acc_mean"], "cv_acc_std": fb["cv_acc_std"],
@@ -787,7 +871,8 @@ def _try_finbert(X_tr, X_te, y_tr, y_te, w_tr, n_splits=3) -> Optional[Dict]:
         return None
 
     model_name="ProsusAI/finbert"
-    try: tokenizer=AutoTokenizer.from_pretrained(model_name)
+    try:
+        tokenizer=AutoTokenizer.from_pretrained(model_name)
     except Exception as e:
         print(f"  [MKTF ] FinBERT download failed: {e}", flush=True)
         return None
@@ -796,6 +881,10 @@ def _try_finbert(X_tr, X_te, y_tr, y_te, w_tr, n_splits=3) -> Optional[Dict]:
     l2i={l:i for i,l in enumerate(unique_labels)}
     i2l={i:l for l,i in l2i.items()}
     ytr_i=[l2i[l] for l in y_tr]; yte_i=[l2i[l] for l in y_te]
+
+    LABEL_NAMES = {-2: "STRONGLY_BEARISH", -1: "BEARISH", 0: "NEUTRAL", 1: "BULLISH", 2: "STRONGLY_BULLISH"}
+    hf_id2label = {int(i): LABEL_NAMES.get(l, str(l)) for i, l in enumerate(unique_labels)}
+    hf_label2id = {LABEL_NAMES.get(l, str(l)): int(i) for i, l in enumerate(unique_labels)}
 
     class _DS(TDS):
         def __init__(self,texts,labels,tok):
@@ -807,25 +896,38 @@ def _try_finbert(X_tr, X_te, y_tr, y_te, w_tr, n_splits=3) -> Optional[Dict]:
 
     n_labels=len(unique_labels)
     model=AutoModelForSequenceClassification.from_pretrained(
-        model_name,num_labels=n_labels,ignore_mismatched_sizes=True)
+        model_name,num_labels=n_labels,id2label=hf_id2label,label2id=hf_label2id,ignore_mismatched_sizes=True)
     epochs=3 if len(X_tr)>=500 else 5 if len(X_tr)>=200 else 8
     fb_dir=os.path.join(MODEL_DIR,"finbert_checkpoints")
 
-    args=TrainingArguments(output_dir=fb_dir,num_train_epochs=epochs,
-        per_device_train_batch_size=8,per_device_eval_batch_size=16,
-        evaluation_strategy="epoch",save_strategy="epoch",load_best_model_at_end=True,
-        logging_steps=20,report_to="none",
-        fp16=torch.cuda.is_available(),dataloader_num_workers=0)
-
-    def _metrics(ep):
-        return {"accuracy": float((np.argmax(ep.predictions,1)==ep.label_ids).mean())}
-
-    trainer=Trainer(model=model,args=args,
-        train_dataset=_DS(X_tr,ytr_i,tokenizer),
-        eval_dataset=_DS(X_te,yte_i,tokenizer),compute_metrics=_metrics)
-    try: trainer.train()
+    import inspect
+    sig_params = inspect.signature(TrainingArguments.__init__).parameters
+    eval_arg = "eval_strategy" if "eval_strategy" in sig_params else "evaluation_strategy"
+    
+    arg_dict = {
+        "output_dir": fb_dir,
+        "num_train_epochs": epochs,
+        "per_device_train_batch_size": 8,
+        "per_device_eval_batch_size": 16,
+        "save_strategy": "epoch",
+        "load_best_model_at_end": True,
+        "logging_steps": 20,
+        "report_to": "none",
+        "fp16": torch.cuda.is_available(),
+        "dataloader_num_workers": 0
+    }
+    arg_dict[eval_arg] = "epoch"
+    try:
+        args = TrainingArguments(**arg_dict)
+        def _metrics(ep):
+            return {"accuracy": float((np.argmax(ep.predictions,1)==ep.label_ids).mean())}
+        trainer=Trainer(model=model,args=args,
+            train_dataset=_DS(X_tr,ytr_i,tokenizer),
+            eval_dataset=_DS(X_te,yte_i,tokenizer),compute_metrics=_metrics)
+        trainer.train()
     except Exception as e:
-        print(f"  [MKTF ] FinBERT train error: {e}", flush=True); return None
+        print(f"  [MKTF ] FinBERT train/setup error (skipping): {e}", flush=True)
+        return None
 
     preds=trainer.predict(_DS(X_te,yte_i,tokenizer))
     from sklearn.metrics import accuracy_score as _a, f1_score as _f
@@ -1020,7 +1122,7 @@ def generate_accuracy_report(symbol: Optional[str] = None) -> Dict:
         "improvement_pp":      round((cal_acc-vader_acc)*100,1) if cal_acc else None,
         "vader_mae":           round(vader_mae, 4) if vader_mae else None,
         "avg_returns_by_label": avg_returns,
-        "period":              f"{rows[-1]['published_at'][:10]} → {rows[0]['published_at'][:10]}",
+        "period":              f"{rows[-1]['published_at'][:10]} -> {rows[0]['published_at'][:10]}",
     }
 
 
@@ -1028,7 +1130,7 @@ def print_accuracy_report(symbol: Optional[str] = None):
     r = generate_accuracy_report(symbol)
     print(f"\n{'='*62}")
     print(f"  MARKET FEEDBACK ACCURACY REPORT")
-    print(f"  Method: EXCESS RETURN (stock return − Nifty50 return)")
+    print(f"  Method: EXCESS RETURN (stock return - Nifty50 return)")
     print(f"  This isolates the stock-specific reaction to news")
     if "error" in r:
         print(f"\n  {r['error']}")
@@ -1040,7 +1142,7 @@ def print_accuracy_report(symbol: Optional[str] = None):
     print(f"{'='*62}")
     vAcc = r['vader_accuracy']
     print(f"  VADER direction accuracy  : {vAcc:.1%}  "
-          f"{'(below chance — model will fix)' if vAcc<0.55 else '(moderate)' if vAcc<0.65 else '(good)'}")
+          f"{'(below chance -- model will fix)' if vAcc<0.55 else '(moderate)' if vAcc<0.65 else '(good)'}")
     if r.get("calibrated_accuracy"):
         imp = r.get("improvement_pp", 0)
         print(f"  Market-trained model      : {r['calibrated_accuracy']:.1%}  "
@@ -1048,22 +1150,22 @@ def print_accuracy_report(symbol: Optional[str] = None):
     if r.get("vader_mae"):
         print(f"  VADER mean absolute error : {r['vader_mae']:.4f}")
 
-    print(f"\n  VADER label vs actual excess return (stock − Nifty50, 5d):")
+    print(f"\n  VADER label vs actual excess return (stock - Nifty50, 5d):")
     print(f"  {'VADER said':<22} {'N':>5}  {'Avg excess':>11}  {'Correct%':>8}")
     print(f"  {'-'*50}")
     for lbl in ["STRONGLY BULLISH","BULLISH","NEUTRAL","BEARISH","STRONGLY BEARISH"]:
         d = r["avg_returns_by_label"].get(lbl)
         if not d: continue
-        arr = "▲" if d["avg_5d"] > 0 else "▼"
+        arr = "+" if d["avg_5d"] > 0 else "-"
         print(f"  {lbl:<22} {d['count']:>5}  {arr}{abs(d['avg_5d']):>6.2f}%  "
               f"    {d['hit_rate']:.0%}")
     print(f"\n  KEY INSIGHT:")
     vader_acc = r['vader_accuracy']
     if vader_acc < 0.55:
-        print(f"  VADER is {vader_acc:.0%} accurate — barely above random.")
+        print(f"  VADER is {vader_acc:.0%} accurate -- barely above random.")
         print(f"  Market model trained on excess returns will significantly improve this.")
     else:
-        print(f"  VADER at {vader_acc:.0%} — market model calibrates further.")
+        print(f"  VADER at {vader_acc:.0%} -- market model calibrates further.")
     print(f"{'='*62}\n")
 
 

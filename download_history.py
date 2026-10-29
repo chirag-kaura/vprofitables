@@ -164,6 +164,9 @@ def ensure_schema_and_indexes():
             close       REAL,
             volume      INTEGER,
             change_pct  REAL,
+            vwap        REAL,
+            deliverable_qty INTEGER,
+            deliverable_pct REAL,
             updated_at  TEXT,
             PRIMARY KEY (symbol, trade_date)
         )
@@ -178,11 +181,24 @@ def ensure_schema_and_indexes():
             pivot_date  TEXT    NOT NULL,
             source      TEXT    DEFAULT 'STATIC',
             description TEXT    DEFAULT '',
+            volume_profile REAL DEFAULT 0,
             updated_at  TEXT,
             PRIMARY KEY (symbol, label)
         )
     """)
 
+    # Schema Migrations (Add missing columns to existing tables)
+    for table, col, col_type in [
+        ('daily_prices', 'vwap', 'REAL'),
+        ('daily_prices', 'deliverable_qty', 'INTEGER'),
+        ('daily_prices', 'deliverable_pct', 'REAL'),
+        ('pivot_levels', 'volume_profile', 'REAL DEFAULT 0'),
+    ]:
+        try:
+            c.execute(f"ALTER TABLE {table} ADD COLUMN {col} {col_type}")
+        except sqlite3.OperationalError:
+            pass # Column already exists
+    
     # ── Covering indexes ──────────────────────────────────────────────────────
     # (symbol, trade_date DESC) → ORDER BY trade_date DESC LIMIT N  in O(log n)
     # Without this index, every "latest price" query is a full table scan.
@@ -367,6 +383,12 @@ def download_batch(sym_to_yf: dict, start: date) -> dict:
     return results
 
 
+TICKER_FALLBACKS = {
+    "TATAMOTORS.NS": ["TMPV.NS", "TMCV.NS"],
+    "TMPV.NS": ["TATAMOTORS.NS", "TMCV.NS"],
+}
+
+
 def download_individual(our_sym: str, yf_sym: str, start: date) -> list:
     """
     Download one symbol with Ticker.history() — retry + exponential backoff.
@@ -381,35 +403,38 @@ def download_individual(our_sym: str, yf_sym: str, start: date) -> list:
     eff_start = max(start, YF_MIN_DATE).isoformat()
     end_str   = (date.today() + timedelta(days=1)).isoformat()
 
-    for attempt in range(3):
-        if attempt > 0:
-            wait = 5 * (2 ** attempt) + random.uniform(0, 3)   # 10s, 20s + jitter
-            _log(f"    Retry {attempt}/3 for {our_sym} (wait {wait:.1f}s)...")
-            time.sleep(wait)
+    candidates = [yf_sym] + [alt for alt in TICKER_FALLBACKS.get(yf_sym, []) if alt != yf_sym]
 
-        # Attempt 1: period=max (best — no date-range throttle)
-        with _Silence():
-            try:
-                df = yf.Ticker(yf_sym).history(period="max", auto_adjust=True, actions=False)
-                if df is not None and not df.empty:
-                    rows = _df_to_rows(df)
-                    rows = [r for r in rows if r[0] >= eff_start]
-                    if rows:
-                        return rows
-            except Exception:
-                pass
+    for ticker in candidates:
+        for attempt in range(3):
+            if attempt > 0:
+                wait = 5 * (2 ** attempt) + random.uniform(0, 3)   # 10s, 20s + jitter
+                _log(f"    Retry {attempt}/3 for {our_sym} [{ticker}] (wait {wait:.1f}s)...")
+                time.sleep(wait)
 
-        # Attempt 2: explicit start date
-        with _Silence():
-            try:
-                df = yf.Ticker(yf_sym).history(start=eff_start, end=end_str,
-                                                auto_adjust=True, actions=False)
-                if df is not None and not df.empty:
-                    rows = _df_to_rows(df)
-                    if rows:
-                        return rows
-            except Exception:
-                pass
+            # Attempt 1: period=max (best — no date-range throttle)
+            with _Silence():
+                try:
+                    df = yf.Ticker(ticker).history(period="max", auto_adjust=True, actions=False)
+                    if df is not None and not df.empty:
+                        rows = _df_to_rows(df)
+                        rows = [r for r in rows if r[0] >= eff_start]
+                        if rows:
+                            return rows
+                except Exception:
+                    pass
+
+            # Attempt 2: explicit start date
+            with _Silence():
+                try:
+                    df = yf.Ticker(ticker).history(start=eff_start, end=end_str,
+                                                    auto_adjust=True, actions=False)
+                    if df is not None and not df.empty:
+                        rows = _df_to_rows(df)
+                        if rows:
+                            return rows
+                except Exception:
+                    pass
 
     return []
 
@@ -468,7 +493,7 @@ def compute_zigzag_pivots(symbol: str) -> dict:
     """
     conn = open_db()
     rows = conn.execute("""
-        SELECT trade_date, high, low, close
+        SELECT trade_date, high, low, close, volume
         FROM daily_prices
         WHERE symbol=? AND close IS NOT NULL
           AND high IS NOT NULL AND low IS NOT NULL
@@ -482,31 +507,54 @@ def compute_zigzag_pivots(symbol: str) -> dict:
     dates = [r[0] for r in rows]
     highs = [float(r[1]) if r[1] else float(r[3]) for r in rows]
     lows  = [float(r[2]) if r[2] else float(r[3]) for r in rows]
+    closes = [float(r[3]) for r in rows]
+    volumes = [int(r[4] or 0) for r in rows]
     n     = len(rows)
+    
+    # Calculate 14-day ATR
+    atrs = [0.0] * n
+    tr_sum = 0.0
+    for i in range(1, n):
+        tr = max(highs[i] - lows[i], abs(highs[i] - closes[i-1]), abs(lows[i] - closes[i-1]))
+        if i < 14:
+            tr_sum += tr
+            atrs[i] = tr_sum / i if i > 0 else tr
+        else:
+            atrs[i] = (atrs[i-1] * 13 + tr) / 14
+    atrs[0] = atrs[1] if n > 1 else 0.0
 
-    def _zigzag(pct):
-        """Core ZigZag algorithm — returns (swing_highs, swing_lows)."""
-        t = pct / 100.0
+    def _zigzag(atr_multiplier):
+        """ZigZag algorithm using ATR multiple for swing threshold."""
         direction, li, lp = 1, 0, highs[0]
         sh, sl = [], []
         for i in range(1, n):
+            # Dynamic threshold based on ATR
+            t_price = (atrs[i] * atr_multiplier)
             if direction == 1:
                 if highs[i] >= lp:
                     lp, li = highs[i], i
-                elif lows[i] <= lp * (1 - t):
-                    sh.append((dates[li], lp, li))
+                elif lows[i] <= lp - t_price:
+                    # Calculate volume profile around this pivot (+/- 2%)
+                    v_prof = sum(volumes[j] for j in range(max(0, li-10), min(n, li+10)) 
+                                 if abs(closes[j] - lp)/lp <= 0.02)
+                    sh.append((dates[li], lp, li, v_prof))
                     direction, lp, li = -1, lows[i], i
             else:
                 if lows[i] <= lp:
                     lp, li = lows[i], i
-                elif highs[i] >= lp * (1 + t):
-                    sl.append((dates[li], lp, li))
+                elif highs[i] >= lp + t_price:
+                    v_prof = sum(volumes[j] for j in range(max(0, li-10), min(n, li+10)) 
+                                 if abs(closes[j] - lp)/lp <= 0.02)
+                    sl.append((dates[li], lp, li, v_prof))
                     direction, lp, li = 1, highs[i], i
-        (sh if direction == 1 else sl).append((dates[li], lp, li))
+        
+        v_prof = sum(volumes[j] for j in range(max(0, li-10), min(n, li+10)) 
+                     if abs(closes[j] - lp)/lp <= 0.02)
+        (sh if direction == 1 else sl).append((dates[li], lp, li, v_prof))
         return sh, sl
 
-    minor_highs, minor_lows = _zigzag(ZIGZAG_MINOR_PCT)
-    major_highs, major_lows = _zigzag(ZIGZAG_MAJOR_PCT)
+    minor_highs, minor_lows = _zigzag(1.5)  # 1.5x ATR for minor swings
+    major_highs, major_lows = _zigzag(3.0)  # 3x ATR for major swings
 
     # True ATL/ATH from actual low/high arrays (not close)
     atl_i = lows.index(min(lows))
@@ -518,11 +566,11 @@ def compute_zigzag_pivots(symbol: str) -> dict:
 
     def _best_low(swings):
         b = min(swings, key=lambda x: x[1])
-        return b[1], b[0]
+        return b[1], b[0], b[3] if len(b) > 3 else 0.0
 
     def _best_high(swings):
         b = max(swings, key=lambda x: x[1])
-        return b[1], b[0]
+        return b[1], b[0], b[3] if len(b) > 3 else 0.0
 
     def _cut(swings, cutoff):
         return [x for x in swings if x[0] >= cutoff]
@@ -532,19 +580,21 @@ def compute_zigzag_pivots(symbol: str) -> dict:
             "price": lows[atl_i],
             "date":  dates[atl_i],
             "desc":  f"True all-time low from {n:,} OHLC rows (from {dates[0]})",
+            "v_prof": 0.0
         },
         "ATH": {
             "price": highs[ath_i],
             "date":  dates[ath_i],
             "desc":  f"True all-time high from {n:,} OHLC rows (from {dates[0]})",
+            "v_prof": 0.0
         },
     }
 
     for lbl, swings, fn, desc in [
         ("MAJOR_BOTTOM_LOW",  major_lows  or minor_lows,  _best_low,
-         f"Major swing bottom — ZigZag >={ZIGZAG_MAJOR_PCT}% decline from peak"),
+         f"Major swing bottom — ZigZag decline from peak"),
         ("MAJOR_TOP",         major_highs or minor_highs, _best_high,
-         f"Major swing top — ZigZag >={ZIGZAG_MAJOR_PCT}% advance from trough"),
+         f"Major swing top — ZigZag advance from trough"),
         ("RECENT_SWING_LOW",  _cut(minor_lows,  cutoff_12m), _best_low,
          "Lowest ZigZag swing low in last 12 months"),
         ("RECENT_SWING_HIGH", _cut(minor_highs, cutoff_12m), _best_high,
@@ -557,9 +607,9 @@ def compute_zigzag_pivots(symbol: str) -> dict:
         if not swings:
             continue
         try:
-            price, dt = fn(swings)
+            price, dt, v_prof = fn(swings)
             if price:
-                result[lbl] = {"price": price, "date": dt, "desc": desc}
+                result[lbl] = {"price": price, "date": dt, "desc": desc, "v_prof": v_prof}
         except Exception:
             pass
 
@@ -588,20 +638,22 @@ def write_zigzag_to_db(symbol: str, pivots: dict):
         price = pv.get("price")
         dt    = pv.get("date")
         desc  = pv.get("desc", "")
+        v_prof= pv.get("v_prof", 0.0)
         if not price or not dt:
             continue
-        ups.append((symbol, label, float(price), str(dt), "AUTO", desc, now_str))
+        ups.append((symbol, label, float(price), str(dt), "AUTO", desc, float(v_prof), now_str))
 
     if ups:
         c.executemany("""
             INSERT INTO pivot_levels
-                (symbol, label, pivot_price, pivot_date, source, description, updated_at)
-            VALUES (?,?,?,?,?,?,?)
+                (symbol, label, pivot_price, pivot_date, source, description, volume_profile, updated_at)
+            VALUES (?,?,?,?,?,?,?,?)
             ON CONFLICT(symbol, label) DO UPDATE SET
                 pivot_price = CASE WHEN source != 'USER' THEN excluded.pivot_price ELSE pivot_price END,
                 pivot_date  = CASE WHEN source != 'USER' THEN excluded.pivot_date  ELSE pivot_date  END,
                 source      = CASE WHEN source != 'USER' THEN excluded.source      ELSE source      END,
                 description = CASE WHEN source != 'USER' THEN excluded.description ELSE description END,
+                volume_profile = CASE WHEN source != 'USER' THEN excluded.volume_profile ELSE volume_profile END,
                 updated_at  = excluded.updated_at
         """, ups)
 
@@ -903,7 +955,7 @@ def refine_dynamic_atl_ath_in_db():
                 source = 'DB_AUTO',
                 description = excluded.description,
                 updated_at = excluded.updated_at
-            WHERE source != 'USER'
+            WHERE source NOT IN ('USER', 'STATIC')
         """, (sym, db_min_low, min_date, f"Auto-detected All-Time Low {db_min_low:,.2f} on {min_date}", now))
         
         # Seed or update pivot_levels for ATH
@@ -916,7 +968,7 @@ def refine_dynamic_atl_ath_in_db():
                 source = 'DB_AUTO',
                 description = excluded.description,
                 updated_at = excluded.updated_at
-            WHERE source != 'USER'
+            WHERE source NOT IN ('USER', 'STATIC')
         """, (sym, db_max_high, max_date, f"Auto-detected All-Time High {db_max_high:,.2f} on {max_date}", now))
         
         # Update properties on the live instrument object as well

@@ -112,17 +112,6 @@ def init_db():
         )
     """)
 
-    # ── shareholding ─────────────────────────────────────────────────────────
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS shareholding (
-            symbol TEXT NOT NULL, quarter TEXT NOT NULL,
-            fii_pct REAL, dii_pct REAL, promoter_pct REAL,
-            retail_pct REAL, fii_change REAL, dii_change REAL,
-            fetched_at TEXT,
-            PRIMARY KEY (symbol, quarter)
-        )
-    """)
-
     # ── volume_anomalies ─────────────────────────────────────────────────────
     conn.execute("""
         CREATE TABLE IF NOT EXISTS volume_anomalies (
@@ -855,119 +844,17 @@ def compute_all_volume_anomalies() -> int:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# SHAREHOLDING (yfinance) — unchanged from v3.8
+# SHAREHOLDING — Synthetic random generation disabled & removed
 # ══════════════════════════════════════════════════════════════════════════════
 
-def _quarter_label(dt: date) -> str:
-    return f"{dt.year}-Q{(dt.month-1)//3+1}"
-
-
 def fetch_shareholding_yfinance(symbol: str, yf_symbol: str) -> List[Dict]:
-    results = []
-    try:
-        import yfinance as yf, random
-        ticker = yf.Ticker(yf_symbol)
-        inst_pct = 0.0; insider_pct = 0.0
-        try:
-            info = ticker.info or {}
-            inst_pct    = float(info.get("heldPercentInstitutions", 0) or 0) * 100
-            insider_pct = float(info.get("heldPercentInsiders",     0) or 0) * 100
-        except Exception:
-            pass
-        try:
-            mh = ticker.major_holders
-            if mh is not None and not mh.empty:
-                for idx in range(len(mh)):
-                    row = mh.iloc[idx]
-                    try:
-                        val = float(str(row.iloc[0]).replace('%','').strip())
-                        lbl = str(row.iloc[1]).lower()
-                        if 'institution' in lbl:    inst_pct    = val
-                        elif 'insider' in lbl:      insider_pct = val
-                    except Exception:
-                        pass
-        except Exception:
-            pass
-        fii_cur = round(inst_pct * 0.60, 2)
-        dii_cur = round(inst_pct * 0.40, 2)
-        promoter_cur = round(insider_pct, 2)
-        if fii_cur == 0 and promoter_cur == 0:
-            return results
-        quarterly_dates = []
-        try:
-            qf = ticker.quarterly_financials
-            if qf is not None and not qf.empty:
-                quarterly_dates = sorted(
-                    [c.date() if hasattr(c, 'date') else c for c in qf.columns],
-                    reverse=True
-                )[:8]
-        except Exception:
-            pass
-        if not quarterly_dates:
-            quarterly_dates = [date.today() - timedelta(days=90*i) for i in range(8)]
-        random.seed(hash(symbol) % 9999)
-        built = []
-        prev_fii = prev_dii = None
-        for i, qdate in enumerate(quarterly_dates):
-            if hasattr(qdate, 'date'): qdate = qdate.date()
-            quarter = _quarter_label(qdate)
-            if i == 0:
-                fii = fii_cur; dii = dii_cur; promoter = promoter_cur
-            else:
-                fii      = max(0, round(fii_cur      + random.uniform(-0.8, 0.8) * i * 0.4, 2))
-                dii      = max(0, round(dii_cur      + random.uniform(-0.4, 0.4) * i * 0.3, 2))
-                promoter = max(0, round(promoter_cur + random.uniform(-0.3, 0.3), 2))
-            retail  = max(0, round(100 - fii - dii - promoter, 2))
-            fii_chg = round(fii - prev_fii, 2) if prev_fii is not None else 0.0
-            dii_chg = round(dii - prev_dii, 2) if prev_dii is not None else 0.0
-            built.append({"symbol": symbol, "quarter": quarter,
-                          "fii_pct": fii, "dii_pct": dii,
-                          "promoter_pct": promoter, "retail_pct": retail,
-                          "fii_change": fii_chg, "dii_change": dii_chg})
-            prev_fii = fii; prev_dii = dii
-        results = list(reversed(built))
-    except Exception as e:
-        print(f"  [INST] Shareholding {symbol} error: {e}", flush=True)
-    return results
-
+    return []
 
 def save_shareholding(records: List[Dict]) -> int:
-    if not records: return 0
-    conn = sqlite3.connect(DB_PATH, timeout=10)
-    conn.execute("PRAGMA journal_mode=WAL")
-    saved = 0
-    for r in records:
-        try:
-            conn.execute("""
-                INSERT OR REPLACE INTO shareholding
-                (symbol,quarter,fii_pct,dii_pct,promoter_pct,
-                 retail_pct,fii_change,dii_change,fetched_at)
-                VALUES(?,?,?,?,?,?,?,?,?)
-            """, (r["symbol"], r["quarter"], r["fii_pct"], r["dii_pct"],
-                  r["promoter_pct"], r["retail_pct"],
-                  r["fii_change"], r["dii_change"], datetime.now().isoformat()))
-            saved += 1
-        except Exception:
-            pass
-    conn.commit(); conn.close()
-    return saved
-
+    return 0
 
 def fetch_and_save_shareholding(symbols: List[str] = None):
-    try:
-        sys.path.insert(0, BASE_DIR)
-        from data.instruments import ALL_INSTRUMENTS
-    except Exception as e:
-        print(f"  [INST] {e}", flush=True); return
-    equities = {s: i for s, i in ALL_INSTRUMENTS.items() if i.instrument_type == "EQUITY"}
-    if symbols:
-        equities = {s: equities[s] for s in symbols if s in equities}
-    total = 0
-    for sym, inst in equities.items():
-        recs  = fetch_shareholding_yfinance(sym, inst.yfinance_symbol)
-        total += save_shareholding(recs)
-        time.sleep(0.4)
-    print(f"  [INST] Shareholding: {total} records saved", flush=True)
+    pass
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -1007,10 +894,13 @@ def get_institutional_data(symbol: str, days: int = 365) -> dict:
     for dt, dm in deal_map.items():
         net = dm["buy_qty"] - dm["sell_qty"]
         dm["signal"] = "FII_BUY" if net > 0 else "FII_SELL" if net < 0 else "MIXED"
-    shareholding = [dict(r) for r in conn.execute("""
-        SELECT quarter,fii_pct,dii_pct,promoter_pct,retail_pct,fii_change,dii_change
-        FROM shareholding WHERE symbol=? ORDER BY quarter ASC
-    """, (symbol,)).fetchall()]
+    try:
+        shareholding = [dict(r) for r in conn.execute("""
+            SELECT quarter,fii_pct,dii_pct,promoter_pct,retail_pct,fii_change,dii_change
+            FROM shareholding WHERE symbol=? ORDER BY quarter ASC
+        """, (symbol,)).fetchall()]
+    except Exception:
+        shareholding = []
     anomalies = [dict(r) for r in conn.execute("""
         SELECT trade_date,vol_ratio,signal,candle_type,price_change_pct
         FROM volume_anomalies WHERE symbol=? AND trade_date>=?

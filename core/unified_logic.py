@@ -1908,3 +1908,289 @@ def get_institutional_decision(symbol: str, current_price: float, atr14: float) 
         "verdict": "BUY" if ml_score >= 60 else "SELL" if ml_score <= 40 else "HOLD",
         "sl_atr_based": round(current_price - (atr14 * 1.5), 2)
     }
+
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# THE 4-CHECKPOINT VERIFICATION GATE ("RADAR-TO-SNIPER" VERIFIER)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def evaluate_tracker_checkpoints(
+    symbol: str,
+    as_of_date: Optional[Any] = None,
+    conn: Optional[Any] = None
+) -> Dict[str, Any]:
+    """
+    Evaluates the 4 concrete microstructure verification gates for a tracked setup:
+      - Gate 1 (Price Elasticity): Current price within [-0.5%, +1.0%] of projected Gann support.
+      - Gate 2 (Delivery Absorption): Bhavcopy delivery % > 50% or volume dry-up ratio < 0.75.
+      - Gate 3 (Microstructure Rejection): Lower shadow ratio >= 0.45 on daily candle.
+      - Gate 4 (Derivatives Smart Money): Put OI buildup or Call unwinding at ATM/OTM strikes.
+
+    State outcome:
+      - If 3 or 4 gates pass on/near projected window -> 'CONFIRMED_TRIGGER' (Green Light).
+      - If price breaks below Stop Loss without absorption -> 'INVALIDATED' (Noise Pruning).
+      - If in T-3d to T-0d window -> 'VERIFICATION_PENDING'.
+      - Else -> 'STAGED_TRACKER'.
+    """
+    import sqlite3
+    from datetime import date, datetime, timedelta
+    from core.paths import DB_PATH
+
+    sym = symbol.upper().strip()
+    should_close = False
+    if conn is None:
+        conn = sqlite3.connect(DB_PATH, timeout=20.0)
+        conn.execute("PRAGMA journal_mode=WAL")
+        should_close = True
+    conn.row_factory = sqlite3.Row
+
+    try:
+        # 1. Fetch signal configuration from forward_signals or tracker_bucket
+        sig_row = None
+        try:
+            sig_row = conn.execute("""
+                SELECT * FROM forward_signals
+                WHERE symbol = ? AND status IN ('STAGED_TRACKER', 'VERIFICATION_PENDING', 'CONFIRMED_TRIGGER')
+                ORDER BY id DESC LIMIT 1
+            """, (sym,)).fetchone()
+        except Exception:
+            pass
+
+        if not sig_row:
+            try:
+                sig_row = conn.execute("""
+                    SELECT * FROM tracker_bucket
+                    WHERE symbol = ? AND status IN ('STAGED_TRACKER', 'VERIFICATION_PENDING', 'CONFIRMED_TRIGGER')
+                    ORDER BY id DESC LIMIT 1
+                """, (sym,)).fetchone()
+            except Exception:
+                pass
+
+        proj_date_str = sig_row["projected_date"] if sig_row and "projected_date" in sig_row.keys() else None
+        proj_min = float(sig_row["projected_entry_min"] or 0.0) if sig_row and "projected_entry_min" in sig_row.keys() else 0.0
+        proj_max = float(sig_row["projected_entry_max"] or 0.0) if sig_row and "projected_entry_max" in sig_row.keys() else 0.0
+        stop_loss = float(sig_row["stop_loss"] or 0.0) if sig_row and "stop_loss" in sig_row.keys() else 0.0
+        mid_entry = float(sig_row["entry"] or 0.0) if sig_row and "entry" in sig_row.keys() else round((proj_min + proj_max) / 2.0, 2) if (proj_min and proj_max) else 0.0
+
+        # Parse as_of_date
+        if as_of_date is None:
+            eval_dt = date.today()
+        elif isinstance(as_of_date, str):
+            eval_dt = datetime.strptime(as_of_date[:10], "%Y-%m-%d").date()
+        elif isinstance(as_of_date, datetime):
+            eval_dt = as_of_date.date()
+        else:
+            eval_dt = as_of_date
+        eval_dt_str = eval_dt.isoformat()
+
+        # 2. Fetch daily prices around as_of_date
+        price_rows = conn.execute("""
+            SELECT trade_date, open, high, low, close, volume, deliverable_qty, deliverable_pct
+            FROM daily_prices
+            WHERE symbol = ? AND trade_date <= ?
+            ORDER BY trade_date DESC LIMIT 25
+        """, (sym, eval_dt_str)).fetchall()
+
+        if not price_rows:
+            # Fallback to latest available
+            price_rows = conn.execute("""
+                SELECT trade_date, open, high, low, close, volume, deliverable_qty, deliverable_pct
+                FROM daily_prices
+                WHERE symbol = ?
+                ORDER BY trade_date DESC LIMIT 25
+            """, (sym,)).fetchall()
+
+        if price_rows:
+            latest_bar = price_rows[0]
+            cur_price = float(latest_bar["close"] or 0.0)
+            op = float(latest_bar["open"] or cur_price)
+            hi = float(latest_bar["high"] or cur_price)
+            lo = float(latest_bar["low"] or cur_price)
+            vol = float(latest_bar["volume"] or 0.0)
+            deliv_pct = float(latest_bar["deliverable_pct"]) if latest_bar["deliverable_pct"] is not None else None
+            actual_trade_date = latest_bar["trade_date"]
+
+            # 20-day historical volume baseline
+            prev_vols = [float(r["volume"] or 0.0) for r in price_rows[1:] if r["volume"]]
+            avg_20d_vol = (sum(prev_vols) / len(prev_vols)) if prev_vols else vol
+            vol_dry_up_ratio = round(vol / avg_20d_vol, 3) if avg_20d_vol > 0 else 1.0
+        else:
+            return {
+                "symbol": sym,
+                "as_of_date": eval_dt_str,
+                "projected_date": proj_date_str,
+                "days_to_target": 0,
+                "current_price": mid_entry if mid_entry > 0 else 0.0,
+                "stop_loss": stop_loss,
+                "checkpoints_passed": 0,
+                "status": "DATA_DEFICIT",
+                "action": "ABORT",
+                "invalidation_reason": f"Insufficient historical bars in daily_prices for {sym}",
+                "gates": {}
+            }
+
+        # If entry corridor not defined in signal, default based on current price
+        if proj_min <= 0:
+            proj_min = round(cur_price * 0.995, 2)
+        if proj_max <= 0:
+            proj_max = round(cur_price * 1.010, 2)
+        if stop_loss <= 0:
+            stop_loss = round(proj_min * 0.980, 2)
+        gann_support = proj_min
+
+        # ── Gate 1: Price Elasticity ──────────────────────────────────────────
+        # Current price within [-0.5%, +1.0%] of projected Gann support or within corridor [proj_min*0.995, proj_max*1.010]
+        pct_from_support = ((cur_price - gann_support) / gann_support) * 100.0 if gann_support > 0 else 0.0
+        gate1_passed = (-0.50 <= pct_from_support <= 1.00) or (proj_min * 0.995 <= cur_price <= proj_max * 1.010)
+        gate1_detail = {
+            "passed": bool(gate1_passed),
+            "threshold": "Within [-0.5%, +1.0%] of Gann Support",
+            "metric": f"{pct_from_support:+.2f}%",
+            "gann_support": gann_support,
+            "entry_corridor": [proj_min, proj_max],
+            "current_price": cur_price,
+            "detail": f"Price ₹{cur_price:,.2f} is {pct_from_support:+.2f}% relative to Gann support ₹{gann_support:,.2f}"
+        }
+
+        # ── Gate 2: Delivery Absorption ────────────────────────────────────────
+        # Latest Bhavcopy delivery % > 50% or volume dry-up ratio < 0.75 (with volume floor)
+        is_deliv_absorbed = (deliv_pct is not None and deliv_pct > 50.0)
+        is_vol_dried_up = (vol > 1000 and 0.10 <= vol_dry_up_ratio < 0.75)
+        gate2_passed = bool(is_deliv_absorbed or is_vol_dried_up)
+        gate2_detail = {
+            "passed": gate2_passed,
+            "threshold": "Delivery % > 50% OR Volume Dry-Up Ratio < 0.75",
+            "delivery_pct": deliv_pct,
+            "volume_dry_up_ratio": vol_dry_up_ratio,
+            "detail": (
+                f"Delivery ratio is {deliv_pct if deliv_pct is not None else 'N/A'}% "
+                f"(threshold >50%), Volume ratio vs 20d avg is {vol_dry_up_ratio:.2f} (threshold <0.75)"
+            )
+        }
+
+        # ── Gate 3: Microstructure Rejection ──────────────────────────────────
+        # Lower shadow ratio >= 0.45 on daily candle
+        candle_range = hi - lo
+        lower_shadow = min(op, cur_price) - lo
+        lower_shadow_ratio = round(lower_shadow / candle_range, 3) if candle_range > 0 else 0.0
+        gate3_passed = bool(lower_shadow_ratio >= 0.45)
+        gate3_detail = {
+            "passed": gate3_passed,
+            "threshold": "Lower Shadow Ratio >= 0.45",
+            "metric": lower_shadow_ratio,
+            "candle": {"open": op, "high": hi, "low": lo, "close": cur_price},
+            "detail": f"Lower rejection shadow ratio is {lower_shadow_ratio:.2f} (threshold >= 0.45)"
+        }
+
+        # ── Gate 4: Derivatives Smart Money ───────────────────────────────────
+        # Institutional Put OI buildup or Call unwinding at ATM/OTM strikes, PCR > 1.10, or Smart Money FII bias
+        put_buildup = False
+        call_unwinding = False
+        pcr_val = 1.0
+        fii_bullish = False
+        try:
+            # 1. Option chain check
+            chain_rows = conn.execute("""
+                SELECT option_type, change_in_oi FROM option_chain_data
+                WHERE symbol = ? ORDER BY trade_date DESC LIMIT 40
+            """, (sym,)).fetchall()
+            for cr in chain_rows:
+                opt_t = str(cr["option_type"]).upper()
+                choi = float(cr["change_in_oi"] or 0)
+                if opt_t == "PE" and choi > 0:
+                    put_buildup = True
+                if opt_t == "CE" and choi < 0:
+                    call_unwinding = True
+
+            # 2. PCR check
+            pcr_r = conn.execute("""
+                SELECT pcr FROM pcr_summary WHERE symbol = ? ORDER BY trade_date DESC LIMIT 1
+            """, (sym,)).fetchone()
+            if pcr_r and pcr_r["pcr"]:
+                pcr_val = float(pcr_r["pcr"])
+
+            # 3. Participant sentiment check
+            fii_r = conn.execute("""
+                SELECT smart_money_bias, fii_index_long_pct FROM participant_sentiment_summary
+                ORDER BY trade_date DESC LIMIT 1
+            """).fetchone()
+            if fii_r:
+                bias = str(fii_r["smart_money_bias"] or "")
+                long_pct = float(fii_r["fii_index_long_pct"] or 50)
+                if "BULLISH" in bias or long_pct <= 25.0:
+                    fii_bullish = True
+        except Exception:
+            fii_bullish = False
+
+        gate4_passed = bool(put_buildup or call_unwinding or pcr_val > 1.10 or fii_bullish)
+        gate4_detail = {
+            "passed": gate4_passed,
+            "threshold": "Put OI Buildup / Call Unwinding / PCR > 1.10 / FII Bullish Bias",
+            "put_buildup": put_buildup,
+            "call_unwinding": call_unwinding,
+            "pcr": pcr_val,
+            "detail": (
+                f"Smart money derivatives: Put Writing={put_buildup}, Call Unwinding={call_unwinding}, "
+                f"PCR={pcr_val:.2f}, FII Bullish Bias={fii_bullish}"
+            )
+        }
+
+        # ── Total Checkpoints Passed ───────────────────────────────────────────
+        gates = {
+            "gate1_price_elasticity": gate1_detail,
+            "gate2_delivery_absorption": gate2_detail,
+            "gate3_microstructure_rejection": gate3_detail,
+            "gate4_derivatives_smart_money": gate4_detail
+        }
+        total_passed = sum(1 for g in gates.values() if g["passed"])
+
+        # ── State Transition & Decision Logic ─────────────────────────────────
+        # Check window
+        days_to_target = 0
+        if proj_date_str:
+            try:
+                tgt_d = datetime.strptime(proj_date_str[:10], "%Y-%m-%d").date()
+                days_to_target = (tgt_d - eval_dt).days
+            except Exception:
+                pass
+
+        # Invalidation rule: price breaks below stop loss
+        if cur_price < stop_loss:
+            status = "INVALIDATED"
+            action = "INVALIDATE"
+            inval_reason = (
+                f"Price ₹{cur_price:,.2f} breached Stop Loss ₹{stop_loss:,.2f}"
+            )
+        # Green Light Trigger: 3 or 4 gates passed
+        elif total_passed >= 3:
+            status = "CONFIRMED_TRIGGER"
+            action = "GREEN_LIGHT"
+            inval_reason = None
+        # Approaching window: T-3d to T-0d
+        elif -2 <= days_to_target <= 3:
+            status = "VERIFICATION_PENDING"
+            action = "MONITOR"
+            inval_reason = None
+        else:
+            status = "STAGED_TRACKER"
+            action = "MONITOR"
+            inval_reason = None
+
+        return {
+            "symbol": sym,
+            "as_of_date": actual_trade_date,
+            "projected_date": proj_date_str,
+            "days_to_target": days_to_target,
+            "current_price": cur_price,
+            "stop_loss": stop_loss,
+            "checkpoints_passed": total_passed,
+            "status": status,
+            "action": action,
+            "invalidation_reason": inval_reason,
+            "gates": gates
+        }
+
+    finally:
+        if should_close:
+            conn.close()

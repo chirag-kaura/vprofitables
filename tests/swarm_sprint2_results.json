@@ -1,0 +1,128 @@
+[
+  {
+    "test_num": 1,
+    "name": "Derivatives Specialist Subgraph",
+    "query": "what is Nifty PCR and Max Pain",
+    "passed": true,
+    "domains": [
+      "derivatives_agent"
+    ],
+    "tool_results_count": 1,
+    "elapsed_s": 20.2,
+    "response_preview": "**PCR (Implied Volatility Skew):** The Probability of Call Writing (PCR) for Nifty is 0.00, indicating an oversold condition with a significant overhang towards bearish options writing. This suggests "
+  },
+  {
+    "test_num": 2,
+    "name": "Participant OI Market-Wide Subgraph",
+    "query": "what is today participant OI and FII long ratio",
+    "passed": true,
+    "domains": [
+      "derivatives_agent"
+    ],
+    "tool_results_count": 1,
+    "elapsed_s": 18.47,
+    "response_preview": "Today's participant OI (Open Interest) and FII long ratio for the FII Index Futures are as follows:\n\n- **FII Index Long Ratio**: 12.6%\n- **FII Net Index Futures**: -277,105 contracts\n\nThe FII Index Lo"
+  },
+  {
+    "test_num": 3,
+    "name": "Quant Gann Specialist Subgraph",
+    "query": "what are the Gann Square of 9 levels for Reliance",
+    "passed": true,
+    "domains": [
+      "quant_agent"
+    ],
+    "tool_results_count": 1,
+    "elapsed_s": 32.57,
+    "response_preview": "**Gann Square of 9 Levels for Reliance**:\n\nThe Gann Square of 9 levels for Reliance Industries Limited (RELIANCE) is anchored at Rs. 1,197.10, with the following key levels:\n\n- **90\u00b0 Rotation**: Suppo"
+  },
+  {
+    "test_num": 4,
+    "name": "Quant Wyckoff Specialist Subgraph",
+    "query": "what is the Wyckoff phase and accumulation score for TCS",
+    "passed": true,
+    "domains": [
+      "quant_agent"
+    ],
+    "tool_results_count": 1,
+    "elapsed_s": 44.58,
+    "response_preview": "**Wyckoff Phase**: The Wyckoff phase for Tata Consultancy Services (TCS) is currently in PHASE_B_EARLY, which is considered a NEUTRAL phase. This indicates that the market is in an early accumulation "
+  },
+  {
+    "test_num": 5,
+    "name": "Deep ML Continuation Subgraph",
+    "query": "what does the deep continuation model say about Reliance",
+    "passed": true,
+    "domains": [
+      "deep_ml_agent"
+    ],
+    "tool_results_count": 1,
+    "elapsed_s": 13.93,
+    "response_preview": "The Deep ML continuation model analysis for Reliance indicates a continuation probability of 50.0%. The structural verdict suggests a potential distribution or breakdown scenario. The ADX value of 0.0"
+  },
+  {
+    "test_num": 6,
+    "name": "Vedic Astro Specialist Subgraph",
+    "query": "what is today's Nakshatra and is Reliance aligned",
+    "passed": true,
+    "domains": [
+      "astro_agent",
+      "ohlc_agent"
+    ],
+    "tool_results_count": 2,
+    "elapsed_s": 28.28,
+    "response_preview": "Today's Nakshatra is Rohini, with the Moon as the planetary ruler, and the energy mode is Rajas. For Reliance, the Nakshatra alignment score is 50/100 (NEUTRAL), indicating a neutral state. The favore"
+  },
+  {
+    "test_num": 7,
+    "name": "Fundamental 10Y Audited Subgraph",
+    "query": "what is Reliance sales and net profit growth over last 3 years",
+    "passed": true,
+    "domains": [
+      "fundamental_agent"
+    ],
+    "tool_results_count": 1,
+    "elapsed_s": 33.73,
+    "response_preview": "Reliance's sales and net profit growth over the last three fiscal years have been as follows:\n\n- **Sales Growth**: The company's sales (Revenue) grew by 8.00% annually over the last two fiscal years, "
+  },
+  {
+    "test_num": 8,
+    "name": "Multi-Agent Fan-Out Comparison (Quant + ML)",
+    "query": "compare Reliance and TCS on Wyckoff phase and deep continuation probability",
+    "passed": true,
+    "domains": [
+      "ohlc_agent",
+      "quant_agent",
+      "deep_ml_agent"
+    ],
+    "tool_results_count": 11,
+    "elapsed_s": 41.43,
+    "response_preview": "**Institutional Response to Reliance Industries Ltd. (RELIANCE) and Tata Consultancy Services (TCS)**\n\nTo our stakeholders:\n\nWe are pleased to provide an institutional analysis of Reliance Industries "
+  },
+  {
+    "test_num": 9,
+    "name": "All 6 Agents Full Swarm Dossier",
+    "query": "give me a full quant dossier on Reliance",
+    "passed": true,
+    "domains": [
+      "ohlc_agent",
+      "derivatives_agent",
+      "quant_agent",
+      "deep_ml_agent",
+      "astro_agent",
+      "fundamental_agent"
+    ],
+    "tool_results_count": 18,
+    "elapsed_s": 40.89,
+    "response_preview": "**Institutional Response to RELIANCE (RELIANCE) Stock Analysis**\n\n**Headline Metric**: Technical Quantitative Stats for RELIANCE (Latest Close: Rs. 1197.10):\n\n- **SMA 20**: Rs. 1190.06\n- **SMA 50**: R"
+  },
+  {
+    "test_num": 10,
+    "name": "Guardrail Domain Filter",
+    "query": "how to make chocolate cake",
+    "passed": true,
+    "domains": [],
+    "tool_results_count": 0,
+    "elapsed_s": 0.01,
+    "response_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, specialized in Indian equity price action, technical analytics, moving averages, news sentiment, and 10-year audited financials for 500+ NSE"
+  }
+]

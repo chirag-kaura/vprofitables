@@ -100,10 +100,18 @@ NAKSHATRA_DATA = [
     {"name": "Revati",        "lord": "Mercury", "sectors": ["Finance", "Shipping", "Logistics", "Orphanages"]},
 ]
 
-def get_nakshatra_info(longitude: float) -> dict:
-    """Return Nakshatra data based on ecliptic longitude (0-360)."""
-    lon = normalize(longitude)
-    idx = int(lon / (360.0 / 27.0))
+def get_lahiri_ayanamsha(dt: Optional[date] = None) -> float:
+    """Return approximate Lahiri Ayanamsha for date (~24.1° in 2026)."""
+    if dt is None:
+        dt = date.today()
+    years_since_2000 = (dt.year - 2000) + (dt.month / 12.0)
+    return 23.85 + (years_since_2000 * 0.014)
+
+def get_nakshatra_info(longitude: float, dt: Optional[date] = None) -> dict:
+    """Return Nakshatra data based on Sidereal ecliptic longitude (0-360)."""
+    ayanamsha = get_lahiri_ayanamsha(dt)
+    sidereal_lon = normalize(longitude - ayanamsha)
+    idx = int(sidereal_lon / (360.0 / 27.0))
     return NAKSHATRA_DATA[idx % 27]
 
 

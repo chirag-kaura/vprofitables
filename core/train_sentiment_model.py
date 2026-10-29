@@ -199,19 +199,25 @@ def train_finbert(texts, labels):
     eval_ds  = NewsDataset(texts[split:],     y_indexed[split:],  tokenizer)
 
     model = AutoModelForSequenceClassification.from_pretrained(model_name,
-                                                                num_labels=num_labels)
-    args = TrainingArguments(
-        output_dir    = os.path.join(BASE_DIR, "finbert_checkpoints"),
-        num_train_epochs         = 3,
-        per_device_train_batch_size = 8,
-        per_device_eval_batch_size  = 16,
-        evaluation_strategy      = "epoch",
-        save_strategy            = "epoch",
-        load_best_model_at_end   = True,
-        logging_dir              = os.path.join(BASE_DIR, "finbert_logs"),
-        logging_steps            = 10,
-        report_to                = "none",
-    )
+                                                                num_labels=num_labels,
+                                                                ignore_mismatched_sizes=True)
+    import inspect
+    sig_params = inspect.signature(TrainingArguments.__init__).parameters
+    eval_arg = "eval_strategy" if "eval_strategy" in sig_params else "evaluation_strategy"
+    
+    arg_dict = {
+        "output_dir": os.path.join(BASE_DIR, "finbert_checkpoints"),
+        "num_train_epochs": 3,
+        "per_device_train_batch_size": 8,
+        "per_device_eval_batch_size": 16,
+        "save_strategy": "epoch",
+        "load_best_model_at_end": True,
+        "logging_dir": os.path.join(BASE_DIR, "finbert_logs"),
+        "logging_steps": 10,
+        "report_to": "none",
+    }
+    arg_dict[eval_arg] = "epoch"
+    args = TrainingArguments(**arg_dict)
     trainer = Trainer(model=model, args=args, train_dataset=train_ds, eval_dataset=eval_ds)
     trainer.train()
 

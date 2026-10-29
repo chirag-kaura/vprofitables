@@ -4,10 +4,7 @@ Portfolio State Reader — Phase 1 Rebuild.
 Provides real-time portfolio allocations and available capital readings.
 
 PHASE 1 FIX (S1):
-  All queries now target the unified `positions` table (status='OPEN').
-  The old `paper_portfolio` table is no longer read — it was returning empty
-  results, making `get_available_capital()` always return the full starting
-  capital and effectively removing all capital constraint checks.
+  All queries target the unified `positions` table (status='OPEN').
 
   get_available_capital() now accepts an optional portfolio_id so that
   multi-user environments are correctly scoped.
@@ -107,7 +104,7 @@ def get_available_capital(risk_settings: dict = None, portfolio_id: str = None,
       3. risk_profiles table starting_capital (if user_id given).
       4. Default ₹10,00,000 fallback.
 
-    PHASE 1 FIX: reads deployed capital from `positions` (not paper_portfolio).
+    PHASE 1 FIX: reads deployed capital from `positions`.
     """
     # ── Resolve starting capital ──────────────────────────────────────────────
     if risk_settings and "capital" in risk_settings:

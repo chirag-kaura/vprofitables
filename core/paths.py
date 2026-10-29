@@ -19,3 +19,20 @@ else:
 # Single sources of truth for database and configuration files
 DB_PATH = os.path.normpath(os.path.join(BASE_DIR, "market_data_v2.db"))
 CONFIG_PATH = os.path.normpath(os.path.join(BASE_DIR, "gann_settings.json"))
+
+import sqlite3
+
+def get_db_connection(readonly: bool = False, timeout: float = 15.0) -> sqlite3.Connection:
+    """
+    Factory for robust SQLite database connections.
+    If readonly=True, applies PRAGMA query_only=ON to prevent accidental write operations
+    while allowing full non-blocking concurrent reads under WAL mode without schema locks.
+    """
+    conn = sqlite3.connect(DB_PATH, timeout=timeout)
+    conn.execute(f"PRAGMA busy_timeout={int(timeout * 1000)};")
+    if readonly:
+        conn.execute("PRAGMA query_only = ON;")
+    else:
+        conn.execute("PRAGMA journal_mode=WAL;")
+        conn.execute("PRAGMA synchronous=NORMAL;")
+    return conn

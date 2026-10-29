@@ -26,7 +26,7 @@ HTML = r"""
     <div class="g4" id="dash-stats" style="margin-bottom:14px;"></div>
     <div class="g2">
       <div>
-        <div class="card">
+        <div class="card" data-feature-id="ephemeris_aspects">
           <div class="card-title">🪐 PLANET POSITIONS</div>
           <div class="trow hdr" style="grid-template-columns:90px 70px 100px 60px 75px 70px;">
             <div>PLANET</div><div>LON°</div><div>SIGN</div><div>DEG</div><div>SPEED</div><div>STATUS</div>

@@ -14,7 +14,7 @@ HTML = r"""
 <!-- ═══════════ PAGE: SQ9 ═══════════ -->
 <div class="page" id="page-sq9">
   <div class="topbar"><h2>SQUARE OF NINE</h2><span class="page-tag">GANN SQ9</span></div>
-  <div class="card">
+  <div class="card" data-feature-id="gann_sq9_spiral">
     <div class="card-title">⚙ INPUT</div>
     <div class="form-row">
       <label>CURRENT PRICE</label><input type="number" id="sq9-price" value="24500">

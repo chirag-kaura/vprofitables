@@ -26,7 +26,7 @@ HTML = r"""
       <button class="btn" onclick="loadScanner()">⟳ SCAN</button>
     </div>
   </div>
-  <div class="card">
+  <div class="card" data-feature-id="scanner_full_pool">
     <div class="card-title">📡 SIGNAL STRENGTH RANKING</div>
     <div id="scanner-loading" class="loading"><div class="spinner"></div>SCANNING...</div>
     <div id="scanner-table" style="display:none;"></div>
@@ -57,10 +57,12 @@ function renderScanner(d) {
     <div>SYMBOL</div><div>NAME</div><div>EXCHANGE</div><div>SECTOR</div><div>RULER</div><div>SIGNAL</div><div>ALERT</div>
   </div>`;
   items.forEach(r => {
-    const alert = r.signal_score >= 6
-      ? `<span class="badge bgo">ALERT ${r.signal_score}</span>`
-      : `<span style="font-family:Share Tech Mono,monospace;font-size:0.68rem;color:var(--dim);">${r.signal_score}</span>`;
-    const sc = r.signal_score >= 8 ? 'var(--red)' : r.signal_score >= 6 ? 'var(--gold)' : 'var(--green)';
+    const rawScore = Number(r.signal_score) || 0;
+    const scoreStr = rawScore.toFixed(2);
+    const alert = rawScore >= 6
+      ? `<span class="badge bgo">ALERT ${scoreStr}</span>`
+      : `<span style="font-family:Share Tech Mono,monospace;font-size:0.68rem;color:var(--dim);">${scoreStr}</span>`;
+    const sc = rawScore >= 8 ? 'var(--red)' : rawScore >= 6 ? 'var(--gold)' : 'var(--green)';
     html += `<div class="trow" style="grid-template-columns:80px 1fr 70px 70px 80px 80px 70px;cursor:pointer;"
       onclick="jumpToChart('${r.symbol}', ${r.current_price||0})">
       <div style="font-family:Share Tech Mono,monospace;color:var(--cyan);font-size:0.78rem;">${r.symbol}</div>
@@ -68,7 +70,7 @@ function renderScanner(d) {
       <div class="badge bc" style="font-size:0.58rem;">${r.exchange}</div>
       <div style="font-size:0.75rem;color:var(--text);">${(r.sector||'').substring(0,12)}</div>
       <div style="color:${pcolor(r.ruling_planet)};font-family:Share Tech Mono,monospace;font-size:0.75rem;">${r.ruling_planet}</div>
-      <div style="font-family:Share Tech Mono,monospace;font-size:0.8rem;font-weight:600;color:${sc};">${r.signal_score}</div>
+      <div style="font-family:Share Tech Mono,monospace;font-size:0.8rem;font-weight:600;color:${sc};">${scoreStr}</div>
       <div>${alert}</div>
     </div>`;
   });

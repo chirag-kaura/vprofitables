@@ -1,0 +1,82 @@
+[
+  {
+    "test_num": 1,
+    "domain": "Derivatives",
+    "query": "what is Nifty PCR and Max Pain",
+    "passed": true,
+    "elapsed_s": 27.76,
+    "response_preview": "**PCR (Implied Volatility Skew):** The Probability of Call Writing (PCR) for NIFTY is 0.00, indicating an oversold condition and a bearish overhang, with all Call options being heavily written. This s"
+  },
+  {
+    "test_num": 2,
+    "domain": "Participant OI",
+    "query": "what is today participant OI and FII long ratio",
+    "passed": true,
+    "elapsed_s": 14.02,
+    "response_preview": "Today's FII (Foreign Institutional) long ratio is 12.6%, indicating above the historical mean of 50%. This ratio is currently in a BULLISH_ACCUMULATION regime, suggesting institutional directional com"
+  },
+  {
+    "test_num": 3,
+    "domain": "Smart Money Deals",
+    "query": "show me bulk deals in Reliance",
+    "passed": true,
+    "elapsed_s": 39.84,
+    "response_preview": "**Bulk Deals in Reliance (2026-10-08 - 2025-11-21):**\n\nOn October 8, 2026, there were two significant institutional transactions:\n- **Sell**: PIONEER INVESTMENT FUND S executed a sale of 2,040,212 uni"
+  },
+  {
+    "test_num": 4,
+    "domain": "Quant Gann Sq9",
+    "query": "what are the Gann Square of 9 levels for Reliance",
+    "passed": true,
+    "elapsed_s": 30.89,
+    "response_preview": "The Gann Square of 9 levels for Reliance Industries Limited (RELIANCE) are as follows:\n\n- **90\u00b0 (90 deg)**: Anchor at Rs. 1,197.10 (Date: 2026-10-27). Support level at Rs. 1,162.75 (+2.87%), Resistanc"
+  },
+  {
+    "test_num": 5,
+    "domain": "Quant Wyckoff",
+    "query": "what is the Wyckoff phase and accumulation score for TCS",
+    "passed": true,
+    "elapsed_s": 29.76,
+    "response_preview": "**Wyckoff Phase for TCS:** PHASE_B_EARLY (NEUTRAL)\n\n**Accumulation Score:** 0/100\n\n**Key Metrics:**\n- **Hedge Fund Entry Price:** Rs. 2,516.52\n- **Structural Stop Loss:** Rs. 2,034.87\n- **Wyckoff Targ"
+  },
+  {
+    "test_num": 6,
+    "domain": "Astro Nakshatra",
+    "query": "what is today's Nakshatra and is Reliance aligned",
+    "passed": true,
+    "elapsed_s": 29.26,
+    "response_preview": "Today's Nakshatra for Reliance Industries is Rohini (Pada 2), with the Moon as the planetary ruler, indicating a Rajas (moderate) energy mode. The alignment score for Reliance Industries is 50/100, wh"
+  },
+  {
+    "test_num": 7,
+    "domain": "Deep ML Continuation",
+    "query": "what does the deep continuation model say about Reliance",
+    "passed": true,
+    "elapsed_s": 17.83,
+    "response_preview": "For Reliance, the Deep ML continuation model indicates a 50.0% Continuation Probability, suggesting a balanced market sentiment. The Structural Verdict of DISTRIBUTION OR BREAKDOWN implies a neutral t"
+  },
+  {
+    "test_num": 8,
+    "domain": "Multi-Stock Quant Comparison",
+    "query": "compare Reliance and TCS on Wyckoff phase and deep continuation probability",
+    "passed": true,
+    "elapsed_s": 65.63,
+    "response_preview": "**Comparison of Reliance and TCS on Wyckoff Phase and Deep Neural Network Continuation Probability:**\n\n**Wyckoff Phase Analysis:**\n- **Reliance (RELIANCE)**: Currently in an **UNFAVORABLE_REGIME (NEUT"
+  },
+  {
+    "test_num": 9,
+    "domain": "Comprehensive Dossier",
+    "query": "give me a full quant dossier on Reliance",
+    "passed": true,
+    "elapsed_s": 55.56,
+    "response_preview": "**Institutional Response to RELIANCE JSCo:**\n\nWe are monitoring the RELIANCE JSCo with a focus on both fundamental and technical analysis. The Wyckoff Phase indicates an UNFAVORABLE_REGIME (NEUTRAL) w"
+  },
+  {
+    "test_num": 10,
+    "domain": "Guardrail Off-Topic",
+    "query": "how to make chocolate cake",
+    "passed": true,
+    "elapsed_s": 0.01,
+    "response_preview": "I am the **Vprofitables Quantitative AI Terminal Copilot**, specialized in Indian equity price action, technical analytics, moving averages, news sentiment, and 10-year audited financials for 500+ NSE"
+  }
+]

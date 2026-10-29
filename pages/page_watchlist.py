@@ -389,6 +389,10 @@ async function loadWatchlist() {
 }
 
 function wlGoToChart(sym) {
+  if (typeof openSymbolChart === 'function') {
+    openSymbolChart(sym);
+    return;
+  }
   const el = document.getElementById('chart-sym');
   if (el) { el.value = sym; }
   if (typeof nav === 'function') nav('chart');

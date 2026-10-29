@@ -15,7 +15,6 @@ HTML = r"""
 <div class="page active" id="page-advisor">
   <div class="topbar">
     <h2>💡 INVESTMENT AI ADVISOR</h2>
-    <span class="page-tag">Vprofitables · QUANT</span>
   </div>
 
   <!-- Input Panel -->
@@ -127,7 +126,7 @@ HTML = r"""
       </div>
 
       <!-- Single stock mode params -->
-      <div id="adv-single-params" style="display:none;">
+      <div id="adv-single-params" data-feature-id="advisor_trade_corridor" style="display:none;">
         <!-- Row 1: Stock + Type + Risk -->
         <div class="form-row" style="flex-wrap:wrap;gap:12px;margin-bottom:10px;">
           <div style="display:flex;flex-direction:column;gap:4px;">
@@ -191,7 +190,7 @@ HTML = r"""
     </div>
 
     <!-- Portfolio summary (populated after run) -->
-    <div class="card" id="adv-portfolio-card" style="display:none;">
+    <div class="card admin-gated-section" id="adv-portfolio-card" data-feature-id="adv_portfolio_summary" data-feature-name="Portfolio Summary & Allocation" data-feature-page="advisor" style="position:relative; display:none;">
       <div class="card-title" style="color:var(--gold);">📊 PORTFOLIO SUMMARY</div>
       <div id="adv-portfolio-stats" style="margin-bottom:10px;"></div>
       <div id="adv-planet-verdict" style="margin-bottom:10px;"></div>
@@ -200,7 +199,7 @@ HTML = r"""
   </div>
 
   <!-- Moon Nakshatra & Timing Widget (dynamic) -->
-  <div class="card" id="adv-nakshatra-card" style="display:none;margin-bottom:16px;">
+  <div class="card admin-gated-section" id="adv-nakshatra-card" data-feature-id="adv_nakshatra_timing" data-feature-name="Moon Nakshatra & Timing Widget" data-feature-page="advisor" style="position:relative; display:none;margin-bottom:16px;">
     <div class="card-title" style="color:var(--cyan);display:flex;justify-content:space-between;align-items:center;">
       <span>🌌 MOON NAKSHATRA & MARKET TIMING</span>
       <span id="adv-nak-score-badge" style="font-size:0.65rem;padding:2px 8px;border-radius:3px;background:rgba(0,212,255,0.15);color:var(--cyan);font-family:Share Tech Mono,monospace;"></span>
@@ -277,7 +276,7 @@ HTML = r"""
   <!-- Results -->
   <div id="adv-results" style="display:none;">
     <!-- Planet Dashboard summary -->
-    <div class="card" id="adv-planet-card" style="margin-bottom:14px;">
+    <div class="card admin-gated-section" id="adv-planet-card" data-feature-id="adv_planetary_env" data-feature-name="Current Planetary Environment" data-feature-page="advisor" style="position:relative; margin-bottom:14px;">
       <div class="card-title" style="color:var(--purple);">🌌 CURRENT PLANETARY ENVIRONMENT</div>
       <div id="adv-planet-summary" style="font-size:0.8rem;line-height:1.7;color:var(--t2);"></div>
     </div>
@@ -305,6 +304,7 @@ HTML = r"""
 JS = r"""
 // ── Mode toggle ───────────────────────────────────────────────────
 let currentAdvisorTabMode = 'portfolio';
+let _advisorAutoOpenGeneration = 0;
 
 function setAdvisorMode(mode) {
   currentAdvisorTabMode = mode;
@@ -335,6 +335,27 @@ function setAdvisorMode(mode) {
   if (btnN) { btnN.style.background = isPlanner ? 'rgba(0,255,136,0.12)' : 'transparent'; btnN.style.color = isPlanner ? 'var(--green)' : 'var(--dim)'; }
 
   if (isSingle) _populateSingleSymDropdown();
+  if (isSingle && window._pendingAdvisorReport) {
+    const pending = window._pendingAdvisorReport;
+    const generation = ++_advisorAutoOpenGeneration;
+    const apply = () => {
+      if (generation !== _advisorAutoOpenGeneration) return;
+      const symbolSel = document.getElementById('adv-single-sym');
+      if (!symbolSel) return;
+      if (symbolSel.options.length <= 1) { setTimeout(apply, 120); return; }
+      if (window._pendingAdvisorReport !== pending) return;
+      if (![...symbolSel.options].some(o => o.value === pending.symbol)) {
+        const option = document.createElement('option'); option.value = pending.symbol; option.textContent = pending.symbol; symbolSel.appendChild(option);
+      }
+      symbolSel.value = pending.symbol;
+      const hz = String(pending.horizon || '').toLowerCase();
+      const type = hz === 'intraday' ? 'intraday' : hz === 'short' ? 'short' : hz === 'long' ? 'long' : 'swing';
+      const typeSel = document.getElementById('adv-single-type'); if (typeSel) typeSel.value = type;
+      window._pendingAdvisorReport = null;
+      runSingleStockReport();
+    };
+    apply();
+  }
 }
 
 function _populateSingleSymDropdown() {
@@ -463,6 +484,8 @@ async function runSingleStockReport() {
 }
 
 function _buildSingleReportHTML(rep, rec) {
+
+  let _wrapStart = '<div class="admin-gated-section" data-feature-id="adv_single_deep_analysis" data-feature-name="Single Stock Deep Analysis Synthesis" data-feature-page="advisor" style="position:relative;">';
   // ── MASTER ANALYSIS REPORT: adds DEEP ANALYSIS below the advisor card ──
   // The advisor card (above) already shows: entry/SL/T1/T2, reasons, trigger dates, ML panel.
   // This section adds ONLY: analysis narratives + clean one-line verdict.
@@ -494,7 +517,15 @@ function _buildSingleReportHTML(rep, rec) {
   const rrStr = rec ? `1:${rec.rr_ratio}` : (ts.risk_reward||'—');
 
   // ── METRICS STRIP — numbers only, no duplication of levels ───────────────
+  const arch = rec?.pattern_archetype || (rec?.strategy_type === 'TREND_PULLBACK_CONTINUATION' ? 'CONTINUATION' : 'REVERSAL');
+  const isContArch = arch === 'CONTINUATION';
+  const archEdgeVal = isContArch ? Math.round((rec?.ai_continuation_prob || 0.68) * 100) : Math.round((rec?.ai_reversal_prob || rec?.ml_confidence || 0.70) * 100);
+  const archTag = isContArch
+    ? `Archetype: <b style="color:#ffaa33;">⚡ CONTINUATION (Pullback)</b> [AI Edge: <b style="color:#ffd700;">${archEdgeVal}%</b>]`
+    : `Archetype: <b style="color:var(--cyan);">🎯 REVERSAL (Exhaustion)</b> [AI Edge: <b style="color:#00ffff;">${archEdgeVal}%</b>]`;
+
   const metParts = [
+    archTag,
     met.rsi!=null?`RSI: <b style="color:${met.rsi<30?'var(--green)':met.rsi>70?'var(--red)':'var(--gold)'}">${met.rsi}</b> ${met.rsi>70?' ⚠ overbought':met.rsi<30?' s oversold':''}`:null,
     met.ann_vol!=null?`Volatility: <b style="color:var(--gold)">${met.ann_vol}%</b> annualised`:null,
     met.vol_surge!=null?`Volume: <b style="color:var(--cyan)">${met.vol_surge}x</b> avg`:null,
@@ -657,7 +688,7 @@ function _buildSingleReportHTML(rep, rec) {
       <div style="margin-top:10px;font-family:Share Tech Mono,monospace;font-size:0.58rem;color:var(--dim);">
         Generated: ${new Date().toLocaleString('en-IN')} · ${rep.symbol||''} · ₹${Number(rep.price||0).toLocaleString('en-IN')} · ${rep.date||''}
       </div>
-    </div>`;
+    </div>` + '</div>';
 
   const disclaimer = `<div style="padding:8px 12px;background:rgba(58,90,112,0.12);border-left:2px solid var(--dim);font-family:Share Tech Mono,monospace;font-size:0.58rem;color:var(--dim);letter-spacing:1px;line-height:1.6;">⚠ For educational purposes only. Not financial advice. All trades carry risk.</div>`;
 
@@ -985,7 +1016,7 @@ function renderAdvisor(d) {
       <div style="background:rgba(0,0,0,0.4);height:6px;border-radius:3px;">
         <div style="width:${Math.min(pct,100)}%;height:100%;background:${col};border-radius:3px;transition:width 0.8s;"></div>
       </div>
-    </div>`;
+    </div>` + '</div>';
   });
   document.getElementById('adv-alloc-table').innerHTML = allocHtml;
 
@@ -1055,15 +1086,40 @@ function buildRecCard(r, idx, totalAmount) {
   el.innerHTML = `
   <div class="card">
     <!-- Header -->
-    <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">
-      <div style="font-family:Orbitron,sans-serif;font-size:1.1rem;font-weight:900;color:var(--cyan);">
-        #${idx+1} ${r.symbol}
-      </div>
+    <div class="admin-gated-section" data-feature-id="adv_rec_header" data-feature-name="Recommendation Header & Conviction" data-feature-page="advisor" style="position:relative; display:flex;align-items:center;gap:12px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--border);">
       <div style="flex:1;">
-        <div style="font-size:0.8rem;color:var(--t2);">${r.name}</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div style="font-family:Orbitron,sans-serif;font-size:1.15rem;font-weight:900;color:var(--cyan);">
+            #${idx+1} ${r.symbol}
+          </div>
+          ${(()=>{
+            const isCont = r.pattern_archetype === 'CONTINUATION' || r.strategy_type === 'TREND_PULLBACK_CONTINUATION';
+            if (isCont) {
+              const edge = Math.round((r.ai_continuation_prob || 0.68) * 100);
+              return `<span style="background:rgba(255,140,0,0.14);border:1px solid #ff9900;color:#ffaa33;padding:3px 9px;border-radius:3px;font-family:Orbitron,sans-serif;font-size:0.62rem;font-weight:900;letter-spacing:1px;display:inline-flex;align-items:center;gap:6px;">
+                ⚡ CONTINUATION (20-EMA / VWAP PULLBACK)
+                <span style="background:rgba(255,165,0,0.25);padding:1px 5px;border-radius:2px;font-family:Share Tech Mono,monospace;font-size:0.6rem;color:#ffd700;">AI Edge: ${edge}%</span>
+              </span>`;
+            } else {
+              const edge = Math.round((r.ai_reversal_prob || r.ml_confidence || 0.70) * 100);
+              return `<span style="background:rgba(0,212,255,0.12);border:1px solid var(--cyan);color:var(--cyan);padding:3px 9px;border-radius:3px;font-family:Orbitron,sans-serif;font-size:0.62rem;font-weight:900;letter-spacing:1px;display:inline-flex;align-items:center;gap:6px;">
+                🎯 REVERSAL (CYCLICAL EXHAUSTION)
+                <span style="background:rgba(0,212,255,0.25);padding:1px 5px;border-radius:2px;font-family:Share Tech Mono,monospace;font-size:0.6rem;color:#00ffff;">AI Edge: ${edge}%</span>
+              </span>`;
+            }
+          })()}
+        </div>
+        <div style="font-size:0.8rem;color:var(--t2);margin-top:3px;">${r.name}</div>
         <div style="font-size:0.65rem;color:var(--dim);">${r.sector} · ${r.exchange} · Ruler: ${r.ruling_planet}</div>
       </div>
-      <div style="display:flex;align-items:center;gap:12px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button id="track-btn-${idx}" onclick="trackSingleRecommendation(${idx})"
+          style="padding:6px 12px;background:rgba(0,255,136,0.08);border:1px solid var(--green);
+          border-radius:3px;color:var(--green);font-family:Share Tech Mono,monospace;font-size:0.65rem;
+          font-weight:bold;cursor:pointer;letter-spacing:1px;height:fit-content;transition:all 0.2s;"
+          title="Induct into Autonomous Tracker Desk and immediately email Bespoke Equity Research Dossier">
+          📡 TRACK & DOSSIER
+        </button>
         <button onclick="deploySingleRecommendation(${idx})"
           style="padding:6px 14px;background:rgba(0,212,255,0.08);border:1px solid var(--cyan);
           border-radius:3px;color:var(--cyan);font-family:Share Tech Mono,monospace;font-size:0.65rem;
@@ -1078,12 +1134,14 @@ function buildRecCard(r, idx, totalAmount) {
     </div>
 
     <!-- Score breakdown -->
-    <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:14px;">
+    <div class="admin-gated-section" data-feature-id="adv_score_bars" data-feature-name="5-Engine Score Bars" data-feature-page="advisor" style="position:relative; margin-bottom:14px;">
+      <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;">
       ${scoreBar('FUND', r.fund_score||0, 25, 'var(--gold)')}
       ${scoreBar('GANN', r.gann_score||0, 20, 'var(--cyan)')}
       ${scoreBar('QUANT', r.quant_score||0, 20, 'var(--purple)')}
       ${scoreBar('NATAL', r.natal_score||0, 20, 'var(--green)')}
       ${scoreBar('PLANET', r.planet_score||0, 15, 'var(--orange)')}
+      </div>
     </div>
 
     <!-- ── TRADE LEVELS TILE ROW ─────────────────────────────────────────── -->
@@ -1119,7 +1177,8 @@ function buildRecCard(r, idx, totalAmount) {
         + (sub ? '<div style="font-family:Share Tech Mono,monospace;font-size:0.5rem;color:var(--dim);margin-top:2px;">' + sub + '</div>' : '')
         + '</div>';
 
-      return '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;margin-bottom:14px;">'
+      return '<div class="admin-gated-section" data-feature-id="adv_trade_levels" data-feature-name="Actionable Trade Corridor & P&L" data-feature-page="advisor" style="position:relative; margin-bottom:14px;">'
+        + '<div style="display:grid;grid-template-columns:repeat(8,1fr);gap:5px;">'
         + tile('CMP',        fmt(cmp),   'LIVE PRICE',               'var(--cyan)',  'rgba(0,212,255,0.04)')
         + tile('ENTRY',      fmt(entry), entryPctStr,                'var(--green)', 'rgba(0,255,136,0.04)')
         + tile('STOP LOSS',  fmt(sl),    slPct !== '—' ? slPct + '%' : '',  'var(--red)',   'rgba(255,68,68,0.04)')
@@ -1128,6 +1187,7 @@ function buildRecCard(r, idx, totalAmount) {
         + tile('R : R',      rr !== '—' ? '1 : ' + rr : '—', 'RISK REWARD',       rrCol,         'rgba(0,0,0,0.2)')
         + tile('MAX PROFIT', maxProfit !== '—' ? '₹' + maxProfit : '—', shares > 0 ? shares + ' shares' : '', 'var(--green)', 'rgba(0,255,136,0.04)')
         + tile('MAX LOSS',   maxLoss   !== '—' ? '₹' + maxLoss   : '—', 'AT SL HIT',  'var(--red)',   'rgba(255,68,68,0.04)')
+        + '</div>'
         + '</div>';
     })()}
 
@@ -1144,7 +1204,7 @@ function buildRecCard(r, idx, totalAmount) {
     })()}
 
     <!-- Combined Signal bar — all 5 engines -->
-    <div style="background:rgba(0,0,0,0.3);border:1px solid var(--b2);border-radius:3px;padding:10px 14px;margin-bottom:14px;">
+    <div class="admin-gated-section" data-feature-id="adv_combined_signal" data-feature-name="Combined Signal Matrix" data-feature-page="advisor" style="position:relative; background:rgba(0,0,0,0.3);border:1px solid var(--b2);border-radius:3px;padding:10px 14px;margin-bottom:14px;">
       <div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--dim);letter-spacing:2px;margin-bottom:8px;">🌌 COMBINED SIGNAL — ALL ENGINES</div>
       <div style="display:grid;grid-template-columns:repeat(5,1fr);gap:6px;margin-bottom:8px;">
         <div style="text-align:center;background:var(--p2);border:1px solid rgba(255,204,0,0.25);padding:6px 4px;">
@@ -1176,7 +1236,7 @@ function buildRecCard(r, idx, totalAmount) {
           <div style="width:${r.confidence}%;height:100%;background:${r.confidence>=70?'var(--green)':r.confidence>=50?'var(--gold)':'var(--red)'};border-radius:3px;transition:width 1s;"></div>
         </div>
       </div>
-    </div>`;
+    </div>` + '</div>';
 
     if (r.sector_index) {
       const sit = r.sector_index_trend || 'UNKNOWN';
@@ -1184,7 +1244,7 @@ function buildRecCard(r, idx, totalAmount) {
       const divWarn = r.sector_divergence_warning || '';
       const sitCol = sit === 'BULLISH' ? 'var(--green)' : sit === 'BEARISH' ? 'var(--red)' : 'var(--gold)';
       const sitIcon = sit === 'BULLISH' ? '\uD83D\uDFE2' : sit === 'BEARISH' ? '\uD83D\uDD34' : '\uD83D\uDFE1';
-      el.innerHTML += '<div style="margin-top:12px;padding:8px;background:rgba(0,0,0,0.3);border-radius:4px;display:flex;align-items:center;gap:12px;">'
+      el.innerHTML += '<div class="admin-gated-section" data-feature-id="adv_sector_index" data-feature-name="Sector Index & Divergence" data-feature-page="advisor" style="position:relative; margin-top:12px;padding:8px;background:rgba(0,0,0,0.3);border-radius:4px;display:flex;align-items:center;gap:12px;">'
         + '<span style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--dim);">SECTOR INDEX:</span>'
         + '<span style="font-family:Share Tech Mono,monospace;font-size:0.7rem;color:var(--cyan);">' + (r.sector_index||'') + '</span>'
         + '<span style="font-family:Share Tech Mono,monospace;font-size:0.75rem;font-weight:700;color:' + sitCol + ';">'
@@ -1196,7 +1256,7 @@ function buildRecCard(r, idx, totalAmount) {
 
     el.innerHTML += `
 <!-- 3-column details -->
-    <div class="g2" style="margin-bottom:14px;">
+    <div class="g2 admin-gated-section" data-feature-id="adv_reasons_regime" data-feature-name="Buy/Sell Signals & Planetary Regime" data-feature-page="advisor" style="position:relative; margin-bottom:14px;">
       <!-- Buy reasons -->
       <div>
         <div style="font-size:0.65rem;color:var(--green);letter-spacing:1px;margin-bottom:6px;font-family:Share Tech Mono,monospace;">o. REASONS TO BUY</div>
@@ -1308,7 +1368,48 @@ function buildRecCard(r, idx, totalAmount) {
           + '</div>';
       }
 
-      return '<div style="padding:12px 14px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.2);border-left:3px solid '+confCol+';margin-bottom:14px;">'
+      const isContSetup = r.pattern_archetype === 'CONTINUATION' || r.strategy_type === 'TREND_PULLBACK_CONTINUATION';
+      if (isContSetup) {
+        const cProb = Math.round((r.ai_continuation_prob || 0.68) * 100);
+        const cProbCol = cProb >= 65 ? 'var(--green)' : cProb >= 50 ? '#ffaa33' : 'var(--red)';
+        const cVerdict = (r.ai_verdict || 'HIGH_PROBABILITY_CONTINUATION').replace(/_/g, ' ');
+        return '<div class="admin-gated-section" data-feature-id="adv_ml_deep_signal" data-feature-name="ML Deep Signal & Continuation Engine" data-feature-page="advisor" style="position:relative; padding:12px 14px;background:rgba(255,140,0,0.04);border:1px solid rgba(255,140,0,0.25);border-left:3px solid #ff9900;margin-bottom:14px;">'
+          + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:#ffaa33;letter-spacing:2px;">⚡ AI CONTINUATION & PULLBACK ENGINE (XGBoost + PyTorch Deep MLP)</div>'
+          + '<span style="font-family:Share Tech Mono,monospace;font-size:0.52rem;background:rgba(255,140,0,0.1);border:1px solid rgba(255,140,0,0.3);color:#ffaa33;padding:1px 6px;">20-EMA DIP & RIP</span>'
+          + '<span style="font-family:Share Tech Mono,monospace;font-size:0.52rem;background:rgba(0,255,136,0.1);border:1px solid rgba(0,255,136,0.3);color:var(--green);padding:1px 6px;">ENSEMBLE BENCHMARKED (AUC 0.787)</span>'
+          + '</div>'
+          + '<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:10px;">'
+          + '<div style="background:var(--p2);border:1px solid rgba(0,0,0,0.3);padding:8px 10px;text-align:center;">'
+          + '<div style="font-family:Orbitron,sans-serif;font-size:0.85rem;font-weight:900;color:var(--green);">BULL CONTINUATION</div>'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:0.52rem;color:var(--dim);letter-spacing:1px;margin-top:3px;">PATTERN ARCHETYPE</div>'
+          + '</div>'
+          + '<div style="background:var(--p2);border:1px solid rgba(0,0,0,0.3);padding:8px 10px;text-align:center;">'
+          + '<div style="font-family:Orbitron,sans-serif;font-size:0.9rem;font-weight:900;color:'+cProbCol+';">'+cProb+'%</div>'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:0.52rem;color:var(--dim);letter-spacing:1px;margin-top:3px;">AI CONTINUATION PROB</div>'
+          + '<div style="height:3px;background:rgba(255,255,255,0.06);margin-top:4px;border-radius:2px;">'
+          + '<div style="width:'+cProb+'%;height:100%;background:'+cProbCol+';border-radius:2px;"></div></div>'
+          + '</div>'
+          + '<div style="background:var(--p2);border:1px solid rgba(0,0,0,0.3);padding:8px 10px;text-align:center;">'
+          + '<div style="font-family:Orbitron,sans-serif;font-size:0.9rem;font-weight:900;color:var(--gold);">₹'+Number(r.entry||r.price||0).toLocaleString("en-IN",{maximumFractionDigits:2})+'</div>'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:0.52rem;color:var(--dim);letter-spacing:1px;margin-top:3px;">20-EMA / ZONE ENTRY</div>'
+          + '</div>'
+          + '<div style="background:var(--p2);border:1px solid rgba(0,0,0,0.3);padding:8px 10px;text-align:center;">'
+          + '<div style="font-family:Orbitron,sans-serif;font-size:0.85rem;font-weight:900;color:var(--cyan);">'+cVerdict+'</div>'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:0.52rem;color:var(--dim);letter-spacing:1px;margin-top:3px;">AI VERDICT</div>'
+          + '</div>'
+          + '</div>'
+          + '<div style="display:flex;align-items:center;gap:10px;">'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--dim);white-space:nowrap;">High-confidence test precision:</div>'
+          + '<div style="flex:1;height:5px;background:rgba(255,255,255,0.06);border-radius:3px;">'
+          + '<div style="width:60%;height:100%;background:var(--green);border-radius:3px;"></div></div>'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:0.62rem;color:var(--green);">60.1% Win Rate (2.6x Edge over random)</div>'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--gold);margin-left:10px;">Target: Swing High ₹'+Number(r.target1||0).toLocaleString("en-IN")+'</div>'
+          + '</div>'
+          + '</div>';
+      }
+
+      return '<div class="admin-gated-section" data-feature-id="adv_ml_deep_signal" data-feature-name="ML Deep Signal & Continuation Engine" data-feature-page="advisor" style="position:relative; padding:12px 14px;background:rgba(0,212,255,0.04);border:1px solid rgba(0,212,255,0.2);border-left:3px solid '+confCol+';margin-bottom:14px;">'
         // Header row
         + '<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">'
         + '<div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;color:var(--cyan);letter-spacing:2px;">🤖 ML DEEP SIGNAL ENGINE v4.0</div>'
@@ -1371,7 +1472,7 @@ function buildRecCard(r, idx, totalAmount) {
       };
       const col = phaseColors[wp] || 'var(--dim)';
       const lbl = phaseLabels[wp] || wp;
-      return '<div style="padding:10px 14px;background:var(--p2);border:1px solid var(--border);'
+      return '<div class="admin-gated-section" data-feature-id="adv_tech_momentum" data-feature-name="Tech Momentum & Wyckoff Accumulation" data-feature-page="advisor" style="position:relative; padding:10px 14px;background:var(--p2);border:1px solid var(--border);'
         +'border-left:3px solid '+col+';margin-bottom:14px;">'
         +'<div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;letter-spacing:2px;'
         +'margin-bottom:6px;color:var(--cyan);">📈 TECH MOMENTUM ANALYSIS</div>'
@@ -1382,7 +1483,7 @@ function buildRecCard(r, idx, totalAmount) {
     })()}
 
     <!-- ── Sentiment + Bulk/Block Deal Intelligence ── -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+    <div class="admin-gated-section" data-feature-id="adv_news_institutional" data-feature-name="FinBERT News & Bulk/Block Deals" data-feature-page="advisor" style="position:relative; display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
       <!-- News Sentiment -->
       <div style="padding:10px 14px;background:var(--p2);border:1px solid var(--border);border-left:3px solid ${(()=>{const s=r.news_score;return s==null?'var(--dim)':s>=0.2?'var(--green)':s<=-0.2?'var(--red)':'var(--gold)'})()};">
         <div style="font-family:Share Tech Mono,monospace;font-size:0.6rem;letter-spacing:2px;margin-bottom:6px;color:var(--cyan);">🗞 NEWS SENTIMENT (30d)</div>
@@ -1438,7 +1539,7 @@ function buildRecCard(r, idx, totalAmount) {
     </div>
 
     <!-- Gann + Simons Price & Date Trigger card -->
-    <div style="background:rgba(0,0,0,0.25);border:1px solid var(--cyan);border-radius:3px;padding:12px 16px;margin-bottom:14px;">
+    <div class="admin-gated-section" data-feature-id="adv_gann_simons_trigger" data-feature-name="Gann + Simons Trigger & Session Reversals" data-feature-page="advisor" style="position:relative; background:rgba(0,0,0,0.25);border:1px solid var(--cyan);border-radius:3px;padding:12px 16px;margin-bottom:14px;">
       <div style="font-family:Orbitron,sans-serif;font-size:0.7rem;color:var(--cyan);letter-spacing:2px;margin-bottom:4px;">
         s GANN + SIMONS TRIGGER — PRICE OR DATE, WHICHEVER COMES FIRST
       </div>
@@ -1507,7 +1608,7 @@ function buildRecCard(r, idx, totalAmount) {
     </div>
 
     <!-- Charts row — click any chart to expand -->
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:4px;">
+    <div class="admin-gated-section" data-feature-id="adv_charts_projections" data-feature-name="Projections & S/R Charts" data-feature-page="advisor" style="position:relative; display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:4px;">
       <div>
         <div style="font-size:0.6rem;color:var(--dim);letter-spacing:1px;margin-bottom:4px;font-family:Share Tech Mono,monospace;">
           PRICE PROJECTION <span style="color:var(--cyan);cursor:pointer;" onclick="expandChart('adv-proj-${idx}','adv-proj-modal-${idx}')">⛶ EXPAND</span>
@@ -1962,7 +2063,7 @@ function renderAdvisorPlanner(d) {
       <div style="font-family:Share Tech Mono,monospace;font-size:0.75rem;color:var(--dim);">
         All candidates filtered by active Risk Gates (max positions limit or correlation limits exceeded).
       </div>
-    </div>`;
+    </div>` + '</div>';
     return;
   }
 
@@ -2083,7 +2184,7 @@ async function deployPlannerPlan() {
   }
   
   alert('Successfully deployed ' + successCount + ' out of ' + data.plan.length + ' positions!');
-  nav('trading');
-  setTimeout(() => { if (typeof loadDematPortfolio === 'function') loadDematPortfolio(); }, 200);
+  nav('portfolio');
+  setTimeout(() => { if (typeof loadPortfolio === 'function') loadPortfolio(); }, 200);
 }
 """
