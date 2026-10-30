@@ -59,25 +59,33 @@ When the broader market (NIFTY 50) goes flat, the engine scans for highly cointe
 
 ---
 
-## 🗄️ Database Architecture
+## Database Architecture
 
-To achieve sub-millisecond query times on massive tick data while maintaining structured relational data, Vprofitables uses a **Hybrid Database Architecture**:
+The application currently uses two local database files for distinct paths. The
+main `market_data_v2.db` SQLite file is the operational source of truth for
+account/portfolio state, daily and intraday market history, option-chain data,
+signals, news and ingestion records. SQLite is opened in WAL mode for local
+read/write operation. The separate `data/market_data_1m.duckdb` database is
+used by `core.timeseries_db` for the optional Yahoo Finance 1-minute poller and
+VWAP strategy path. This DuckDB path is not the storage backend for the main
+SQLite history tables.
 
-```mermaid
-graph TD
-    A[Vprofitables Engine] -->|High-Frequency Tick Data| B[(DuckDB)]
-    A -->|State & Portfolio Data| C[(SQLite3)]
-    
-    B --> D[1-Minute Price Poller]
-    B --> E[Cumulative Volume Delta / OFI]
-    
-    C --> F[EOD Historical Prices]
-    C --> G[Forward Signals & Orders]
-    C --> H[Planetary/Natal Ephemeris]
-```
+The local analytical pilot can be built with
+`python scripts/build_analytics_snapshot.py`. It opens SQLite read-only,
+exports a six-year daily-price snapshot (with a buffer for five-year horizons) as versioned Parquet files under
+`data/analytics/daily_prices/`, checks aggregate parity, and records SQLite vs
+DuckDB query timings in the snapshot manifest. The active snapshot pointer is
+published only after validation; prior snapshots are retained. Generated
+analytical snapshots are ignored by Git and can be rebuilt from SQLite.
 
-*   **DuckDB:** Acts as our in-memory OLAP engine. It ingests 1-minute polled data and calculates Cumulative Volume Delta (CVD) proxies on the fly.
-*   **SQLite3:** Acts as our persistent OLTP store, managing user portfolios, swing-trade forward signals, and the heavy daily EOD caching.
+The measured pilot on 29 October 2026 exported 696,037 rows across six years
+in about 42 seconds. A five-year nearest-close ranking query was slower on the
+Parquet snapshot than SQLite (about 0.093 seconds vs 0.040 seconds), so that UI
+path remains on SQLite. A full-universe three-year ML price-row read was about
+1.68x faster on DuckDB/Parquet (2.08 vs 3.51 seconds) with exact row parity,
+below the pilot's 2x adoption gate. The Parquet lane therefore remains an
+opt-in, measured pilot and is not yet used by production calculations. Keep
+SQLite authoritative for user and portfolio writes.
 
 ---
 

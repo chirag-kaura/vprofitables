@@ -28,8 +28,10 @@ venv.bak/
 
 # Project specific
 *.db
+*.db-*
 *.sqlite3
 *.xlsx
 *.csv
 logs/
+data/analytics/
 .DS_Store

@@ -18,6 +18,9 @@ import chromadb
 
 # Path configurations
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+import sys
+sys.path.insert(0, BASE_DIR)
+from core.paths import get_db_connection as _open_sqlite_connection
 DB_PATH = os.path.join(BASE_DIR, "market_data_v2.db")
 CHROMA_PATH = os.path.join(BASE_DIR, "chroma_db")
 COLLECTION_NAME = "ohlc_rag_documents"
@@ -53,7 +56,7 @@ def get_ohlc_collection():
 
 def load_candles_from_db(symbol: str, limit_days: int = 180) -> pd.DataFrame:
     """Loads daily OHLC candles from SQLite daily_prices table."""
-    conn = sqlite3.connect(DB_PATH)
+    conn = _open_sqlite_connection(readonly=True, path=DB_PATH)
     query = """
         SELECT symbol, trade_date, open, high, low, close, volume, 
                change_pct, vwap, deliverable_qty, deliverable_pct

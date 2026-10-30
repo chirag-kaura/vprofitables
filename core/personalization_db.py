@@ -10,28 +10,13 @@ from datetime import datetime
 
 
 
-from core.paths import DB_PATH
+from core.paths import DB_PATH, get_db_connection as _open_sqlite_connection
 
 
 
 def get_db_connection(timeout: float = 30.0):
-
-    conn = sqlite3.connect(DB_PATH, timeout=timeout)
-
+    conn = _open_sqlite_connection(timeout=timeout)
     conn.row_factory = sqlite3.Row
-
-    try:
-
-        conn.execute("PRAGMA journal_mode = WAL")
-
-        conn.execute("PRAGMA busy_timeout = 30000")
-
-        conn.execute("PRAGMA foreign_keys = ON")
-
-    except Exception:
-
-        pass
-
     return conn
 
 

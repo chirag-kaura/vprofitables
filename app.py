@@ -7,6 +7,7 @@ os.environ["KMP_DUPLICATE_LIB_OK"] = "TRUE"
 os.environ["OMP_NUM_THREADS"] = "1"
 import gzip, hashlib
 import sqlite3                          # used throughout route() — imported once here
+from core.paths import get_db_connection as _open_sqlite_connection
 from datetime import date, timedelta, datetime
 from typing import Dict, Any
 
@@ -350,16 +351,11 @@ def _db(timeout: int = 30) -> sqlite3.Connection:
     ``import sqlite3 as _sq3; _db()`` inline.
     Caller is responsible for closing the connection.
     """
-    conn = sqlite3.connect(DB_PATH, timeout=timeout)
-    try:
-        conn.execute("PRAGMA busy_timeout=30000")
-        conn.execute("PRAGMA journal_mode=WAL")
-        conn.execute("PRAGMA synchronous=NORMAL")
-        conn.execute("PRAGMA cache_size=-8000")   # 8 MB per connection
-        conn.execute("PRAGMA temp_store=MEMORY")
-    except Exception:
-        pass
-    return conn
+    return _open_sqlite_connection(
+        timeout=timeout,
+        path=DB_PATH,
+        cache_size_kib=8192,
+    )
 
 def _get_user_portfolio_id(conn, user_id):
     row = conn.execute("SELECT id FROM portfolios WHERE user_id=? AND name='Primary'", (user_id,)).fetchone()
@@ -518,7 +514,8 @@ def _get_portfolio_ai_insights(conn, user_id: str) -> dict:
 def _get_overview_data(section: str = "all") -> dict:
     """Fetch market overview data, skipping discovery computation for the initial dashboard."""
     section = (section or "all").strip().lower()
-    cache_key = f"overview_data:{section}"
+    from core.data_versions import get_data_version
+    cache_key = f"overview_data:{section}:{get_data_version('daily_prices')}"
     cached_res = _ram_cache_get(cache_key, ttl_seconds=30.0)
     if cached_res is not None:
         return cached_res
@@ -624,6 +621,12 @@ def _get_overview_data(section: str = "all") -> dict:
             "fallback": bool(max_dt != latest_data_dt),
             "selection_note": (f"Latest date has {latest_coverage}/{best_coverage} tracked equity rows; using {max_dt} for comparable market rankings." if max_dt != latest_data_dt else "Latest date meets the recent coverage threshold.")
         }
+        try:
+            from core.local_analytics import snapshot_status
+            res["meta"]["analytics_snapshot"] = snapshot_status(latest_data_dt, latest_update[0] if latest_update else None)
+        except Exception:
+            # The analytical snapshot is optional and never blocks the SQLite UI.
+            res["meta"]["analytics_snapshot"] = {"available": False, "reason": "status_unavailable"}
         
         if section in {"discovery", "all"}:
             # 1. Gainers (Strictly Equities only, no indices or commodities)

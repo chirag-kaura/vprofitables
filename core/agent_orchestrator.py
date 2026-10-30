@@ -27,6 +27,7 @@ import sqlite3
 from typing import Dict, Any, List, Optional, Tuple, TypedDict
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+from core.paths import get_db_connection as _open_sqlite_connection
 
 # LangChain Tools
 from core.tools.market_tool import scan_market_momentum_tool
@@ -124,7 +125,7 @@ def extract_comparison_candidates(query: str) -> Tuple[Optional[str], Optional[s
 def get_top_fundamental_screener(metric: str = "net_profit", limit: int = 5) -> List[Dict[str, Any]]:
     """Query company_financials_10y for top audited companies by profit, sales, or margins."""
     db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "market_data_v2.db")
-    conn = sqlite3.connect(db_path)
+    conn = _open_sqlite_connection(readonly=True, path=db_path)
     cur = conn.cursor()
 
     order_clause = "net_profit DESC"
@@ -174,7 +175,7 @@ def get_top_fundamental_screener(metric: str = "net_profit", limit: int = 5) -> 
 def get_index_snapshot(symbol: str) -> Dict[str, Any]:
     """Retrieve verified benchmark index closing levels, daily range, and 52W stats."""
     db_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "market_data_v2.db")
-    conn = sqlite3.connect(db_path)
+    conn = _open_sqlite_connection(readonly=True, path=db_path)
     cur = conn.cursor()
     cur.execute("""
         SELECT trade_date, open, high, low, close, change_pct 

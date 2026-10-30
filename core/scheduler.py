@@ -11,6 +11,7 @@ import threading
 import time
 import os
 import sys
+import uuid
 from datetime import date, datetime, timedelta, timezone
 from typing import Optional
 
@@ -23,23 +24,20 @@ except ImportError:
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(__file__)))
 
-from core.paths import DB_PATH
+from core.paths import DB_PATH, get_db_connection
 
 
 def _get_db(path=None):
     """
-    Open SQLite with performance PRAGMAs.
-    WAL mode: app reads are never blocked by download_history.py writes.
-    32MB cache + 256MB mmap: fast queries on 10M+ row daily_prices table.
+    Open SQLite with the shared connection policy and a scheduler-sized cache.
+    WAL mode is initialized once at database startup. Avoid reserving a 256 MB
+    mapping on every scheduler connection; these connections are short-lived.
     """
-    conn = sqlite3.connect(path or DB_PATH, timeout=5)
-    conn.execute("PRAGMA journal_mode=WAL")
-    conn.execute("PRAGMA synchronous=NORMAL")
-    conn.execute("PRAGMA cache_size=-32000")    # 32 MB
-    conn.execute("PRAGMA temp_store=MEMORY")
-    conn.execute("PRAGMA mmap_size=268435456")  # 256 MB
-    conn.execute("PRAGMA busy_timeout=30000")   # 30s retry
-    return conn
+    return get_db_connection(
+        path=path or DB_PATH,
+        timeout=30.0,
+        cache_size_kib=8192,
+    )
 
 
 # ── IST timezone ──────────────────────────────────────────────────────────────
@@ -122,6 +120,8 @@ def init_db():
       - `risk_settings` table: now keyed by user_id (not a single global row).
         Migration adds user_id column if the table already exists.
     """
+    from core.paths import initialize_database
+    initialize_database(DB_PATH)
     conn = _get_db()
     c = conn.cursor()
 
@@ -463,6 +463,8 @@ def cache_prices(prices: dict, trade_date: date):
     conn = _get_db()
     c = conn.cursor()
     now = ist_now_naive().isoformat()
+    from datetime import datetime, timezone
+    fetched_at = datetime.now(timezone.utc).isoformat()
     for sym, p in prices.items():
         c.execute("""
             INSERT OR REPLACE INTO daily_prices
@@ -471,8 +473,22 @@ def cache_prices(prices: dict, trade_date: date):
         """, (sym, trade_date.isoformat(),
               p.get('open'), p.get('high'), p.get('low'), p.get('close'),
               p.get('volume'), p.get('change_pct'), now))
+    if prices:
+        c.execute("""
+            INSERT INTO data_ingest_runs
+                (run_id, dataset, source, started_at_utc, completed_at_utc,
+                 observed_date, rows_written, status, details_json)
+            VALUES (?, 'daily_prices', 'yfinance', ?, ?, ?, ?, 'success', ?)
+        """, (
+            str(uuid.uuid4()), fetched_at, datetime.now(timezone.utc).isoformat(),
+            trade_date.isoformat(), len(prices),
+            json.dumps({"interval": "1d", "request_window": "5d", "adjusted": True}, separators=(",", ":")),
+        ))
     conn.commit()
     conn.close()
+    if prices:
+        from core.data_versions import bump_data_version
+        bump_data_version("daily_prices")
     invalidate_price_cache()   # flush stale in-process cache after DB write
 
 
@@ -924,6 +940,8 @@ def run_eod_update(verbose: bool = True):
             print(f"  [SCHED] Incremental history + pivots refreshed for {len(updated_syms)} symbols")
     except ImportError:
         pass  # download_history not available
+    from core.data_versions import bump_data_version
+    bump_data_version("daily_prices")
 
     # ── 5. Auto-fetch today's bulk/block deals (v3.9 — 3-source auto-fetcher) ──
     deals_saved = 0

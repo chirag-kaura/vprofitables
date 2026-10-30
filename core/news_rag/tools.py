@@ -19,6 +19,7 @@ from langchain_core.tools import tool
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from core.ohlc_rag.chunker import DB_PATH
+from core.paths import get_db_connection as _open_sqlite_connection
 
 
 @tool
@@ -27,7 +28,7 @@ def news_recent_headlines(symbol: str, limit: int = 5) -> str:
     Retrieves the most recent news headlines, publication dates, sources, and sentiment labels for a stock symbol.
     """
     sym = symbol.strip().upper()
-    conn = sqlite3.connect(DB_PATH)
+    conn = _open_sqlite_connection(readonly=True, path=DB_PATH)
     query = """
         SELECT published_at, title, source, label, raw_score
         FROM news_sentiment
@@ -59,7 +60,7 @@ def news_sentiment_summary(symbol: str) -> str:
     Provides bullish/bearish ratio, average sentiment score, and risk flags (regulatory, guidance, management).
     """
     sym = symbol.strip().upper()
-    conn = sqlite3.connect(DB_PATH)
+    conn = _open_sqlite_connection(readonly=True, path=DB_PATH)
     query = """
         SELECT label, raw_score, finbert_prob_bullish, 
                is_guidance_raised, is_regulatory_risk, is_management_change
@@ -106,7 +107,7 @@ def news_explain_price_move(symbol: str, days: int = 5) -> str:
     Use this when the user asks WHY a stock dropped, fell, or gained.
     """
     sym = symbol.strip().upper()
-    conn = sqlite3.connect(DB_PATH)
+    conn = _open_sqlite_connection(readonly=True, path=DB_PATH)
     
     # Get price move
     p_query = """

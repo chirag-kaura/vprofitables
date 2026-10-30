@@ -102,3 +102,8 @@
 2026-10-29 03:32:03,672  INFO    [Ensemble ML] Loaded state with 252 samples in rolling buffer.
 2026-10-29 03:32:04,401  INFO    [1/1] 2026-10-28: Saved 2711 records.
 2026-10-29 08:47:32,400  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-29 17:00:33,038  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-29 22:24:42,091  INFO    Equity Bhavcopy: 0 days to fetch.
+2026-10-30 14:40:02,903  INFO    Equity Bhavcopy: 1 days to fetch.
+2026-10-30 14:40:06,234  INFO    [Ensemble ML] Loaded state with 252 samples in rolling buffer.
+2026-10-30 14:40:06,725  INFO    [1/1] 2026-10-29: Saved 2712 records.

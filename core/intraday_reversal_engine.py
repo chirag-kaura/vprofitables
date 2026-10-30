@@ -23,10 +23,11 @@ DB_PATH  = os.path.join(BASE_DIR, "market_data_v2.db")
 
 sys.path.insert(0, BASE_DIR)
 from data.instruments import ALL_INSTRUMENTS
+from core.paths import get_db_connection as _open_sqlite_connection
 
 def get_intraday_data(symbol: str, target_date: str, interval: str = "5m") -> pd.DataFrame:
     """Fetch 5m or 15m candles for a specific date from SQLite DB."""
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = _open_sqlite_connection(readonly=True, timeout=10, path=DB_PATH)
     query = """
         SELECT candle_time, open, high, low, close, volume, vwap
         FROM intraday_prices
@@ -88,7 +89,7 @@ def detect_intraday_reversals(symbol: str, target_date: Optional[str] = None, in
     candlestick liquidity rejection, and astro alignment.
     """
     if not target_date:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = _open_sqlite_connection(readonly=True, timeout=5, path=DB_PATH)
         row = conn.execute("SELECT SUBSTR(candle_time, 1, 10) FROM intraday_prices WHERE symbol=? ORDER BY candle_time DESC LIMIT 1", (symbol,)).fetchone()
         conn.close()
         target_date = row[0] if row else datetime.now().strftime("%Y-%m-%d")
@@ -118,7 +119,7 @@ def detect_intraday_reversals(symbol: str, target_date: Optional[str] = None, in
     # 1. Fetch Option Chain Support & Resistance Walls for that date
     pe_wall, ce_wall, max_pain = None, None, None
     try:
-        conn = sqlite3.connect(DB_PATH, timeout=5)
+        conn = _open_sqlite_connection(readonly=True, timeout=5, path=DB_PATH)
         p_row = conn.execute("""
             SELECT max_pain FROM pcr_summary 
             WHERE symbol = ? AND trade_date <= ? ORDER BY trade_date DESC LIMIT 1
@@ -314,7 +315,7 @@ def detect_intraday_reversals(symbol: str, target_date: Optional[str] = None, in
 
 def get_time_of_day_distribution(symbol: str, interval: str = "5m") -> Dict:
     """Computes historical probability of Day High and Day Low occurring by 30-min time buckets."""
-    conn = sqlite3.connect(DB_PATH, timeout=10)
+    conn = _open_sqlite_connection(readonly=True, timeout=10, path=DB_PATH)
     df = pd.read_sql_query("""
         SELECT candle_time, high, low
         FROM intraday_prices
